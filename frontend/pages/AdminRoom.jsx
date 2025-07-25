@@ -6,24 +6,25 @@ import { useState } from "react";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import PopUp from "../src/components/PopUp";
 import TopBar from "../src/components/TopBar";
-import { Users, Notebook, Megaphone } from 'lucide-react';
+import { Users, Notebook, Megaphone, Book } from 'lucide-react';
 import Annoucements from "../src/components/AdminRoom/Announcements";
 import Submissions from "../src/components/AdminAssignment/Submissions";
 import Assignements from "../src/components/AdminRoom/Assignments";
 import Members from "../src/components/AdminRoom/Members";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import TopBanner from "../src/components/TopBanner";
+import Lessons from "../src/components/AdminRoom/Lessons";
 
 
 
 export default function AdminRoom() {
 
     const { roomId } = useParams();
-    
+
     const { popUp, setTitle, setScrollHeight } = useContext(UIContext);
     const [activeTab, setActiveTab] = useState('announcements');
 
-    
+
     useEffect(() => {
         setScrollHeight(100);
         setTitle('CSE23 Object Oriendted Programming');
@@ -32,15 +33,17 @@ export default function AdminRoom() {
 
     const tabs = [
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
+        { title: 'Lessons', keyword: 'lessons', icon: Book },
         { title: 'Assignments', keyword: 'assignments', icon: Notebook },
-        { title: 'Members', keyword: 'members', icon: Users }
+        { title: 'Members', keyword: 'members', icon: Users },
+
     ]
 
     return (
         <>
             <div className={`${popUp && 'transition duration-500 blur pointer-events-none'}`}>
                 <TopBanner
-                    
+
                 />
             </div>
             <TopBar
@@ -59,11 +62,17 @@ export default function AdminRoom() {
                         <Assignements
                             roomId={roomId}
                         />
-                    ) : (
+                    ) : activeTab === 'members' ? (
                         <Members
                             roomId={roomId}
                         />
-                    )}
+                    ) : activeTab === 'lessons' ? (
+                        <Lessons
+                            roomId={roomId}
+                        />
+                    ) :
+                        <> hi</>
+                    }
                 </div >
             </div >
         </>

@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const assignment = require('./assignment.js');
+const lessons = require('./lessons.js');
 
 
 const sequelize = new Sequelize({
@@ -15,6 +16,8 @@ const Assignment = require('./assignment.js')(sequelize , DataTypes);
 const Submission = require('./submissions.js')(sequelize,DataTypes);
 const Problem = require('./problems.js')(sequelize,DataTypes)
 const Announcement = require('./announcements.js') (sequelize, DataTypes)
+const Lesson = require('./lesson.js') (sequelize , DataTypes);
+const LessonM = require('../models/lessons');
 
 User.hasMany(Rooms, {foreignKey : 'userId'})
 Rooms.belongsTo(User, {foreignKey : 'userId'})
@@ -35,11 +38,11 @@ Rooms.belongsToMany(User, {
 Rooms.hasMany(Announcement , {foreignKey : 'roomId',onDelete : 'CASCADE',onUpdate :'CASCADE'})
 Announcement.belongsTo(Rooms, {foreignKey : 'roomId'} )
 
-
-
 Assignment.belongsTo(Rooms, {foreignKey : 'roomId'});
 Rooms.hasMany(Assignment , {foreignKey :'roomId',onDelete : 'CASCADE' ,onUpdate: 'CASCADE'});
 
+Lesson.belongsTo(Rooms, {foreignKey : 'roomId'});
+Rooms.hasMany(Lesson , {foreignKey :'roomId',onDelete : 'CASCADE' ,onUpdate: 'CASCADE'});
 
 RoomMembers.belongsTo(User, { foreignKey: 'userId' });
 RoomMembers.belongsTo(Rooms, { foreignKey: 'roomId' });
@@ -53,7 +56,7 @@ User.hasMany(Submission, {foreignKey : 'userId',onDelete : 'CASCADE',onUpdate : 
 Assignment.hasMany(Problem , {foreignKey : 'assignmentId'})
 Problem.belongsTo(Assignment , {foreignKey : 'assignmentId'})
 
-module.exports = { sequelize, User,Admin, Rooms, RoomMembers,Assignment,Submission,Problem, Announcement};
+module.exports = { sequelize, User,Admin, Rooms, RoomMembers,Assignment,Submission,Problem, Announcement ,Lesson , LessonM};
 
 (async () => {
   try {

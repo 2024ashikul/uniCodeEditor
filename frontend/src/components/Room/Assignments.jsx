@@ -39,7 +39,7 @@ export default function Assignements({ roomId }) {
                                   hover:bg-slate-300
                                     "
                             key={i}
-                            onClick={() => navigate(`/user/assignment/${item.id}`)}>
+                            onClick={() => navigate(`/assignment/${item.id}`)}>
 
                             <div className="px-4 py-2 flex-1">{i+1}</div>
                             <div className="px-4 py-2 flex-1">{item.title}</div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import NullComponent from "../NullComponent";
 
 
 
@@ -25,10 +26,14 @@ export default function Submissions({ assignmentId }) {
 
             </div>
 
-            There are total of {submissions?.length} submissions
+            
             <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                {submissions?.length === 0 ? 'no SUbmittiosn found' :
-
+                {submissions?.length === 0 ? 
+                <NullComponent
+                
+text={'No submissions found'}                />
+                :
+                    
                     submissions.map((item) => (
                         <div key={item?.id} className="shadow-sm items-center rounded-2xl px-4 gap-2 flex cursor-pointer transition w-full 
                                     hover:bg-slate-300  ">

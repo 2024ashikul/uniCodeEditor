@@ -3,9 +3,25 @@ const { Assignment, Submission, User, Problem } = require("../models");
 const { Op, where } = require('sequelize');
 
 exports.addAssignment = async (req, res) => {
-    const { roomId, form } = req.body;
-    console.log({ roomId, form });
+    const { roomId, form, assignmentId } = req.body;
+    console.log({ roomId, form,assignmentId });
     try {
+
+        if (assignmentId) {
+            const existingAssignment = await Assignment.findOne({
+                where : {id: assignmentId}
+            });
+            existingAssignment.title = form.title;
+            existingAssignment.description = form.description;
+            await existingAssignment.save();
+            const updatedAssignment = existingAssignment;
+            if(existingAssignment){
+                return res.status(201).json({updatedAssignment , message : 'Assingment updated successfully'});
+            }else{
+                return res.status(404).json({ message : 'Assingment not found'});
+            }
+
+        }
         const newAssignment = await Assignment.create({
             roomId: roomId,
             title: form.title,
@@ -63,7 +79,7 @@ exports.fetchAssignmentsUser = async (req, res) => {
 
 exports.changeSchedule = async (req, res) => {
     const { assignmentId, form } = req.body;
-    console.log({ assignmentId, form  });
+    console.log({ assignmentId, form });
     try {
         const assignment = await Assignment.findOne({
             where: {
@@ -71,16 +87,16 @@ exports.changeSchedule = async (req, res) => {
             }
         });
 
-        if (form.assigned =='false') {
+        if (form.assigned == 'false') {
             assignment.scheduleTime = null;
             assignment.status = 'not assigned';
             assignment.duration = null;
         } else {
             let datetime = form.datetime;
-            datetime= datetime.slice(0, 16);
+            datetime = datetime.slice(0, 16);
             assignment.scheduleTime = datetime;
             assignment.status = 'assigned';
-            assignment.duration =form.duration;
+            assignment.duration = form.duration;
         }
         await assignment.save();
         return res.status(201).json(assignment)
@@ -88,6 +104,7 @@ exports.changeSchedule = async (req, res) => {
         console.log(err)
     }
 }
+
 
 exports.fetchProblems = async (req, res) => {
     const { assignmentId } = req.body;
@@ -120,6 +137,48 @@ exports.createProblem = async (req, res) => {
         }
     } catch (err) {
         console.log(err)
+    }
+
+}
+
+exports.updateProblem = async (req, res) => {
+    const { editProblemId, form } = req.body;
+    try {
+        const problem = await Problem.findOne({
+            where: { id: editProblemId }
+        });
+        problem.title = form.title;
+        problem.statement = form.statement;
+        await problem.save();
+        if (problem) {
+            console.log('Problem Updated')
+            return res.status(201).json({ problem, message: 'Problem updated' })
+        } else {
+            console.log("error")
+            return res.status(404).json({ message: 'Could not update Problem' })
+        }
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Internal server error' })
+    }
+
+}
+
+exports.deleteProblem = async (req, res) => {
+    const { problemId } = req.body;
+    try {
+        const deletedCount = await Problem.destroy({
+            where: { id: problemId }
+        });
+
+        if (deletedCount > 0) {
+            return res.status(200).json({ message: 'Problem deleted' });
+        } else {
+            return res.status(404).json({ message: 'Problem not found or already deleted' });
+        }
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'could not perform the action' })
     }
 
 }
@@ -194,7 +253,7 @@ exports.fetchSubmissionsIndividual = async (req, res) => {
                 problemId: {
                     [Op.in]: ids
                 },
-                userId : userId
+                userId: userId
             },
             include: {
                 model: User,

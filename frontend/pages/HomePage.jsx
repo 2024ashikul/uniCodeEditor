@@ -1,61 +1,54 @@
 
 import { useContext } from "react";
-import { useState } from "react";
+
 
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
-
-
-
+import Fade from '@mui/material/Button';
 
 export default function HomePage() {
-    const [roomId, setRoomId] = useState(null);
-    const { userId, role } = useContext(AuthContext);
+
+
     const navigate = useNavigate();
     const { token } = useContext(AuthContext);
     console.log(token);
 
-
-    async function joinRoom() {
-        console.log(userId);
-        console.log(role);
-        await fetch('http://localhost:3000/joinroom', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ roomId, userId, role })
-        })
-            .then((res) => res.json())
-            .then((data) => { console.log(data);
-                if(data.message){
-                    navigate(`/room/${roomId}`);
-                }
-             })
-            .catch((err) => console.log(err))
-
-
-        //navigate(`/room/${roomId}`);
-    }
-
-
     return (
         <>
-            <div className="flex flex-col p-4">
-                <div className="text-2xl self-center">
-                    Welcome to Uni CoDE eDITOR
-                </div>
-                <div className="flex flex-col gap-2">
-                    
-                    <div onClick={() => navigate('/login')} className="px-8 py-2 bg-amber-300">  Login</div>
-                    <div onClick={() => navigate('/signup')} className="px-8 py-2 bg-amber-300">  Sign Up</div>
-                    <label for='room'></label>
-                    <input name="room" placeholder="join room" value={roomId} onChange={(e) => setRoomId(e.target.value)}>
 
-                    </input>
-                    <button onClick={joinRoom}>Join</button>
+
+            <div
+                className="min-h-screen bg-cover bg-center flex items-center justify-center px-6"
+                style={{ backgroundImage: "url('../pages/background.jpg')" }}
+            >
+                <div className="bg-black bg-opacity-60 rounded-2xl p-10 text-center shadow-2xl animate-fade-in">
+                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 animate-fade-down">
+                        Welcome to Uni Code Editor
+                    </h1>
+
+                    <div className="flex flex-col md:flex-row gap-4 justify-center mt-6 animate-fade-up">
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md transition">
+                            Log In
+                        </button>
+                        <button
+                            onClick={() => navigate('/signup')}
+
+                            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow-md transition">
+                            Sign Up
+                        </button>
+                        <button
+                            onClick={() => navigate('/editor')}
+                            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black rounded-xl shadow-md transition">
+                            Code Now
+                        </button>
+                    </div>
                 </div>
             </div>
+
+
+
         </>
     )
 }

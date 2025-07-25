@@ -1,8 +1,9 @@
 import { useContext, useEffect } from "react"
 import { UIContext } from "../Contexts/UIContext/UIContext"
+import { CircleX } from "lucide-react";
 
 
-export default function PopUp({ name, setName, onSubmit, onChange, extraFields, title, buttonTitle,ManualEdit,ManualCode }) {
+export default function PopUp({form, name, setName, onSubmit, onChange, extraFields, title, buttonTitle,ManualEdit,ManualCode }) {
     const { setPopUp } = useContext(UIContext);
     
     useEffect(()=>{
@@ -13,15 +14,18 @@ export default function PopUp({ name, setName, onSubmit, onChange, extraFields, 
     return (
         <>
             <div className={`${name ? 'opacity-100' : 'opacity-0'}
-             px-4   bg-fuchsia-100 py-2 z-50 ease-in-out transition duration-500 my-12 flex inset-0 mx-auto  top-10 flex-col h-[500px] w-[700px] border rounded-2xl fixed
+             px-4   bg-fuchsia-100 py-2 z-50 ease-in-out transition 
+             duration-500 my-12 flex inset-0 mx-auto  top-10 flex-col h-[500px]
+              w-[700px] border rounded-2xl fixed 
              `}
              >
-                <button className="ml-auto" onClick={() => { setName(false); setPopUp(false) }}>Close</button>
+                <button className="ml-auto" onClick={() => { setName(false); setPopUp(false) }}><CircleX 
+                    className="hover:text-red-500 cursor-pointer"
+                /></button>
                 <p className="text text-3xl self-center">{title}</p>
 
-
                 {ManualEdit ? ManualCode : 
-                <form method="POST" onSubmit={onSubmit} className="flex flex-col h-full gap-2 items-center justify-center" onChange={onChange}>
+                <form method="POST" onSubmit={onSubmit} className="flex flex-col h-full gap-2 items-center justify-center" >
                     <div className="px-10 py-6 w-full max-w-2xl mx-auto space-y-4  rounded-xl">
 
                         <div className="flex items-center gap-4">
@@ -30,10 +34,12 @@ export default function PopUp({ name, setName, onSubmit, onChange, extraFields, 
                             </label>
                             <input
                                 required
+                                 value={form?.title || ""}
                                 id="title"
                                 name="title"
                                 type="text"
                                 placeholder="Enter title"
+                                onChange={onChange}
                                 className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
@@ -44,9 +50,11 @@ export default function PopUp({ name, setName, onSubmit, onChange, extraFields, 
                                 Description
                             </label>
                             <textarea required
+                            value={form?.description || ""}
                                 id="description"
                                 name="description"
                                 placeholder="Enter description"
+                                onChange={onChange}
                                 className="flex-1 h-28 px-4 py-2 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>

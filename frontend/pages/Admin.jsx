@@ -86,7 +86,7 @@ export default function CreateRoom() {
                             {rooms.map((item, index) => (
                                 <tr
                                     key={index}
-                                    onClick={() => navigate(`/admin/room/${item.id}`)}
+                                    onClick={() => navigate(`/room/${item.id}`)}
                                     className="hover:bg-gray-50 cursor-pointer transition"
                                 >
                                     <td className="px-4 py-2 border-t">{item.id}</td>

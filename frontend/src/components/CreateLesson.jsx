@@ -1,0 +1,284 @@
+import { useContext, useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+import MDEditor from "@uiw/react-md-editor";
+import { AlertContext } from "../Contexts/AlertContext/AlertContext";
+import { useParams } from "react-router-dom";
+
+export default function CreateLesson() {
+    const {roomId} = useParams();
+
+  const [active, setActive] = useState("text");
+  const [content, setContent] = useState("");
+  const [contents, setContents] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [ title , setTitle] = useState(null);
+  const {setMessage , setType} = useContext(AlertContext);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
+
+
+  const createLesson = async() => {
+    try{
+        const res = await fetch('http://localhost:3000/createlesson',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title, contents ,roomId})
+        })
+        const data = res.json();
+        console.log(data)
+        if(res.ok){
+            setMessage('Lesson Created Succesfully')
+            setType('success')
+            
+        }else{
+            setMessage('Could not create new lesson')
+            setType('error')
+        }
+    }catch(err){
+        console.log(err);
+        setMessage('Could not connect to server')
+        setType('warning')
+    }
+  }
+
+
+
+  const handleAdd = () => {
+    if (!content.trim()) return;
+
+    if (editingIndex !== null) {
+      const updated = [...contents];
+      updated[editingIndex] = { type: active, content };
+      setContents(updated);
+      setEditingIndex(null);
+    } else {
+      setContents((prev) => [...prev, { type: active, content }]);
+    }
+
+    setContent("");
+  };
+
+  const handleDelete = (index) => {
+    setContents(contents.filter((_, i) => i !== index));
+    if (editingIndex === index) {
+      setEditingIndex(null);
+      setContent("");
+    }
+  };
+
+  const handleEdit = (index) => {
+    const item = contents[index];
+    setActive(item.type);
+    setContent(item.content);
+    setEditingIndex(index);
+  };
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = contents.findIndex((_, idx) => `${idx}` === active.id);
+      const newIndex = contents.findIndex((_, idx) => `${idx}` === over.id);
+      setContents((items) => arrayMove(items, oldIndex, newIndex));
+    }
+  };
+
+  return (
+    <>
+
+        <div className="flex">
+            <input type="text" value={title} onChange={(e)=>setTitle(e.target.value)} placeholder="titile" />
+            <button onClick={createLesson} >Create lesson</button>
+        </div>
+      <div className="mb-4 space-y-2">
+        <div className="flex gap-4 items-center">
+          <label>
+            <input
+              type="radio"
+              name="field"
+              checked={active === "text"}
+              onChange={() => setActive("text")}
+            />{" "}
+            Text
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="field"
+              checked={active === "video"}
+              onChange={() => setActive("video")}
+            />{" "}
+            Video
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="field"
+              checked={active === "image"}
+              onChange={() => setActive("image")}
+            />{" "}
+            Image
+          </label>
+          <button
+            onClick={handleAdd}
+            className="px-3 py-1 bg-blue-500 text-white rounded"
+          >
+            {editingIndex !== null ? "Update" : "Add"}
+          </button>
+        </div>
+
+        <div>
+          {active === "text" && (
+            <MDEditor
+              className="border p-1"
+              value={content}
+              onChange={(value) => setContent(value || "")}
+            />
+          )}
+          {active === "video" && (
+            <input
+              className="border p-1 w-full"
+              type="text"
+              value={content}
+              placeholder="YouTube URL"
+              onChange={(e) => setContent(e.target.value)}
+            />
+          )}
+          {active === "image" && (
+            <input
+              className="border p-1 w-full"
+              type="text"
+              value={content}
+              placeholder="Image URL"
+              onChange={(e) => setContent(e.target.value)}
+            />
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6">
+        {contents.length === 0 ? (
+          <p className="text-gray-500">Nothing added yet.</p>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={contents.map((_, i) => `${i}`)}
+              strategy={verticalListSortingStrategy}
+            >
+              {contents.map((item, i) => (
+                <SortableItem
+                  key={i}
+                  id={`${i}`}
+                  item={item}
+                  index={i}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
+      </div>
+    </>
+  );
+}
+
+
+
+function getYouTubeVideoId(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes("youtu.be")) return parsed.pathname.slice(1);
+    if (parsed.hostname.includes("youtube.com")) return parsed.searchParams.get("v");
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function SortableItem({ item, id, index, onDelete, onEdit }) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      style={style}
+      className="p-2 border mb-2 rounded bg-white shadow mx-10 relative"
+    >
+      <div className="absolute top-2 right-2 flex gap-2">
+        <button
+          className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded"
+          onClick={() => onEdit(index)}
+        >
+          Edit
+        </button>
+        <button
+          className="bg-red-500 text-white text-xs px-2 py-0.5 rounded"
+          onClick={() => onDelete(index)}
+        >
+          Delete
+        </button>
+      </div>
+
+      {item.type === "text" && (
+        <MDEditor.Markdown source={item.content} />
+      )}
+
+      {item.type === "video" && (() => {
+        const videoId = getYouTubeVideoId(item.content);
+        return videoId ? (
+          <div className="aspect-w-16 aspect-h-9">
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}`}
+              allowFullScreen
+              className="w-full h-full"
+            />
+          </div>
+        ) : (
+          <p className="text-red-500">Invalid video URL</p>
+        );
+      })()}
+
+      {item.type === "image" && (
+        <img
+          src={item.content}
+          alt={`lesson-${index}`}
+          className="w-full rounded max-h-52 max-w-52"
+        />
+      )}
+    </div>
+  );
+}

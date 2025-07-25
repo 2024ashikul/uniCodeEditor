@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import PageTitle from "../PageTitle";
 import Button from "../Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
+import NullComponent from "../NullComponent";
+import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 
 export default function Assignements({ roomId }) {
     const {popUp } = useContext(UIContext);
@@ -12,6 +14,8 @@ export default function Assignements({ roomId }) {
         title: '',
         description: ''
     });
+
+    const {setMessage , setType} = useContext(AlertContext);
     const [assignment, setAssignment] = useState(false);
     const [assignments, setAssignments] = useState([]);
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,16 +36,25 @@ export default function Assignements({ roomId }) {
     const createAssignment = async (e) => {
         e.preventDefault();
         console.log(form);
-        await fetch('http://localhost:3000/addassignment', {
+        try{
+        const res = await fetch('http://localhost:3000/updateassignment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ roomId, form })
         })
-            .then((res) => res.json())
-            .then((data) => { console.log(data); setAssignments(prev => [...prev, data]) })
-            .catch((err) => console.log(err))
+        const data = await res.json();
+            if(res.ok){
+                console.log(data); 
+                setMessage(data.message)
+
+            }
+            
+    }catch(err){ console.log(err);
+            setMessage('Internal server error');
+            setType('error') 
+        }
     }
 
 
@@ -59,18 +72,22 @@ export default function Assignements({ roomId }) {
                     />
                 </div>
                 <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    {assignments.map((item, i) => (
+                    {
+                    assignments.length === 0 ? 
+                    <NullComponent text={'No assignments found'} />
+                    
+                   : assignments.map((item, i) => (
                         <div className="shadow-sm items-center rounded-2xl cursor-pointer transition flex w-full 
                                   hover:bg-slate-300
                                     "
                             key={i}
-                            onClick={() => navigate(`/admin/assignment/${item.id}`)}>
+                            onClick={() => navigate(`/assignment/${item.id}`)}>
 
                             <div className="px-4 py-2 flex-1">{item.id}</div>
                             <div className="px-4 py-2 flex-1">{item.title}</div>
                             <div className="px-4 py-2 flex-1">{item.createdAt.slice(2, 10)}</div>
                             <div className="px-4 py-2 flex-1 whitespace-pre-line  overflow-hidden">{item.description}</div>
-                            <div className="px-4 py-2 flex-1">{item.status}</div>
+                            <div className="px-4 py-2 flex-1">{item.status.toUpperCase()}</div>
                         </div>
                     ))}
 

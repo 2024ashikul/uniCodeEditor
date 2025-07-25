@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router();
 const assignmentController = require('../controllers/assignmentController')
 
-router.post('/addassignment',assignmentController.addAssignment)
+router.post('/updateassignment',assignmentController.addAssignment)
 router.post('/assignments',assignmentController.fetchAssignments)
 router.post('/getsubmissions',assignmentController.fetchSubmissions)
 router.post('/fetchproblems',assignmentController.fetchProblems)
@@ -12,5 +12,7 @@ router.post('/fetchsubmissionsind',assignmentController.fetchSubmissionsIndividu
 router.post('/fetchassignment',assignmentController.fetchAssignment)
 router.post('/scheduleassignments',assignmentController.changeSchedule);
 router.post('/scheduleassignmentsuser',assignmentController.fetchAssignmentsUser)
+router.post('/deleteproblem' , assignmentController.deleteProblem)
+router.post('/updateproblem' , assignmentController.updateProblem)
 
 module.exports = router;

@@ -1,8 +1,8 @@
-import {  useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom";
 import PopUp from "../src/components/PopUp";
 
-import { FileQuestionMark, Send, Settings , MedalIcon } from "lucide-react";
+import { FileQuestionMark, Send, Settings, MedalIcon } from "lucide-react";
 
 import TopBar from "../src/components/TopBar";
 import Button from "../src/components/Button";
@@ -15,35 +15,54 @@ import TopBanner from "../src/components/TopBanner";
 import Results from "../src/components/AdminAssignment/Results";
 
 
-
-
-export default function AdminAssignment({roomId}) {
+export default function AdminAssignment({ roomId }) {
     const { popUp } = useContext(UIContext);
     const [activeTab, setActiveTab] = useState('problem');
     const { assignmentId } = useParams();
-    const {setTitle,setScrollHeight} = useContext(UIContext);
-    useEffect(()=>{
-        setTitle('Assignment');
-        setScrollHeight(20);
-    },[setTitle,setScrollHeight])
-    
+    const { setTitle, setScrollHeight } = useContext(UIContext);
+    useEffect(() => {
+
+
+        fetch('http://localhost:3000/fetchassignment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ assignmentId })
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data) {
+                    console.log(data)
+                    setTitle(data.title);
+                    setScrollHeight(20);
+                }})
+
+            .catch((err) => {
+                console.log(err);
+                setTitle('Assignment');
+                setScrollHeight(20);
+            })
+
+    }, [setTitle, setScrollHeight, assignmentId])
+
     const tabs = [
         { title: 'Problems', keyword: 'problem', icon: FileQuestionMark },
         { title: 'Submissions', keyword: 'submissions', icon: Send },
-        { title : 'Settings' , keyword: 'settings', icon : Settings},
-        {title : 'Results', keyword : 'results', icon : MedalIcon}
+        { title: 'Settings', keyword: 'settings', icon: Settings },
+        { title: 'Results', keyword: 'results', icon: MedalIcon }
     ]
 
     return (
         <>
             <div className={`${popUp && 'transition duration-500 blur pointer-events-none'}} `}>
                 <TopBanner />
-                
+
             </div>
-            <TopBar 
-                    tabs={tabs}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
+            <TopBar
+                tabs={tabs}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
             />
 
             <div className="flex flex-col p-8 ">
@@ -59,16 +78,16 @@ export default function AdminAssignment({roomId}) {
                     />
                 ) : activeTab === 'settings' ? (
                     <>
-                    <Settingss
-                        assignmentId={assignmentId}
-                    />
+                        <Settingss
+                            assignmentId={assignmentId}
+                        />
                     </>
                 ) : activeTab === 'results' ? (
                     <>
-                    <Results
-                        assignmentId={assignmentId}
-                        roomId={roomId}
-                    />
+                        <Results
+                            assignmentId={assignmentId}
+                            roomId={roomId}
+                        />
                     </>
                 ) : (
                     <>

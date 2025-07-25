@@ -10,8 +10,6 @@ export default function Problems({ assignmentId }) {
 
     
 
-
-
     useEffect(() => {
         fetch('http://localhost:3000/fetchproblems', {
             method: 'POST',

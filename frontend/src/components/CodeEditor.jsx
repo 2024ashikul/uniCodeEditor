@@ -125,7 +125,7 @@ export default function CodeEditor({ problemId }) {
                 <div className='flex '>
                     <div className='text text-3xl flex items-center self-center mb-2 gap-2' ><BadgeQuestionMark />Problem Statement</div>
                     <div className='ml-auto'><button onClick={() => setStatement(false)}> <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        <path strokeLinecap="round" StrokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                     </button></div>
                 </div>

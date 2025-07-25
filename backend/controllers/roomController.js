@@ -1,7 +1,8 @@
 const { where, Op } = require("sequelize");
-const { Rooms, RoomMembers, User, Announcement, Assignment, Submission, Problem } = require("../models");
+const { Rooms, RoomMembers, User, Announcement, Assignment, Submission, Problem, Lesson, LessonM } = require("../models");
 const roomMember = require("../models/roomMember");
 const announcements = require("../models/announcements");
+const lesson = require("../models/lesson");
 
 
 
@@ -342,10 +343,64 @@ exports.getUserAccess = async (req, res) => {
                 return res.status(200).json({ allowed: false })
             }
         }
-
-
     } catch (err) {
         console.log(err)
         return res.status(200).json(false)
+    }
+}
+
+
+exports.createLesson = async (req, res) => {
+    try {
+        const { contents, title, roomId } = req.body;
+
+        const newLesson = await Lesson.create({
+            title: title,
+            roomId: roomId
+        });
+
+        const newLessonM = new LessonM({
+            id: newLesson.id,
+            title: title,
+            contents: contents
+        })
+        await newLessonM.save();
+        console.log(newLessonM);
+        return res.status(201).json({ message: 'Created a new lesson' })
+    } catch (err) {
+        console.log(err)
+        return res.status(404).json({ message: 'Could not create lesson' })
+    }
+}
+
+exports.lessonInd = async (req, res) => {
+    try {
+        const { lessonId } = req.body;
+        
+        const lesson = await LessonM.findOne({id : lessonId})
+
+        if (!lesson) {
+            return res.status(404).json({ message: "Lesson not found" });
+        }
+        console.log(lesson);
+        return res.status(201).json({ lesson })
+    } catch (err) {
+        console.log(err)
+        return res.status(404).json({ message: 'Could not fetch lesson' })
+    }
+}
+
+exports.allLessons = async (req, res) => {
+    try {
+        const { roomId } = req.body;
+
+        const lessons = await Lesson.findAll({
+            where: { roomId: roomId }
+        })
+
+        return res.status(201).json({ message: 'Fetched lessons', lessons })
+    } catch (err) {
+        console.log(err)
+        return res.status(404).json({ message: 'Could not fetch lesson' })
     }
 }

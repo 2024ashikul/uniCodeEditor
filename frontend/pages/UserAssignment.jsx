@@ -11,9 +11,10 @@ import Submissions from "../src/components/Assignment/Submissions";
 import Problems from "../src/components/Assignment/Problems";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
+import NullComponent from "../src/components/NullComponent";
 
 
-export default function Assignment() {
+export default function UserAssignment() {
     const [activeTab, setActiveTab] = useState('problem');
     const { popUp } = useContext(UIContext);
     const { setTitle, setScrollHeight } = useContext(UIContext);
@@ -23,38 +24,9 @@ export default function Assignment() {
     const [assignment, setAssignment] = useState(null);
     const [timleft, setTimeleft] = useState(null);
     const currentTime = new Date().toISOString().slice(0, 16);
-    const {authorized,checkAccess} = useContext(AccessContext);
-
-    // useEffect(() => {
-    //     fetch('http://localhost:3000/getuseraccess', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify({ assignmentId, userId })
-    //     })
-    //         .then((res) => res.json())
-    //         .then((data) => {
-
-    //             console.log(data);
-
-    //             setAuthorized(data);
-
-    //         })
-    //         .catch((err) => console.log(err))
+    
 
 
-    // }, [assignmentId, setAuthorized, userId, authorized])
-    useEffect(()=>{
-        checkAccess({assignmentId})
-        .then((isAuthorized)=> {
-            if (!isAuthorized) {
-                return(
-                    <>not authoruized</>
-                )
-            }
-        })
-    },[checkAccess,assignmentId])
 
     useEffect(() => {
         fetch('http://localhost:3000/fetchassignment', {
@@ -74,7 +46,6 @@ export default function Assignment() {
 
 
     useEffect(() => {
-
         setTitle('Assignment');
         setScrollHeight(100);
 
@@ -90,13 +61,7 @@ export default function Assignment() {
             });
         }
     }, [assignment, currentTime, setTimeleft]);
-    if (!authorized) {
-        return (
-            <div>
-                'sorry you are not authorized'
-            </div>
-        )
-    }
+    
 
 
 
@@ -163,9 +128,11 @@ export default function Assignment() {
                 {activeTab === 'problem' ? (
 
                     currentTime < assignment?.scheduleTime ? (
-                        <div className="justify-center">
-                            You can see the problems once the Time starts
-                        </div>
+                        <NullComponent
+                            text={'You can see the problems once the Time starts'}
+                        />
+                            
+            
                     ) : (
                         <Problems
                             assignmentId={assignmentId}

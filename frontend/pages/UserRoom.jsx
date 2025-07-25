@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react"
-import { Users, Notebook, Megaphone } from 'lucide-react';
+import { Users, Notebook, Megaphone, Book } from 'lucide-react';
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -12,6 +12,7 @@ import Announcements from "../src/components/Room/Announcements";
 import Chat from "../src/components/Room/Chat";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
+import Lessons from "../src/components/Room/Lessons";
 
 
 export default function UserRoom() {
@@ -32,7 +33,8 @@ export default function UserRoom() {
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
         { title: 'Assignments', keyword: 'assignments', icon: Notebook },
         { title: 'Members', keyword: 'members', icon: Users },
-        { title: 'Chats', keyword: 'chats', icon: Users }
+        { title: 'Chats', keyword: 'chats', icon: Users },
+        {title : 'Lessons', keyword : 'lessons', icon : Book}
     ]
 
 
@@ -62,8 +64,11 @@ export default function UserRoom() {
                         <Members
                             roomId={roomId}
                         />
-                    ) :
+                    ) :activeTab === 'chats' ? (
                         <Chat />
+                    ) : activeTab ==='lessons' ? (
+                        <Lessons />
+                    ) : <></>
                     }
                 </div >
             </div >
