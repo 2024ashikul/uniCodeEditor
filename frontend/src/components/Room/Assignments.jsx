@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import PageTitle from "../PageTitle";
 import Button from "../Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
+import NullComponent from "../NullComponent";
 
 export default function Assignements({ roomId }) {
     
@@ -34,7 +35,10 @@ export default function Assignements({ roomId }) {
                     />
                 </div>
                 <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    {assignments.map((item, i) => (
+                    {
+                    assignments.length === 0 ? 
+                    <NullComponent text={'No assignements assigned'} />
+                   : assignments.map((item, i) => (
                         <div className="shadow-sm items-center rounded-2xl cursor-pointer transition flex w-full 
                                   hover:bg-slate-300
                                     "

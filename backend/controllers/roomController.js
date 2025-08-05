@@ -38,9 +38,15 @@ exports.createAnnoucement = async (req, res) => {
             title: form.title,
             description: form.description
         })
+        if(newAnnoucement){
+            return res.status(201).json({newAnnoucement , message : 'New announcment created!'})
+        }else{
+            return res.status(201).json({ message : 'An error occured'})
+        }
         res.status(201).json(newAnnoucement);
     } catch (err) {
         console.log(err)
+        return res.status(400).json({message : 'Could not create an announcement'})
     }
 }
 
@@ -156,9 +162,11 @@ exports.roomMembers = async (req, res) => {
             where: {
                 roomId: roomId
             },
+
             include: [{ model: User, attributes: ['name', 'email'] }]
         });
         const members = membersfull.map(item => ({
+            role : item.role,
             name: item.user.name,
             email: item.user.email
         }))

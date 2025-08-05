@@ -2,9 +2,10 @@ const { createServer } = require('http')
 const { Server } = require('socket.io')
 const { sequelize } = require('./models');
 const app = require('./app');
+
 const httpServer = createServer(app);
 const mongoose = require('mongoose')
-const registerSocketHandlers = require('./sockets/socket')
+const registerSocketHandler = require('./sockets/socket')
 
 const io = new Server(httpServer, {
   cors: {
@@ -15,7 +16,7 @@ const io = new Server(httpServer, {
 
 const PORT = process.env.PORT || 3000;
 
-registerSocketHandlers(io);
+registerSocketHandler.registerSocketHandlers(io);
 
 mongoose.connect('mongodb://localhost:27017/mongo')
 .then(() => console.log("Connected to DB"))

@@ -1,5 +1,5 @@
 
-import { useContext, useEffect } from "react"
+import { useContext } from "react"
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 
@@ -21,14 +21,8 @@ export default function AdminRoom() {
 
     const { roomId } = useParams();
 
-    const { popUp, setTitle, setScrollHeight } = useContext(UIContext);
+    const { popUp } = useContext(UIContext);
     const [activeTab, setActiveTab] = useState('announcements');
-
-
-    useEffect(() => {
-        setScrollHeight(100);
-        setTitle('CSE23 Object Oriendted Programming');
-    }, [setTitle, setScrollHeight])
 
 
     const tabs = [
@@ -43,7 +37,6 @@ export default function AdminRoom() {
         <>
             <div className={`${popUp && 'transition duration-500 blur pointer-events-none'}`}>
                 <TopBanner
-
                 />
             </div>
             <TopBar

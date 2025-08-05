@@ -17,7 +17,8 @@ exports.addAssignment = async (req, res) => {
             const updatedAssignment = existingAssignment;
             if(existingAssignment){
                 return res.status(201).json({updatedAssignment , message : 'Assingment updated successfully'});
-            }else{
+            }
+            else{
                 return res.status(404).json({ message : 'Assingment not found'});
             }
 
@@ -27,6 +28,9 @@ exports.addAssignment = async (req, res) => {
             title: form.title,
             description: form.description
         })
+        if(newAssignment){
+            return res.status(201).json({newAssignment , message : 'Assingment created successfully'});
+        }
         res.status(201).json(newAssignment);
     } catch (err) {
         console.log(err)

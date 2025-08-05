@@ -9,7 +9,7 @@ import NullComponent from "../NullComponent";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 
 export default function Assignements({ roomId }) {
-    const {popUp } = useContext(UIContext);
+    const {popUp ,setPopUp,setTitle } = useContext(UIContext);
     const [form, setForm] = useState({
         title: '',
         description: ''
@@ -47,8 +47,10 @@ export default function Assignements({ roomId }) {
         const data = await res.json();
             if(res.ok){
                 console.log(data); 
+                setAssignment
                 setMessage(data.message)
-
+                setPopUp(false);
+                setAssignment(false);
             }
             
     }catch(err){ console.log(err);
@@ -81,7 +83,7 @@ export default function Assignements({ roomId }) {
                                   hover:bg-slate-300
                                     "
                             key={i}
-                            onClick={() => navigate(`/assignment/${item.id}`)}>
+                            onClick={() => {setTitle(item.title); navigate(`/assignment/${item.id}`) }}>
 
                             <div className="px-4 py-2 flex-1">{item.id}</div>
                             <div className="px-4 py-2 flex-1">{item.title}</div>
@@ -95,6 +97,8 @@ export default function Assignements({ roomId }) {
             </div>
             {assignment &&
                 <PopUp
+                    
+                    form = {form}
                     name={assignment}
                     setName={setAssignment}
                     onChange={handleChange}

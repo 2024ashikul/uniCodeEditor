@@ -17,8 +17,10 @@ export default function AccountSettings() {
 
     return (
         <>
-            <div>
-                <button onClick={logOut}> log out</button>
+            <div className="bg-amber-300 justify-items-center rounded-2xl px-3 py-1 cursor-pointer items-center">
+                <button
+                    className="justify-center items-center"
+                    onClick={logOut}> Log Out</button>
             </div>
         </>
     )

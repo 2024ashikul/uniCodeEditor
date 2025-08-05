@@ -33,6 +33,7 @@ export default function Members({ roomId }) {
                         <div className="flex gap-2  shadow px-2 py-2" key={item.id}>
                             <p className="text-lg flex-1">{1}</p>
                             <p className="text-lg flex-1">{item.name}</p>
+                            <p className="text-lg flex-1">{item.role}</p>
                             <p className="text-lg flex-1">{item.email}</p>
                         </div>
                     ))}

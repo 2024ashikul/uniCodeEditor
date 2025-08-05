@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react"
+
 import { Users, Notebook, Megaphone, Book } from 'lucide-react';
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -18,17 +18,9 @@ import Lessons from "../src/components/Room/Lessons";
 export default function UserRoom() {
 
     const { roomId } = useParams();
-    const { setTitle, setScrollHeight } = useContext(UIContext);
-    
+
     const [activeTab, setActiveTab] = useState('announcements');
 
-
-    useEffect(() => { 
-        setTitle('This Is room')
-        setScrollHeight(80);
-    }, [setTitle, setScrollHeight])
-
-    
     const tabs = [
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
         { title: 'Assignments', keyword: 'assignments', icon: Notebook },

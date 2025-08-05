@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import PageTitle from "../PageTitle";
 import Button from "../Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
+import NullComponent from "../NullComponent";
 
 export default function Lessons({ roomId }) {
     const {popUp } = useContext(UIContext);
@@ -40,7 +41,10 @@ export default function Lessons({ roomId }) {
 
                 </div>
                 <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    {lessons?.map((item, i) => (
+                    {
+                    lessons.length === 0 ? 
+                    <NullComponent text={'No lessons yet'} />
+                    : lessons?.map((item, i) => (
                         <div className="shadow-sm items-center rounded-2xl cursor-pointer transition flex w-full 
                                   hover:bg-slate-300
                                     "

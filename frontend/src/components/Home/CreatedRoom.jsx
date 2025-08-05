@@ -9,6 +9,7 @@ import { UIContext } from "../../Contexts/UIContext/UIContext";
 import PopUp from "../PopUp";
 import Button from "../Button";
 import PageTitle from "../PageTitle";
+import NullComponent from "../NullComponent";
 
 
 
@@ -16,7 +17,7 @@ export default function CreatedRoom() {
 
     const { setMessage, setType } = useContext(AlertContext);
     const [creating, setCreating] = useState(null);
-    const { popUp, setPopUp } = useContext(UIContext);
+    const { popUp, setPopUp ,setTitle} = useContext(UIContext);
     const navigate = useNavigate();
     const { email, userId, token } = useContext(AuthContext);
 
@@ -122,13 +123,13 @@ export default function CreatedRoom() {
                     />
                 </div>
                 <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    {rooms.length === 0 ? 'No rooms joind' :
+                    {rooms.length === 0 ? <NullComponent text={'No rooms created'} /> :
                         rooms.map((item, i) => (
                             <div className="shadow-md border-fuchsia-200 flex-col rounded-2xl transition
                              duration-500 flex max-w-[800px] py-2
                                                         hover:bg-slate-300 "
                                 key={i}
-                                onClick={() => { navigate(`/room/${item.roomId}`) }}
+                                onClick={() => { setTitle(item.room.name); navigate(`/room/${item.roomId}`) }}
                             >
 
                                 <div className="flex justify-between px-4 cursor-pointer">

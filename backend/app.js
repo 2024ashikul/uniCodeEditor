@@ -2,9 +2,10 @@ const express = require('express')
 const cors = require('cors')
 const app = express();
 const path = require('path')
-
+const compression = require('compression');
 app.use(express.json());
 app.use(cors());
+app.use(compression());
 
 const submitRoutes = require('./routes/codeSubmit');
 const userRoutes = require('./routes/userRoutes');

@@ -1,7 +1,7 @@
 
 
 
-module.exports = function registerSocketHandlers(io) {
+function registerSocketHandlers(io) {
     io.on('connection', (socket) => {
         console.log("socket connectoed", socket.id);
 
@@ -49,3 +49,5 @@ module.exports = function registerSocketHandlers(io) {
     });
 
 }
+
+module.exports = { registerSocketHandlers};

@@ -1,4 +1,4 @@
-import {  useContext } from "react"
+import { useContext } from "react"
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext"
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
@@ -59,17 +59,14 @@ export default function User() {
                 />
                 <div className="flex flex-col p-8 ">
                     <div>
-                        {activeTab === 'joinedrooms' ? (
+                        {activeTab === 'joinedrooms' ?
                             <JoinedRoom
                             />
-                        ) : activeTab === 'createdrooms' ? (
-                            <CreatedRoom />
-                        ) : activeTab === 'accountsettings' ? (
-
-                            <AccountSettings />
-
-                        ) : <></>}
-
+                            : activeTab === 'createdrooms' ?
+                                <CreatedRoom />
+                                : activeTab === 'accountsettings' ?
+                                    <AccountSettings />
+                                    : <></>}
                     </div>
                 </div>
 

@@ -2,23 +2,31 @@
 import { useContext } from "react";
 
 
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
-import Fade from '@mui/material/Button';
+import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
+
 
 export default function HomePage() {
-
-
+    
     const navigate = useNavigate();
+    const {setMessage} = useContext(AlertContext);
     const { token } = useContext(AuthContext);
     console.log(token);
+
+    if(token){
+        setTimeout(()=>{
+            setMessage('Welcome!!!');
+            navigate('/user');
+        },1000);
+        
+    }
 
     return (
         <>
 
-
             <div
-                className="min-h-screen bg-cover bg-center flex items-center justify-center px-6"
+                className="min-h-screen fade-in transition-all duration-500 bg-cover bg-center flex items-center justify-center px-6"
                 style={{ backgroundImage: "url('../pages/background.jpg')" }}
             >
                 <div className="bg-black bg-opacity-60 rounded-2xl p-10 text-center shadow-2xl animate-fade-in">

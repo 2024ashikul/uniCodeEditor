@@ -23,6 +23,7 @@ import CreateLesson from './components/CreateLesson';
 import Lesson from './components/Lesson';
 import EditorPageGuest from '../pages/EditorPageGuest';
 import PopUpLayout from './components/PopUpLayout';
+import StyleLayout from './components/StyleLayout';
 
 
 
@@ -34,23 +35,25 @@ function App() {
           <UIProvider>
             <AlertProvider>
               <Routes>
+                <Route element={<StyleLayout />}>
+                  <Route element={<Layout />}>
+                    <Route path='/room/:roomId' element={<Room />} />
 
-                <Route element={<Layout />}>
-                  <Route path='/room/:roomId' element={<Room />} />
-
-                  <Route path='/login' element={<Login />} />
-                  <Route path='/signup' element={<SignUp />} />
-                  <Route path='/assignment/:assignmentId' element={<Assignment />} />
-                  <Route path='/user' element={<PrivateRoute><User /></PrivateRoute>} />
-                  <Route path='room/:roomId/createlesson' element={<CreateLesson />} />
+                    <Route path='/login' element={<Login />} />
+                    <Route path='/signup' element={<SignUp />} />
+                    <Route path='/assignment/:assignmentId' element={<Assignment />} />
+                    <Route path='/user' element={<PrivateRoute><User /></PrivateRoute>} />
+                    <Route path='room/:roomId/createlesson' element={<CreateLesson />} />
+                    <Route path='/lesson/:lessonId' element={<Lesson />} />
+                  </Route>
+                  <Route path='/' element={<HomePage />} />
+                  <Route path='/problem/:problemId' element={<EditorPage />} />
+                  <Route path='/editor' element={<EditorPageGuest />} />
+                  <Route path='/test' element={<Lessons />} />
+                  
                 </Route>
-                <Route path='/' element={<HomePage />} />
-                <Route path='/problem/:problemId' element={<EditorPage />} />
-                <Route path='/editor' element={<EditorPageGuest />} />
-                <Route path='/test' element={<Lessons />} />
-                <Route path='/lesson/:lessonId' element={<Lesson />} />
-
               </Routes>
+
             </AlertProvider>
           </UIProvider>
         </AccessProvider>

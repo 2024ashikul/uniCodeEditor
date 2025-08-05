@@ -1,6 +1,8 @@
 import MDEditor from "@uiw/react-md-editor";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { UIContext } from "../Contexts/UIContext/UIContext";
+import TopBanner from "./TopBanner";
 
 
 export default function Lesson() {
@@ -8,6 +10,7 @@ export default function Lesson() {
     const [lesson, setLesson] = useState(null);
     const [contents, setContents] = useState(null);
 
+    const {setTitle,setScrollHeight} = useContext(UIContext);
 
 
     const { lessonId } = useParams();
@@ -18,15 +21,17 @@ export default function Lesson() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ lessonId })
-        })
+        }) 
             .then((res) => res.json())
             .then((data) => {
                 console.log(data);
                 setLesson(data.lesson);
+                setTitle(data.lesson?.title);
+                setScrollHeight(80);
                 setContents(data.lesson?.contents)
             })
             .catch((err) => console.log(err))
-    }, [lessonId])
+    }, [lessonId,setTitle,setScrollHeight])
     function getYouTubeVideoId(url) {
         try {
             const parsed = new URL(url);
@@ -41,21 +46,18 @@ export default function Lesson() {
     return (
         <>
             <div className="mx-20 ">
-                <div> {lesson?.title}</div>
+                <TopBanner />
                 <div className="flex flex-col gap-10 text-3xl py-4 justify-center items-center">
-
                     {contents?.map((item, index) => {
 
                         if (item.type === "text") {
                             return <MDEditor.Markdown className="w-full" source={item.content} />
                         }
 
-
-
                         if (item.type === "video") {
 
                             return (
-                                <div className="flex aspect-w-16 aspect-h-9 aspect-auto overflow-hidden w-[600px] h-auto justify-between align-center">
+                                <div className="flex overflow-hidden min-w-[600px] h-auto aspect-video rounded-2xl justify-between align-center">
                                     <iframe
                                         src={`https://www.youtube.com/embed/${getYouTubeVideoId(item.content)}`}
                                         allowFullScreen
@@ -64,8 +66,6 @@ export default function Lesson() {
                                 </div>
                             )
                         }
-
-
 
                         if (item.type === "image") {
 
@@ -78,7 +78,6 @@ export default function Lesson() {
                             )
 
                         }
-
                     })}
                 </div>
             </div>
