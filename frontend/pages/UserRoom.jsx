@@ -59,7 +59,9 @@ export default function UserRoom() {
                     ) :activeTab === 'chats' ? (
                         <Chat />
                     ) : activeTab ==='lessons' ? (
-                        <Lessons />
+                        <Lessons
+                            roomId={roomId}
+                        />
                     ) : <></>
                     }
                 </div >

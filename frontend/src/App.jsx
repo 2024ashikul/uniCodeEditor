@@ -24,6 +24,8 @@ import Lesson from './components/Lesson';
 import EditorPageGuest from '../pages/EditorPageGuest';
 import PopUpLayout from './components/PopUpLayout';
 import StyleLayout from './components/StyleLayout';
+import Collaborate from './components/Collaborate';
+import CollaboratePage from '../pages/CollaboratePage';
 
 
 
@@ -45,11 +47,12 @@ function App() {
                     <Route path='/user' element={<PrivateRoute><User /></PrivateRoute>} />
                     <Route path='room/:roomId/createlesson' element={<CreateLesson />} />
                     <Route path='/lesson/:lessonId' element={<Lesson />} />
+                    <Route path='/collaborate' element={<CollaboratePage />} />
                   </Route>
                   <Route path='/' element={<HomePage />} />
                   <Route path='/problem/:problemId' element={<EditorPage />} />
                   <Route path='/editor' element={<EditorPageGuest />} />
-                  <Route path='/test' element={<Lessons />} />
+                  <Route path='/test' element={<Collaborate />} />
                   
                 </Route>
               </Routes>

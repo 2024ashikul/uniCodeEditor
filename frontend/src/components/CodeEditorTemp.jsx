@@ -15,7 +15,6 @@ export default function CodeEditorTemp() {
     const [history, setHistory] = useState([]);
     const [statement, setStatement] = useState(false);
 
-
     const [results, setResults] = useState({
         stdout: '',
         stderr: '',

@@ -51,6 +51,11 @@ export default function HomePage() {
                             className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black rounded-xl shadow-md transition">
                             Code Now
                         </button>
+                                <button
+                            onClick={() => navigate('/collaborate')}
+                            className="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black rounded-xl shadow-md transition">
+                            MeetCode
+                        </button>
                     </div>
                 </div>
             </div>
