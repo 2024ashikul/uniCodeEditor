@@ -5,7 +5,8 @@ const app = require('./app');
 
 const httpServer = createServer(app);
 const mongoose = require('mongoose')
-const registerSocketHandler = require('./sockets/socket')
+const {registerCollabHandlers} = require('./sockets/collabRoom')
+const {registerClassHandlers} = require('./sockets/classRoom')
 
 const io = new Server(httpServer, {
   cors: {
@@ -14,9 +15,19 @@ const io = new Server(httpServer, {
   }
 });
 
+
+const collabSpace = io.of('/collab');
+const classSpace = io.of('/class');
+
+registerClassHandlers(classSpace);
+registerCollabHandlers(collabSpace);
+
+
+
 const PORT = process.env.PORT || 3000;
 
-registerSocketHandler.registerSocketHandlers(io);
+
+
 
 mongoose.connect('mongodb://localhost:27017/mongo')
 .then(() => console.log("Connected to DB"))

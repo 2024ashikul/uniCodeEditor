@@ -4,15 +4,16 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io('http://localhost:3000/collab');
+const socket = io('http://localhost:3000/class');
 import { useState, useEffect, useRef, useContext } from 'react';
 import Loading from './CodeEditor/Loading';
 import { AlertContext } from '../Contexts/AlertContext/AlertContext';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
+import { CircleUserRound, File } from 'lucide-react';
 
-export default function CodeEditorCollaborate({ roomId, isEditorProp, username }) {
-    const [isEditor, setIsEditor] = useState(isEditorProp);
+export default function CodeEditorCollaborateClass({ roomId, isEditor, username }) {
+
     const [terminalHeight, setTerminalHeight] = useState(0);
     const [code, setCode] = useState('// Start coding...');
     const editorRef = useRef(null);
@@ -107,26 +108,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
 
 
-    useEffect(() => {
-        function handleChangeAccess({ data, member }) {
-            console.log('changing access');
 
-            setMembers(Object.entries(data.members).map(([username, info]) => ({
-                username,
-                access: info.access
-            })));
-
-            if (member === username) {
-                setIsEditor(prev => !prev);
-            }
-        }
-
-        socket.on("changeAccess", handleChangeAccess);
-
-        return () => {
-            socket.off("changeAccess", handleChangeAccess);
-        };
-    }, [username]);
 
     useEffect(() => {
         if (!isEditor) {
@@ -143,7 +125,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
 
     //Code Room Part
-    
+
 
     useEffect(() => {
         socket.on('roomData', (data) => {
@@ -164,23 +146,23 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
         console.log("here")
         //socket.emit('joinRoom', roomId);
         function renderTeacherCursor() {
-        if (!isEditor && editorRef.current && latestTeacherCursor.current) {
-            teacherCursorDecoration.current = editorRef.current.deltaDecorations(
-                teacherCursorDecoration.current,
-                [
-                    {
-                        range: new monaco.Range(
-                            latestTeacherCursor.current.lineNumber,
-                            latestTeacherCursor.current.column,
-                            latestTeacherCursor.current.lineNumber,
-                            latestTeacherCursor.current.column
-                        ),
-                        options: { className: 'teacher-cursor' }
-                    }
-                ]
-            );
+            if (!isEditor && editorRef.current && latestTeacherCursor.current) {
+                teacherCursorDecoration.current = editorRef.current.deltaDecorations(
+                    teacherCursorDecoration.current,
+                    [
+                        {
+                            range: new monaco.Range(
+                                latestTeacherCursor.current.lineNumber,
+                                latestTeacherCursor.current.column,
+                                latestTeacherCursor.current.lineNumber,
+                                latestTeacherCursor.current.column
+                            ),
+                            options: { className: 'teacher-cursor' }
+                        }
+                    ]
+                );
+            }
         }
-    }
 
         socket.on("fileUpdate", ({ fileName, content }) => {
             setFiles(prev => ({
@@ -245,7 +227,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     }, []);
 
 
-    
+
 
     useEffect(() => {
         socket.on("fileChange", ({ fileName, content }) => {
@@ -271,11 +253,6 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                 });
             });
         }
-    }
-
-    function changeAccess(member) {
-        console.log(member)
-        socket.emit('changeAccess', { roomId, member });
     }
 
 
@@ -387,8 +364,8 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                                 //onChange={e => setCode(e)}
                                 onChange={(value) => {
                                     const updatedContent = value;
-
                                     setCode(value);
+
                                     setFiles(prev => ({
                                         ...prev,
                                         [activeFile]: {
@@ -434,21 +411,17 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                         </div>
                         <div className={`flex flex-col  w-1/4 mr-4  justify-center items-center gap-2 `} >
                             <div
-                                className='flex flex-col flex-1  h-full  w-full py-2 rounded-2xl shadow-2xl  transition-colors duration-300 '
+                                className='flex flex-col overflow-scroll flex-1  h-full  w-full py-2 rounded-2xl shadow-2xl  transition-colors duration-300 '
                             >
 
-                                <p className='px-4 text-2xl font-semibold'>Members</p>
+                                <div className='flex px-4 text-xl font-semibold gap-4'><p>Members</p><span className='text-md'>{members.length}</span></div>
                                 <div className='flex flex-col'>
 
                                     {members.map((item) => (
-                                        <div key={username} className="flex justify-between items-center w-full px-4 py-2" >
-                                            <div className='flex-1'>{item.username}</div>
+                                        <div key={username} className="flex justify-between text-md items-center w-full px-2 py-1" >
+                                            <div className='flex-1 flex gap-2'><span><CircleUserRound className='py-0.75' /></span><p>{item.username}</p></div>
                                             <div>
-                                                <IOSSwitch
-                                                    checked={item.access === 'true' ? true : false}
-                                                    onChange={() => changeAccess(item.username)}
-                                                    inputProps={{ 'aria-label': 'iOS design switch' }}
-                                                />
+
                                             </div>
                                         </div>
                                     ))}
@@ -458,18 +431,20 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                             </div>
 
                             <div
-                                className='flex flex-col flex-1  h-full  w-full py-2 rounded-2xl shadow-2xl  transition-colors duration-300 '
+                                className='flex flex-col flex-1 overflow-scroll  h-full  w-full py-2 rounded-2xl shadow-2xl  transition-colors duration-300 '
                             >
-                                <button onClick={addNewFile}>➕ New File</button>
+                                <div className='flex px-4 text-xl font-semibold gap-4'><p>Files</p></div>
 
-                                <ul>
+                                {isEditor && <button onClick={addNewFile}>➕ New File</button>}
+
+                                <ul className='px-2'>
                                     {Object.keys(files).map(fileName => (
                                         <li
                                             key={fileName}
                                             onClick={() => setActiveFile(fileName)}
                                             style={{ cursor: 'pointer', background: activeFile === fileName ? '#ddd' : 'transparent' }}
                                         >
-                                            {fileName}
+                                         <div className='flex gap-2'>  <File className='py-0.75' /> {fileName}</div>
                                         </li>
                                     ))}
                                 </ul>
@@ -525,11 +500,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
                         <div
                             className={` w-full  flex flex-col `}
-                        // style={{
-                        //     maxHeight : `${terminalHeight}%`,
-                        //     transition: 'max-height 0.5s ease',
-                        //     overflow: 'auto'
-                        // }}
+
                         >
 
 

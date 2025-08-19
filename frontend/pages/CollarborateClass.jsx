@@ -1,25 +1,20 @@
-import { useState } from "react"
-import Collaborate from "../src/components/Collaborate";
-
-import CodeEditorCollaborate from "../src/components/CodeEditorCollaborate";
+import { useState } from "react";
+import CodeEditorCollaborateClass from "../src/components/CodeEditorCollaborateClass";
 import NavBar from "../src/components/NavBar";
 
 
-
-export default function CollaboratePage(){
+export default function CollaborateClass(){
     const [isEditor,setIsEditor] = useState(null);
-    const [username,setUserName] = useState(null);
-    const [id, setId] = useState('');
-    function join(){
-        setIsEditor(false);
-    }
-
-    function create(){
-        setIsEditor(true);
-    }
-    console.log(id)
-
-    if(isEditor==null){
+        const [username,setUserName] = useState(null);
+        const [id, setId] = useState('');
+        function join(){
+            setIsEditor(false);
+        }
+    
+        function create(){
+            setIsEditor(true);
+        }
+        if(isEditor==null){
     return (
         <>
         <NavBar />
@@ -44,12 +39,12 @@ export default function CollaboratePage(){
         >Join</button>
         </>
     )}
-
     return (
+        <>
         <div className="flex flex-col h-screen">
-        
             <NavBar />
-        <CodeEditorCollaborate  isEditorProp={isEditor}  roomId={id} username={username}/>
-        </div>
+         <CodeEditorCollaborateClass  isEditor={isEditor}  roomId={id} username={username}/>
+</div>
+         </>
     )
 }
