@@ -19,7 +19,7 @@ export default function TopBar({ tabs ,activeTab, setActiveTab}) {
                     
                     <div 
                         key={tab.keyword} 
-                        className={`flex-1 gap-2 justify-center rounded-3xl bg-blue-50 py-2 transition flex duration-500 
+                        className={`flex-1 gap-2 justify-center ${activeTab != tab.keyword && 'hover:bg-blue-200 hover:cursor-pointer'} rounded-3xl bg-blue-50 py-2 transition flex duration-500 
                             ${activeTab === tab.keyword ? 'bg-blue-400 text-white font-extrabold' : ''}`} 
                             onClick={() => setActiveTab(tab.keyword)}>
                               {tab.icon ?  <span><tab.icon /></span> : ''} <div>{tab.title}</div>

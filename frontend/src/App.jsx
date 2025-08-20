@@ -27,6 +27,7 @@ import StyleLayout from './components/StyleLayout';
 import Collaborate from './components/Collaborate';
 import CollaboratePage from '../pages/CollaboratePage';
 import CollaborateClass from '../pages/CollarborateClass';
+import CodeEditorCollaborateClassData from '../pages/CodeEditorCollaborateClassData';
 
 
 
@@ -56,6 +57,7 @@ function App() {
                   <Route path='/test' element={<Collaborate />} />
                   <Route path='/collaborate' element={<CollaboratePage />} />
                   <Route path='/collaborateclass' element={<CollaborateClass />} />
+                   <Route path='/collaborateclassdata/:roomId' element={<CodeEditorCollaborateClassData />} />
                 </Route>
               </Routes>
 

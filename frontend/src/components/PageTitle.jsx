@@ -6,7 +6,7 @@ export default function PageTitle({ text }) {
         <>
             <div className="flex">
                 
-                <p className="text-4xl py-0 shadow-2xs shadow-amber-500">{text}</p>
+                <p className="text-3xl py-0 shadow-2xs shadow-black">{text}</p>
             </div>
         </>
     )

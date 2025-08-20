@@ -6,6 +6,7 @@ import { UIContext } from "../../Contexts/UIContext/UIContext";
 import MDEditor from "@uiw/react-md-editor";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import NullComponent from "../NullComponent";
+import InlineButton from "../InlineButton";
 
 export default function Problems({ assignmentId }) {
     const [problems, setProblems] = useState([]);
@@ -226,8 +227,8 @@ export default function Problems({ assignmentId }) {
                                             <div className="px-4 py-2 flex-1 text-xl self-center">{item.title}</div>
 
                                         </div>
-                                        <div className="justify-end" >
-                                            <Button
+                                        <div className="justify-end " >
+                                            <InlineButton
                                                 buttonLabel={'Edit'}
                                                 onClickAction={() => {
                                                     setEditProblemId(item.id);
@@ -238,7 +239,7 @@ export default function Problems({ assignmentId }) {
                                         </div>
 
                                         <div className="justify-end" >
-                                            <Button
+                                            <InlineButton
                                                 buttonLabel={'Delete'}
                                                 onClickAction={() => deleteProblem(item.id)}
                                             /> </div>

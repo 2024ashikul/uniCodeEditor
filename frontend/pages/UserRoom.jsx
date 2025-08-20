@@ -1,6 +1,6 @@
 
 import { Users, Notebook, Megaphone, Book } from 'lucide-react';
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
@@ -26,7 +26,7 @@ export default function UserRoom() {
         { title: 'Assignments', keyword: 'assignments', icon: Notebook },
         { title: 'Members', keyword: 'members', icon: Users },
         { title: 'Chats', keyword: 'chats', icon: Users },
-        {title : 'Lessons', keyword : 'lessons', icon : Book}
+        { title: 'Lessons', keyword: 'lessons', icon: Book }
     ]
 
 
@@ -44,29 +44,20 @@ export default function UserRoom() {
             <div className="flex flex-col p-8 ">
 
                 <div>
-                    {activeTab === 'announcements' ? (
-                        <Announcements
-                            roomId={roomId}
-                        />
-                    ) : activeTab === 'assignments' ? (
-                        <Assignements
-                            roomId={roomId}
-                        />
-                    ) : activeTab === 'members' ? (
-                        <Members
-                            roomId={roomId}
-                        />
-                    ) :activeTab === 'chats' ? (
-                        <Chat />
-                    ) : activeTab ==='lessons' ? (
-                        <Lessons
-                            roomId={roomId}
-                        />
-                    ) : <></>
-                    }
+                    {activeTab === "announcements" && <MemoAnnouncements roomId={roomId} />}
+                    {activeTab === "assignments" && <MemoAssignments roomId={roomId} />}
+                    {activeTab === "members" && <MemoMembers roomId={roomId} />}
+                    {activeTab === "chats" && <MemoChat />}
+                    {activeTab === "lessons" && <MemoLessons roomId={roomId} />}
                 </div >
             </div >
         </>
 
     )
 }
+
+const MemoAnnouncements = memo(Announcements);
+const MemoAssignments = memo(Assignements);
+const MemoMembers = memo(Members);
+const MemoChat = memo(Chat);
+const MemoLessons = memo(Lessons);
