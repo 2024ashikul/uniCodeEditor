@@ -7,6 +7,7 @@ const httpServer = createServer(app);
 const mongoose = require('mongoose')
 const {registerCollabHandlers} = require('./sockets/collabRoom')
 const {registerClassHandlers} = require('./sockets/classRoom')
+const {registerAuthClassHandlers} = require('./sockets/classAuthRoom')
 
 const io = new Server(httpServer, {
   cors: {
@@ -18,9 +19,11 @@ const io = new Server(httpServer, {
 
 const collabSpace = io.of('/collab');
 const classSpace = io.of('/class');
+const classAuthSpace = io.of('/classauth')
 
 registerClassHandlers(classSpace);
 registerCollabHandlers(collabSpace);
+registerAuthClassHandlers(classAuthSpace);
 
 
 

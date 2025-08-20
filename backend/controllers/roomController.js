@@ -301,7 +301,7 @@ exports.getUserAccess = async (req, res) => {
     try {
         if (!userId) {
             console.log('not allowed')
-            return res.status(200).json(false)
+            return res.status(200).json({allowed : false})
         }
         if (roomId) {
             const room = await RoomMembers.findOne({
