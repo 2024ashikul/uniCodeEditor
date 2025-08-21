@@ -28,6 +28,7 @@ import Collaborate from './components/Collaborate';
 import CollaboratePage from '../pages/CollaboratePage';
 import CollaborateClass from '../pages/CollarborateClass';
 import CodeEditorCollaborateClassData from '../pages/CodeEditorCollaborateClassData';
+import CodeEditorCollaborateAll from '../pages/CodeEditorCollaborateAll';
 
 
 
@@ -58,6 +59,7 @@ function App() {
                   <Route path='/collaborate' element={<CollaboratePage />} />
                   <Route path='/collaborateclass' element={<CollaborateClass />} />
                    <Route path='/collaborateclassdata/:roomId' element={<CodeEditorCollaborateClassData />} />
+                   <Route path='/collaborateclassall/:roomId' element={<CodeEditorCollaborateAll />} />
                 </Route>
               </Routes>
 
