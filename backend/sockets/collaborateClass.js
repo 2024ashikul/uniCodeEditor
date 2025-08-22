@@ -2,7 +2,7 @@ const { access } = require("fs");
 
 const rooms = {};
 
-function registerClassHandlers(io) {
+function registerCollaborateClassHandlers(io) {
   io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
@@ -65,4 +65,4 @@ function registerClassHandlers(io) {
 
 }
 
-module.exports = { registerClassHandlers };
+module.exports = { registerCollaborateClassHandlers };

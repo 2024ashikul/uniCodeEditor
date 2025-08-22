@@ -5,9 +5,10 @@ const app = require('./app');
 
 const httpServer = createServer(app);
 const mongoose = require('mongoose')
-const {registerCollabHandlers} = require('./sockets/collabRoom')
-const {registerClassHandlers} = require('./sockets/classRoom')
-const {registerAuthClassHandlers} = require('./sockets/classAuthRoom')
+const {registerCollaborateHandlers} = require('./sockets/collaborate')
+const {registerCollaborateRoomHandlers} =require('./sockets/collaborateRoom');
+const { registerCollaborateClassRoomHandlers } = require('./sockets/collaborateClassRoom');
+const { registerCollaborateClassHandlers } = require('./sockets/collaborateClass');
 
 const io = new Server(httpServer, {
   cors: {
@@ -17,13 +18,15 @@ const io = new Server(httpServer, {
 });
 
 
-const collabSpace = io.of('/collab');
-const classSpace = io.of('/class');
-const classAuthSpace = io.of('/classauth')
+const collaborate = io.of('/collaborate');
+const collaborateClass = io.of('/collaborateClass');
+const collaborateClassRoom = io.of('/collaborateClassRoom')
+const collaborateRoom = io.of('/collaborateRoom')
 
-registerClassHandlers(classSpace);
-registerCollabHandlers(collabSpace);
-registerAuthClassHandlers(classAuthSpace);
+registerCollaborateClassHandlers(collaborateClass);
+registerCollaborateHandlers(collaborate);
+registerCollaborateClassRoomHandlers(collaborateClassRoom);
+registerCollaborateRoomHandlers(collaborateRoom)
 
 
 
