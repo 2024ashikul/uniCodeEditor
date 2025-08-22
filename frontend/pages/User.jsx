@@ -5,13 +5,14 @@ import { useEffect } from "react";
 import { useState } from "react";
 
 import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
-import TopBanner from "../src/components/TopBanner";
+import TopBanner from "../src/components/SharedComponents/TopBanner";
 import { UIProvider } from "../src/Contexts/UIContext/UIProvider";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
-import TopBar from "../src/components/TopBar";
+import TopBar from "../src/components/SharedComponents/TopBar";
 import JoinedRoom from "../src/components/Home/JoinedRoom";
 import CreatedRoom from "../src/components/Home/CreatedRoom";
 import AccountSettings from "../src/components/Home/AccountSettings";
+import Home from "../src/components/Home";
 
 export default function User() {
 
@@ -19,7 +20,7 @@ export default function User() {
     const { email, userId, token, userName } = useContext(AuthContext);
     const { setMessage, setType } = useContext(AlertContext);
 
-    const [activeTab, setActiveTab] = useState('joinedrooms');
+    const [activeTab, setActiveTab] = useState('home');
     console.log({ email, userId, token });
     const { setTitle } = useContext(UIContext);
 
@@ -42,6 +43,7 @@ export default function User() {
 
 
     const tabs = [
+        { title: 'Home', keyword: 'home', icon: '' },
         { title: 'Your Joined Rooms', keyword: 'joinedrooms', icon: '' },
         { title: 'Your Created Rooms', keyword: 'createdrooms', icon: '' },
         { title: 'Account Settings', keyword: 'accountsettings', icon: '' },
@@ -66,7 +68,9 @@ export default function User() {
                                 <CreatedRoom />
                                 : activeTab === 'accountsettings' ?
                                     <AccountSettings />
-                                    : <></>}
+                                    : 
+                                        <Home />
+                                    }
                     </div>
                 </div>
 

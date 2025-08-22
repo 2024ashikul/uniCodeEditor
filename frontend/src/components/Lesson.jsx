@@ -2,7 +2,7 @@ import MDEditor from "@uiw/react-md-editor";
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { UIContext } from "../Contexts/UIContext/UIContext";
-import TopBanner from "./TopBanner";
+import TopBanner from "./SharedComponents/TopBanner";
 
 
 export default function Lesson() {

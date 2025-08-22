@@ -4,14 +4,14 @@ import EditorPage from "./EditorPage";
 import { useContext, useEffect, useState } from "react";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import { FileQuestionMark, Send, Dot } from "lucide-react";
-import TopBanner from "../src/components/TopBanner";
-import TopBar from "../src/components/TopBar";
+import TopBanner from "../src/components/SharedComponents/TopBanner";
+import TopBar from "../src/components/SharedComponents/TopBar";
 
 import Submissions from "../src/components/Assignment/Submissions";
 import Problems from "../src/components/Assignment/Problems";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
-import NullComponent from "../src/components/NullComponent";
+import NullComponent from "../src/components/SharedComponents/NullComponent";
 
 
 export default function UserAssignment() {

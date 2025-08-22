@@ -4,8 +4,8 @@ import { memo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
-import TopBanner from "../src/components/TopBanner";
-import TopBar from "../src/components/TopBar";
+import TopBanner from "../src/components/SharedComponents/TopBanner";
+import TopBar from "../src/components/SharedComponents/TopBar";
 import Assignements from "../src/components/Room/Assignments";
 import Members from "../src/components/Room/Members";
 import Announcements from "../src/components/Room/Announcements";

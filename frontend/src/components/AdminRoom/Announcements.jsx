@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import PopUp from "../PopUp";
-import PageTitle from "../PageTitle";
-import Button from "../Button";
+import PopUp from "../SharedComponents/PopUp";
+import PageTitle from "../SharedComponents/PageTitle";
+import Button from "../SharedComponents/Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
-import NullComponent from "../NullComponent";
+import NullComponent from "../SharedComponents/NullComponent";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
-import InlineButton from "../InlineButton";
+import InlineButton from "../SharedComponents/InlineButton";
 import { useNavigate } from "react-router-dom";
 
 
@@ -103,6 +103,15 @@ export default function Annoucements({ roomId }) {
                                 onClickAction={() => {
 
                                     navigate(`/collaborateclassdata/${roomId}`)
+                                }
+                                }
+                            />
+                        </div>
+                        <div className="w-[400px]">
+                            <InlineButton buttonLabel={'Create a new CollabCode'}
+                                onClickAction={() => {
+
+                                    navigate(`/collaborateclassall/${roomId}`)
                                 }
                                 }
                             />

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import PopUp from "../PopUp";
-import PageTitle from "../PageTitle";
-import Button from "../Button";
+import PopUp from "../SharedComponents/PopUp";
+import PageTitle from "../SharedComponents/PageTitle";
+import Button from "../SharedComponents/Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
-import NullComponent from "../NullComponent";
+import NullComponent from "../SharedComponents/NullComponent";
 
 
 

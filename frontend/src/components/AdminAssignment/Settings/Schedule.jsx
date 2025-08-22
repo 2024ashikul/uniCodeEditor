@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
 import { UIContext } from "../../../Contexts/UIContext/UIContext";
-import Button from "../../Button";
-import PopUp from "../../PopUp";
-import PopUpLayout from "../../PopUpLayout";
-import PopUpLayoutTemp from "../../PopUpLayoutTemp";
+import Button from "../../SharedComponents/Button";
+import PopUp from "../../SharedComponents/PopUp";
+import PopUpLayout from "../../SharedComponents/PopUpLayout";
+import PopUpLayoutTemp from "../../SharedComponents/PopUpLayoutTemp";
 
 
 

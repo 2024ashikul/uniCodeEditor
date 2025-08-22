@@ -7,7 +7,7 @@ import Loading from './CodeEditor/Loading';
 import { AuthContext } from '../Contexts/AuthContext/AuthContext';
 import { UIContext } from '../Contexts/UIContext/UIContext';
 import { Play, SendHorizontal, BadgeQuestionMark, Check } from 'lucide-react';
-import CustomDropDown from './CustomDropDown';
+import CustomDropDown from './SharedComponents/CustomDropDown';
 import MDEditor from "@uiw/react-md-editor";
 
 export default function CodeEditor({ problemId }) {
@@ -28,6 +28,8 @@ export default function CodeEditor({ problemId }) {
 
 
     const languages = ['python', 'cpp', 'C#'];
+     const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
+    const tabsizes = [2, 3, 4, 5, 6, 7, 8];
     // const [results, setResults] = useState({
     //     stdout: '',
     //     stderr: '',
@@ -110,8 +112,7 @@ export default function CodeEditor({ problemId }) {
     }
 
 
-    const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
-    const tabsizes = [2, 3, 4, 5, 6, 7, 8];
+   
 
     console.log(font);
     useEffect(() => {

@@ -1,17 +1,17 @@
 import { useContext, useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom";
-import PopUp from "../src/components/PopUp";
+import PopUp from "../src/components/SharedComponents/PopUp";
 
 import { FileQuestionMark, Send, Settings, MedalIcon } from "lucide-react";
 
-import TopBar from "../src/components/TopBar";
-import Button from "../src/components/Button";
-import PageTitle from "../src/components/PageTitle";
+import TopBar from "../src/components/SharedComponents/TopBar";
+import Button from "../src/components/SharedComponents/Button";
+import PageTitle from "../src/components/SharedComponents/PageTitle";
 import Problems from "../src/components/AdminAssignment/Problems";
 import Submissions from "../src/components/AdminAssignment/Submissions";
 import Settingss from "../src/components/AdminAssignment/Settings";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
-import TopBanner from "../src/components/TopBanner";
+import TopBanner from "../src/components/SharedComponents/TopBanner";
 import Results from "../src/components/AdminAssignment/Results";
 
 

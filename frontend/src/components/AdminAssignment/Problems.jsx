@@ -1,12 +1,12 @@
 import { useState, useEffect, useContext } from "react";
-import PageTitle from "../PageTitle";
-import Button from "../Button";
-import PopUp from "../PopUp";
+import PageTitle from "../SharedComponents/PageTitle";
+import Button from "../SharedComponents/Button";
+import PopUp from "../SharedComponents/PopUp";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
 import MDEditor from "@uiw/react-md-editor";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
-import NullComponent from "../NullComponent";
-import InlineButton from "../InlineButton";
+import NullComponent from "../SharedComponents/NullComponent";
+import InlineButton from "../SharedComponents/InlineButton";
 
 export default function Problems({ assignmentId }) {
     const [problems, setProblems] = useState([]);

@@ -6,10 +6,10 @@ import { useState } from "react";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
-import PopUp from "../PopUp";
-import Button from "../Button";
-import PageTitle from "../PageTitle";
-import NullComponent from "../NullComponent";
+import PopUp from "../SharedComponents/PopUp";
+import Button from "../SharedComponents/Button";
+import PageTitle from "../SharedComponents/PageTitle";
+import NullComponent from "../SharedComponents/NullComponent";
 
 
 

@@ -2,24 +2,24 @@
 import { useContext } from "react";
 
 
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
 
 
 export default function HomePage() {
-    
+
     const navigate = useNavigate();
-    const {setMessage} = useContext(AlertContext);
+    const { setMessage } = useContext(AlertContext);
     const { token } = useContext(AuthContext);
     console.log(token);
 
-    if(token){
-        setTimeout(()=>{
+    if (token) {
+        setTimeout(() => {
             setMessage('Welcome!!!');
             navigate('/user');
-        },1000);
-        
+        }, 1000);
+
     }
 
     return (
@@ -51,10 +51,15 @@ export default function HomePage() {
                             className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black rounded-xl shadow-md transition">
                             Code Now
                         </button>
-                                <button
-                            onClick={() => navigate('/collaborate')}
+                        <button
+                            onClick={() => navigate('/collaborateclass')}
                             className="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-black rounded-xl shadow-md transition">
-                            MeetCode
+                            ClassCode
+                        </button>
+                                                <button
+                            onClick={() => navigate('/collaborate')}
+                            className="px-6 py-3 bg-red-500 hover:bg-cyan-600 text-black rounded-xl shadow-md transition">
+                            CollabCode
                         </button>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import PageTitle from "../PageTitle";
-import Button from "../Button";
-import PopUp from "../PopUp";
+import PageTitle from "../SharedComponents/PageTitle";
+import Button from "../SharedComponents/Button";
+import PopUp from "../SharedComponents/PopUp";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
 import MDEditor from "@uiw/react-md-editor";
 

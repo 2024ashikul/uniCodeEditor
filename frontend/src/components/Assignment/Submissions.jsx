@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
-import NullComponent from "../NullComponent";
+import NullComponent from "../SharedComponents/NullComponent";
 
 
 export default function Submissions({ assignmentId }) {

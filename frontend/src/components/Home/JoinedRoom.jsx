@@ -5,11 +5,11 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
-import PageTitle from "../PageTitle";
+import PageTitle from "../SharedComponents/PageTitle";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
-import Button from "../Button";
-import PopUp from "../PopUp";
-import NullComponent from "../NullComponent";
+import Button from "../SharedComponents/Button";
+import PopUp from "../SharedComponents/PopUp";
+import NullComponent from "../SharedComponents/NullComponent";
 
 
 export default function JoinedRoom() {

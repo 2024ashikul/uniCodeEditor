@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import NullComponent from "../NullComponent";
+import NullComponent from "../SharedComponents/NullComponent";
 
 
 

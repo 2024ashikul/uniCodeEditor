@@ -1,12 +1,12 @@
 import {  useEffect, useState } from "react"
-import PageTitle from "../PageTitle";
+import PageTitle from "../SharedComponents/PageTitle";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
-import PopUp from "../PopUp";
-import Button from "../Button";
+import PopUp from "../SharedComponents/PopUp";
+import Button from "../SharedComponents/Button";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import Schedule from "./Settings/Schedule";
 import UpdateAssignmentInfo from "./Settings/UpdateAssignmentInfo";
-import PopUpLayout from "../PopUpLayout";
+import PopUpLayout from "../SharedComponents/PopUpLayout";
 
 
 export default function Settingss({ assignmentId }) {

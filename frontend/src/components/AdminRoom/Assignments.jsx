@@ -1,11 +1,11 @@
 import { useState, useEffect, useContext } from "react";
-import PopUp from "../PopUp"
+import PopUp from "../SharedComponents/PopUp"
 
 import { useNavigate } from "react-router-dom";
-import PageTitle from "../PageTitle";
-import Button from "../Button";
+import PageTitle from "../SharedComponents/PageTitle";
+import Button from "../SharedComponents/Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
-import NullComponent from "../NullComponent";
+import NullComponent from "../SharedComponents/NullComponent";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 
 export default function Assignements({ roomId }) {
