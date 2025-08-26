@@ -4,6 +4,7 @@ import PopUp from "../../SharedComponents/PopUp";
 import Button from "../../SharedComponents/Button";
 import PopUpLayout from "../../SharedComponents/PopUpLayout";
 import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
+import { API_URL } from "../../../config";
 
 
 
@@ -24,7 +25,7 @@ export default function UpdateAssignmentInfo({ assignmentId, title, description 
         e.preventDefault();
         console.log(form);
         try {
-            const res = await fetch('http://localhost:3000/updateassignment', {
+            const res = await fetch(`${API_URL}/updateassignment`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

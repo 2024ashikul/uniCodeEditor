@@ -4,6 +4,7 @@ import PageTitle from "../SharedComponents/PageTitle";
 import Button from "../SharedComponents/Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
+import { API_URL } from "../../config";
 
 
 
@@ -12,7 +13,7 @@ export default function Announcements({ roomId }) {
 
 
     useEffect(() => {
-        fetch('http://localhost:3000/fetchannouncements', {
+        fetch(`${API_URL}/fetchannouncements`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

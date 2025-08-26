@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../src/config";
 
 
 export default function SignUp() {
@@ -21,7 +22,7 @@ export default function SignUp() {
         e.preventDefault();
         console.log(form);
         try {
-            const res = await fetch('http://localhost:3000/signup', {
+            const res = await fetch(`${API_URL}/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

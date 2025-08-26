@@ -1,3 +1,4 @@
+import { API_URL } from "../src/config";
 
 
 export default function CreateAssignment({ assignmentId }) {
@@ -13,7 +14,7 @@ export default function CreateAssignment({ assignmentId }) {
 
         console.log(form)
 
-        await fetch('http://localhost:3000/createproblem', {
+        await fetch(`${API_URL}/createproblem`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

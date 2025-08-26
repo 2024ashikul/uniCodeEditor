@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io('http://localhost:3000/collaborateRoom');
+const socket = io(`${API_URL}/collaborateRoom`);
 import { useState, useEffect, useRef, useContext } from 'react';
 
 
@@ -20,6 +20,7 @@ import NavBar from '../src/components/NavBar';
 
 import History from '../src/components/CollabAllClass/History';
 import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
+import { API_URL } from '../src/config';
 
 
 
@@ -301,7 +302,7 @@ export default function CollaborateRoom() {
 
         setLoading(true);
 
-        await fetch('http://localhost:3000/runcode', {
+        await fetch(`${API_URL}/runcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -356,6 +357,7 @@ export default function CollaborateRoom() {
     }, [files, activeFile]);
 
     useEffect(() => {
+        if (!authorized) return;
         const handler = ({ files }) => {
 
             console.log('Received seeFile event. Files:', files);
@@ -367,7 +369,7 @@ export default function CollaborateRoom() {
         socket.on("seeFile", handler);
         console.log('seen the file');
         return () => socket.off("seeFile", handler);
-    }, [member]);
+    }, [member,authorized]);
 
 
 

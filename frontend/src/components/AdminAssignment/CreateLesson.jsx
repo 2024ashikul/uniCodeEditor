@@ -17,6 +17,7 @@ import { CSS } from "@dnd-kit/utilities";
 import MDEditor from "@uiw/react-md-editor";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import { useParams } from "react-router-dom";
+import { API_URL } from "../../config";
 
 export default function CreateLesson() {
     const {roomId} = useParams();
@@ -35,11 +36,12 @@ export default function CreateLesson() {
       },
     })
   );
+  
 
 
   const createLesson = async() => {
     try{
-        const res = await fetch('http://localhost:3000/createlesson',{
+        const res = await fetch(`${API_URL}/createlesson`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

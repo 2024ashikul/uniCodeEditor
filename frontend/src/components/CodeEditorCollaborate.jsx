@@ -4,12 +4,13 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io('http://localhost:3000/collaborate');
+const socket = io(`${API_URL}/collaborate`);
 import { useState, useEffect, useRef, useContext } from 'react';
 import Loading from './CodeEditor/Loading';
 import { AlertContext } from '../Contexts/AlertContext/AlertContext';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
+import { API_URL } from '../config';
 
 export default function CodeEditorCollaborate({ roomId, isEditorProp, username }) {
     const [isEditor, setIsEditor] = useState(isEditorProp);
@@ -296,7 +297,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
         setLoading(true);
 
-        await fetch('http://localhost:3000/runcode', {
+        await fetch(`${API_URL}/runcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -407,6 +408,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                                 value={files[activeFile].content}
                                 onMount={handleEditorMount}
                                 language={files[activeFile].language}
+                                theme='vs-dark'
                                 className='p-2 border rounded-2xl '
                                 options={{
                                     readOnly: !isEditor,
@@ -425,6 +427,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                                     formatOnType: true,
                                     renderWhitespace: "all",
                                     matchBrackets: 'always',
+                                    
                                 }}
                             >
 

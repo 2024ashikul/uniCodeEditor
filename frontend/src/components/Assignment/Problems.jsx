@@ -4,6 +4,7 @@ import Button from "../SharedComponents/Button";
 import PopUp from "../SharedComponents/PopUp";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
 import MDEditor from "@uiw/react-md-editor";
+import { API_URL } from "../../config";
 
 export default function Problems({ assignmentId }) {
     const [problems, setProblems] = useState([]);
@@ -11,7 +12,7 @@ export default function Problems({ assignmentId }) {
     
 
     useEffect(() => {
-        fetch('http://localhost:3000/fetchproblems', {
+        fetch(`${API_URL}/fetchproblems`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

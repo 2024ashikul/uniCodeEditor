@@ -6,13 +6,14 @@ import PageTitle from "../SharedComponents/PageTitle";
 import Button from "../SharedComponents/Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
+import { API_URL } from "../../config";
 
 export default function Assignements({ roomId }) {
     
     const [assignments, setAssignments] = useState([]);
     
     useEffect(() => {
-        fetch('http://localhost:3000/scheduleassignmentsuser', {
+        fetch(`${API_URL}/scheduleassignmentsuser`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

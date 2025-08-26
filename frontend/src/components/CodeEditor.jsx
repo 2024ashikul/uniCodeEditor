@@ -9,6 +9,7 @@ import { UIContext } from '../Contexts/UIContext/UIContext';
 import { Play, SendHorizontal, BadgeQuestionMark, Check } from 'lucide-react';
 import CustomDropDown from './SharedComponents/CustomDropDown';
 import MDEditor from "@uiw/react-md-editor";
+import { API_URL } from '../config';
 
 export default function CodeEditor({ problemId }) {
     const [terminalHeight, setTerminalHeight] = useState(0);
@@ -41,7 +42,7 @@ export default function CodeEditor({ problemId }) {
     const [tabSize, setTabSize] = useState(4);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/fetchproblem`, {
+        fetch(`${API_URL}/fetchproblem`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -60,7 +61,7 @@ export default function CodeEditor({ problemId }) {
 
     async function handleRun() {
         setLoading(true);
-        await fetch('http://localhost:3000/runcode', {
+        await fetch(`${API_URL}/runcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -90,7 +91,7 @@ export default function CodeEditor({ problemId }) {
     async function handleSubmit() {
         console.log(problemId);
         console.log(language);
-        await fetch('http://localhost:3000/submitcode', {
+        await fetch(`${API_URL}/submitcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

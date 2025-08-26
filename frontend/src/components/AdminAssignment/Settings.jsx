@@ -7,12 +7,13 @@ import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import Schedule from "./Settings/Schedule";
 import UpdateAssignmentInfo from "./Settings/UpdateAssignmentInfo";
 import PopUpLayout from "../SharedComponents/PopUpLayout";
+import { API_URL } from "../../config";
 
 
 export default function Settingss({ assignmentId }) {
     const [assignment, setAssignment] = useState(false);
     useEffect(() => {
-        fetch('http://localhost:3000/fetchassignment', {
+        fetch(`${API_URL}/fetchassignment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

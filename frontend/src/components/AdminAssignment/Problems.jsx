@@ -7,6 +7,7 @@ import MDEditor from "@uiw/react-md-editor";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import InlineButton from "../SharedComponents/InlineButton";
+import { API_URL } from "../../config";
 
 export default function Problems({ assignmentId }) {
     const [problems, setProblems] = useState([]);
@@ -20,6 +21,7 @@ export default function Problems({ assignmentId }) {
         title: '',
         statement: ''
     })
+    
     const handleChange = e => { setForm({ ...form, [e.target.name]: e.target.value }) };
     console.log(form);
 
@@ -28,7 +30,7 @@ export default function Problems({ assignmentId }) {
 
         e.preventDefault();
         console.log(form)
-        await fetch('http://localhost:3000/createproblem', {
+        await fetch(`${API_URL}/createproblem`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -52,7 +54,7 @@ export default function Problems({ assignmentId }) {
         e.preventDefault();
         console.log(form)
         try {
-            const res = await fetch('http://localhost:3000/updateproblem', {
+            const res = await fetch(`${API_URL}/updateproblem`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -79,7 +81,7 @@ export default function Problems({ assignmentId }) {
         console.log("here")
         try {
 
-            const res = await fetch('http://localhost:3000/deleteproblem', {
+            const res = await fetch(`${API_URL}/deleteproblem`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -104,7 +106,7 @@ export default function Problems({ assignmentId }) {
     }
 
     useEffect(() => {
-        fetch('http://localhost:3000/fetchproblems', {
+        fetch(`${API_URL}/fetchproblems`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

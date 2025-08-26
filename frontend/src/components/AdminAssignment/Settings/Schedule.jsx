@@ -5,6 +5,7 @@ import Button from "../../SharedComponents/Button";
 import PopUp from "../../SharedComponents/PopUp";
 import PopUpLayout from "../../SharedComponents/PopUpLayout";
 import PopUpLayoutTemp from "../../SharedComponents/PopUpLayoutTemp";
+import { API_URL } from "../../../config";
 
 
 
@@ -37,7 +38,7 @@ export default function Schedule({ assignmentId }) {
     async function applyScehdule(e) {
         e.preventDefault();
         console.log(form);
-        await fetch('http://localhost:3000/scheduleassignments', {
+        await fetch(`${API_URL}/scheduleassignments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

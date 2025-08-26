@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useEffect } from "react";
 import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
+import { API_URL } from "../src/config";
 export default function Login() {
     const navigate = useNavigate();
     const { token, setToken, setEmail } = useContext(AuthContext);
@@ -40,7 +41,7 @@ export default function Login() {
         e.preventDefault();
         try {
             console.log(form);
-            const res = await fetch('http://localhost:3000/login', {
+            const res = await fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

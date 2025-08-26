@@ -7,6 +7,7 @@ import Button from "../SharedComponents/Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
+import { API_URL } from "../../config";
 
 export default function Assignements({ roomId }) {
     const {popUp ,setPopUp,setTitle } = useContext(UIContext);
@@ -20,7 +21,7 @@ export default function Assignements({ roomId }) {
     const [assignments, setAssignments] = useState([]);
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
     useEffect(() => {
-        fetch('http://localhost:3000/assignments', {
+        fetch(`${API_URL}/assignments`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -37,7 +38,7 @@ export default function Assignements({ roomId }) {
         e.preventDefault();
         console.log(form);
         try{
-        const res = await fetch('http://localhost:3000/updateassignment', {
+        const res = await fetch(`${API_URL}/updateassignment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

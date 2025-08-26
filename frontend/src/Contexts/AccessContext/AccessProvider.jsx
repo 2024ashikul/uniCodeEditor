@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { AccessContext } from "./AccessContext";
 import { useContext } from "react";
 import { AuthContext } from "../AuthContext/AuthContext";
+import { API_URL } from "../../config";
 
 
 export const AccessProvider = ({ children })=> {
@@ -13,7 +14,7 @@ export const AccessProvider = ({ children })=> {
         try {
             
             
-            const res = await fetch('http://localhost:3000/getuseraccess', {
+            const res = await fetch(`${API_URL}/getuseraccess`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

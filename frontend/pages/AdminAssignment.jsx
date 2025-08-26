@@ -13,6 +13,7 @@ import Settingss from "../src/components/AdminAssignment/Settings";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import TopBanner from "../src/components/SharedComponents/TopBanner";
 import Results from "../src/components/AdminAssignment/Results";
+import { API_URL } from "../src/config";
 
 
 export default function AdminAssignment({ roomId }) {
@@ -23,7 +24,7 @@ export default function AdminAssignment({ roomId }) {
     useEffect(() => {
 
 
-        fetch('http://localhost:3000/fetchassignment', {
+        fetch(`${API_URL}/fetchassignment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

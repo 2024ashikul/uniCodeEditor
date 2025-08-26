@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { API_URL } from "../../config";
 
 
 
@@ -8,7 +9,7 @@ export default function Results({ assignmentId }) {
 
     const [members, setMembers] = useState([]);
     useEffect(() => {
-        fetch('http://localhost:3000/roommembersforassigment', {
+        fetch(`${API_URL}/roommembersforassigment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -51,7 +52,7 @@ export default function Results({ assignmentId }) {
                                         group.map(temp => (
                                             <div className="h-20 min-w-24  justify-center">
                                                 <div className="justify-center">Problem {idx + 1}</div>
-                                                <div className="justify-center"><a href={`http://localhost:3000/files/${temp?.file}.txt`} className="underline" target="_blank">View</a></div>
+                                                <div className="justify-center"><a href={`${API_URL}/files/${temp?.file}.txt`} className="underline" target="_blank">View</a></div>
                                                 <div className="justify-center">{temp.AIscore || 0}</div>
                                             </div>
                                         ))

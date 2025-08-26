@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PageTitle from "../SharedComponents/PageTitle";
+import { API_URL } from "../../config";
 
 
 
@@ -7,7 +8,7 @@ export default function Members({ roomId }) {
     const [members, setMembers] = useState([]);
     
     useEffect(() => {
-        fetch('http://localhost:3000/roommembers', {
+        fetch(`${API_URL}/roommembers`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

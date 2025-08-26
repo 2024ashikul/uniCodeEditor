@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io('http://localhost:3000');
+import { API_URL } from '../config';
+const socket = io(`${API_URL}`);
 
 function CollaborateTest({ roomId, isTeacher }) {
     const [code, setCode] = useState('// Start coding...');
@@ -112,6 +113,7 @@ function CollaborateTest({ roomId, isTeacher }) {
                 onChange={handleCodeChange}
                 options={{ readOnly: !isTeacher }}
                 onMount={handleEditorMount}
+                theme='vs-dark'
             />
 
             {!isTeacher && (

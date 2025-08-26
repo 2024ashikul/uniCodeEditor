@@ -12,6 +12,7 @@ import Problems from "../src/components/Assignment/Problems";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import NullComponent from "../src/components/SharedComponents/NullComponent";
+import { API_URL } from "../src/config";
 
 
 export default function UserAssignment() {
@@ -29,7 +30,7 @@ export default function UserAssignment() {
 
 
     useEffect(() => {
-        fetch('http://localhost:3000/fetchassignment', {
+        fetch(`${API_URL}/fetchassignment`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

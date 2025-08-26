@@ -10,6 +10,7 @@ import PopUp from "../SharedComponents/PopUp";
 import Button from "../SharedComponents/Button";
 import PageTitle from "../SharedComponents/PageTitle";
 import NullComponent from "../SharedComponents/NullComponent";
+import { API_URL } from "../../config";
 
 
 
@@ -33,7 +34,7 @@ export default function CreatedRoom() {
 
     useEffect(() => {
         const type = 'onlyAdmin';
-        fetch('http://localhost:3000/loadroomsjoined', {
+        fetch(`${API_URL}/loadroomsjoined`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,7 +57,7 @@ export default function CreatedRoom() {
 
         console.log(userId);
         try {
-            const res = await fetch('http://localhost:3000/createroom', {
+            const res = await fetch(`${API_URL}/createroom`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

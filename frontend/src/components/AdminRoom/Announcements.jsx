@@ -7,6 +7,7 @@ import NullComponent from "../SharedComponents/NullComponent";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import InlineButton from "../SharedComponents/InlineButton";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../config";
 
 
 
@@ -21,7 +22,7 @@ export default function Annoucements({ roomId }) {
     });
     const navigate = useNavigate();
     useEffect(() => {
-        fetch('http://localhost:3000/fetchannouncements', {
+        fetch(`${API_URL}/fetchannouncements`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -39,7 +40,7 @@ export default function Annoucements({ roomId }) {
         e.preventDefault();
         console.log(form);
         try {
-            const res = await fetch('http://localhost:3000/createannoucemnet', {
+            const res = await fetch(`${API_URL}/createannoucemnet`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

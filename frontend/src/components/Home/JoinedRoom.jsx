@@ -10,6 +10,7 @@ import { UIContext } from "../../Contexts/UIContext/UIContext";
 import Button from "../SharedComponents/Button";
 import PopUp from "../SharedComponents/PopUp";
 import NullComponent from "../SharedComponents/NullComponent";
+import { API_URL } from "../../config";
 
 
 export default function JoinedRoom() {
@@ -33,9 +34,10 @@ export default function JoinedRoom() {
         const roomId = form.roomId;
         console.log(userId);
         console.log(roomId);
+        
         const role = 'user';
         try {
-            const res = await fetch('http://localhost:3000/joinroom', {
+            const res = await fetch(`${API_URL}/joinroom`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -62,7 +64,7 @@ export default function JoinedRoom() {
 
     useEffect(() => {
         const type = 'onlyUser';
-        fetch('http://localhost:3000/loadroomsjoined', {
+        fetch(`${API_URL}/loadroomsjoined`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

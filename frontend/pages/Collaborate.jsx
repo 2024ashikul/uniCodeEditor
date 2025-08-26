@@ -35,10 +35,10 @@ export default function Collaborate() {
 
                             <div className="flex items-center gap-4">
                                 <label className="w-28 text-gray-700 font-medium" htmlFor="name">
-                                    Your Name
+                                    ROOM ID
                                 </label>
                                 <input
-                                placeholder="Your name"
+                                placeholder="Room ID"
                                     onChange={(e) => setId(e.target.value)}
                                     type="text" name="collarborateId" id="id"
                                     className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { UIContext } from "../Contexts/UIContext/UIContext";
 import TopBanner from "./SharedComponents/TopBanner";
+import { API_URL } from "../config";
 
 
 export default function Lesson() {
@@ -15,7 +16,7 @@ export default function Lesson() {
 
     const { lessonId } = useParams();
     useEffect(() => {
-        fetch('http://localhost:3000/fetchlesson', {
+        fetch(`${API_URL}/fetchlesson`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

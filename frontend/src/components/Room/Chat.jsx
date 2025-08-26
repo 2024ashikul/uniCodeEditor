@@ -1,9 +1,11 @@
 
 import { useContext, useEffect, useState } from "react";
 
-import socket from "../../socket"
+
 import {  useParams } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import { API_URL } from "../../config";
+
 export default function Chat() {
     const [admin, setAdmin] = useState([]);
     const { email } = useContext(AuthContext);
@@ -11,7 +13,7 @@ export default function Chat() {
     const [chat, setChat] = useState([]);
     const [message, setMessage] = useState("");
     useEffect(() => {
-        fetch('http://localhost:3000/getadmin', {
+        fetch(`${API_URL}/getadmin`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

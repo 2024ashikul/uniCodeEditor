@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { API_URL } from "../src/config";
 
 
 export default function CreateRoom() {
@@ -25,7 +26,7 @@ export default function CreateRoom() {
 
     async function createRoom() {
         console.log(email);
-        await fetch('http://localhost:3000/createroom', {
+        await fetch(`${API_URL}/createroom`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -49,7 +50,7 @@ export default function CreateRoom() {
         if (!userId || !token) return;
         
         
-        fetch('http://localhost:3000/loadrooms', {
+        fetch(`${API_URL}/loadrooms`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 import NullComponent from "../SharedComponents/NullComponent";
+import { API_URL } from "../../config";
 
 
 export default function Submissions({ assignmentId }) {
     const [submissions, setSubmissions] = useState([]);
     const {userId} = useContext(AuthContext);
     useEffect(() => {
-        fetch('http://localhost:3000/fetchsubmissionsind', {
+        fetch(`${API_URL}/fetchsubmissionsind`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -45,11 +46,9 @@ export default function Submissions({ assignmentId }) {
                             <div className="flex-1">{item?.AIscore}</div>
                             <div className="flex-1">{item?.time.slice(11, 19)}</div>
                             <div className="px-4 hover:bg-blue-100 border-1 rounded-2xl">
-                                <a href={`http://localhost:3000/files/${item?.file}.txt`} target="_blank">View</a>
+                                <a href={`${API_URL}/files/${item?.file}.txt`} target="_blank">View</a>
                             </div>
-                            {/* <div className="px-4 w-auto hover:bg-blue-100 border-1 rounded-2xl">
-                                <a href={`http://localhost:3000/files/${item?.file}.${item?.ext}`} className="items-center justify-between" target="_blank">Download</a>
-                            </div> */}
+
 
                         </div>
                     )) || null}

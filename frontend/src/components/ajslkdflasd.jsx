@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import PageTitle from "../PageTitle";
 import NullComponent from "../NullComponent";
 import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { API_URL } from "../config";
 
 export default function Announcements({ roomId }) {
   const [announcements, setAnnouncements] = useState([]);
@@ -16,7 +17,7 @@ export default function Announcements({ roomId }) {
     setLoading(true);
     setError(null);
 
-    fetch("http://localhost:3000/fetchannouncements", {
+    fetch(`${API_URL}/fetchannouncements`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ roomId }),

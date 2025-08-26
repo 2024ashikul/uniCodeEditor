@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react';
 
 import { useState, useEffect } from 'react';
 import Loading from './CodeEditor/Loading';
+import { API_URL } from '../config';
 
 
 export default function CodeEditorTemp() {
@@ -30,7 +31,7 @@ export default function CodeEditorTemp() {
 
         setLoading(true);
 
-        await fetch('http://localhost:3000/runcode', {
+        await fetch(`${API_URL}/runcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -57,7 +58,7 @@ export default function CodeEditorTemp() {
     }
     async function handleSubmit() {
 
-        await fetch('http://localhost:3000/submitcode', {
+        await fetch(`${API_URL}/submitcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

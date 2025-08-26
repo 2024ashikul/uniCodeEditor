@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io('http://localhost:3000/collaborateClassRoom');
+const socket = io(`${API_URL}/collaborateClassRoom`);
 import { useState, useEffect, useRef, useContext } from 'react';
 
 
@@ -18,6 +18,7 @@ import Fab from '@mui/material/Fab';
 import { AuthContext } from '../src/Contexts/AuthContext/AuthContext';
 import NavBar from '../src/components/NavBar';
 import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
+import { API_URL } from '../src/config';
 
 
 export default function CollaborateClassRoom() {
@@ -298,7 +299,7 @@ export default function CollaborateClassRoom() {
 
         setLoading(true);
 
-        await fetch('http://localhost:3000/runcode', {
+        await fetch(`${API_URL}/runcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -6,6 +6,7 @@ import PageTitle from "../SharedComponents/PageTitle";
 import Button from "../SharedComponents/Button";
 import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
+import { API_URL } from "../../config";
 
 export default function Lessons({ roomId }) {
     const {popUp } = useContext(UIContext);
@@ -14,7 +15,7 @@ export default function Lessons({ roomId }) {
     const [lessons, setLessons] = useState([]);
     
     useEffect(() => {
-        fetch('http://localhost:3000/fetchlessons', {
+        fetch(`${API_URL}/fetchlessons`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

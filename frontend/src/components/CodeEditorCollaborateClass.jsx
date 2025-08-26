@@ -4,13 +4,14 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io('http://localhost:3000/collaborateClass');
+const socket = io(`${API_URL}/collaborateClass`);
 import { useState, useEffect, useRef, useContext } from 'react';
 import Loading from './CodeEditor/Loading';
 import { AlertContext } from '../Contexts/AlertContext/AlertContext';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import { CircleUserRound, File } from 'lucide-react';
+import { API_URL } from '../config';
 
 export default function CodeEditorCollaborateClass({ roomId, isEditor, username }) {
 
@@ -273,7 +274,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
 
         setLoading(true);
 
-        await fetch('http://localhost:3000/runcode', {
+        await fetch(`${API_URL}/runcode`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
