@@ -41,7 +41,7 @@ mongoose.connect('mongodb://localhost:27017/mongo')
 
 
 sequelize.sync().then(() => {
-  httpServer.listen(PORT, () => {
+  httpServer.listen(PORT,"0.0.0.0", () => {
     console.log(`Server running on ${PORT}`);
   });
 });
