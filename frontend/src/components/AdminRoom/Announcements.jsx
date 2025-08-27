@@ -100,19 +100,19 @@ export default function Annoucements({ roomId }) {
                     </div>
                     <div className="flex-1">
                         <div className="w-[400px]">
-                            <InlineButton buttonLabel={'Create a new MEETCODE'}
+                            <InlineButton buttonLabel={'Create a new CollabClass'}
                                 onClickAction={() => {
 
-                                    navigate(`/collaborateclassdata/${roomId}`)
+                                    navigate(`/collaborateclassroom/${roomId}`)
                                 }
                                 }
                             />
                         </div>
                         <div className="w-[400px]">
-                            <InlineButton buttonLabel={'Create a new CollabCode'}
+                            <InlineButton buttonLabel={'Create a new CollabMeet'}
                                 onClickAction={() => {
 
-                                    navigate(`/collaborateclassall/${roomId}`)
+                                    navigate(`/collaborateroom/${roomId}`)
                                 }
                                 }
                             />

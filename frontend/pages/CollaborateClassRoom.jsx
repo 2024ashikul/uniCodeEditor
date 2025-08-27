@@ -147,6 +147,7 @@ export default function CollaborateClassRoom() {
 
 
     useEffect(() => {
+
         if (!isEditor) {
             socket.on('pointerUpdate', ({ x, y }) => {
                 if (pointerRef.current) {
@@ -180,14 +181,16 @@ export default function CollaborateClassRoom() {
     }, [setIsEditor, userId])
 
     useEffect(() => {
+        if(!authorized) return;
         console.log(userId);
         socket.emit('joinRoom', ({ roomId, userId }));
         return () => {
             socket.off('joinRoom');
         };
-    }, [roomId, userId])
+    }, [roomId, userId,authorized])
 
     useEffect(() => {
+        if(!authorized) return;
         console.log("here")
         //socket.emit('joinRoom', roomId);
         function renderTeacherCursor() {
@@ -227,7 +230,7 @@ export default function CollaborateClassRoom() {
             socket.off('fileUpdate');
             socket.off('cursorUpdate');
         };
-    }, [roomId, isEditor]);
+    }, [roomId, isEditor,authorized]);
 
     useEffect(() => {
         if (!isEditor) return;

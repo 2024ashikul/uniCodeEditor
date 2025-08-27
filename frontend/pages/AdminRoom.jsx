@@ -30,7 +30,6 @@ export default function AdminRoom() {
         { title: 'Lessons', keyword: 'lessons', icon: Book },
         { title: 'Assignments', keyword: 'assignments', icon: Notebook },
         { title: 'Members', keyword: 'members', icon: Users },
-
     ]
 
     return (
