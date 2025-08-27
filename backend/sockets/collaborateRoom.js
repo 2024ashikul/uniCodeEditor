@@ -1,9 +1,29 @@
 const { access } = require("fs");
-const { RoomMembers, User } = require("../models");
+const { RoomMembers, User, Meeting } = require("../models");
 
 
 const rooms = {};
 
+async function createMeeting(roomId, userId) {
+    console.log('creating meeting')
+    const findMeeting = await Meeting.findOne({
+        where :{
+            roomId: roomId,
+        type: 'collaborateroom',
+        host: userId
+        }
+        
+    });
+    if (findMeeting) {
+        return;
+    }
+    const newMeeting = await Meeting.create({
+        roomId: roomId,
+        status: 'active',
+        type: 'collaborateroom',
+        host: userId
+    });
+}
 
 async function getMembers(roomId) {
     const membersfull = await RoomMembers.findAll({
@@ -54,6 +74,7 @@ function registerCollaborateRoomHandlers(io) {
                 console.log('here');
                 socket.emit('syncFile', {file : rooms[roomId].files[userId]});
             }
+            createMeeting(roomId, userId);
 
             io.to(roomId).emit('roomData', rooms[roomId]);
             console.log(rooms[roomId]);

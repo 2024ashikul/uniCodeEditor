@@ -1,27 +1,44 @@
 const { access } = require("fs");
-const { RoomMembers, User } = require("../models");
-
-
+const { RoomMembers, User, Meeting } = require("../models");
+const { createRoom } = require("../controllers/roomController");
 const rooms = {};
+
+async function createMeeting(roomId, userId) {
+    const findMeeting = await Meeting.findOne({
+        where: {
+            roomId: roomId,
+            type: 'collaborateclassroom',
+            host: userId
+        }
+
+    });
+    if (findMeeting) {
+        return;
+    }
+    const newMeeting = await Meeting.create({
+        roomId: roomId,
+        status: 'active',
+        type: 'collaborateclassroom',
+        host: userId
+    });
+}
+
 
 async function getMembers(roomId) {
     const membersfull = await RoomMembers.findAll({
         where: {
             roomId: roomId
         },
-
         include: [{ model: User, attributes: ['name', 'email', 'id'] }]
     });
-     return membersfull.map(item => ({
+    return membersfull.map(item => ({
         role: item.role,
         id: item.user.id,
         name: item.user.name,
         email: item.user.email,
-        access : item.role=== 'admin' ? true : false,  
+        access: item.role === 'admin' ? true : false,
         active: false
     }));
-
-
 }
 
 function registerCollaborateClassRoomHandlers(io) {
@@ -31,21 +48,21 @@ function registerCollaborateClassRoomHandlers(io) {
         let currentRoomId = null;
         let currentUserId = null;
 
-        socket.on('joinRoom',async ({ roomId, userId }) => {
+        socket.on('joinRoom', async ({ roomId, userId }) => {
             console.log(userId);
             await socket.join(roomId);
             socket.to(roomId).emit('sendMessage', `A new member ${userId} joined`)
             console.log(`${socket.id} joined room ${roomId}`);
             currentRoomId = roomId;
             currentUserId = userId;
+            createMeeting(roomId, userId);
 
-    
 
             socket.join(roomId);
-             if (!rooms[roomId]) {
-                const members =await getMembers(roomId);
+            if (!rooms[roomId]) {
+                const members = await getMembers(roomId);
 
-                rooms[roomId] = {  members, history: [] };
+                rooms[roomId] = { members, history: [] };
             }
             const member = rooms[roomId].members.find(m => m.id === userId);
             if (member) {
@@ -61,8 +78,8 @@ function registerCollaborateClassRoomHandlers(io) {
             if (rooms[roomId] && rooms[roomId]) {
                 const member = rooms[roomId].members.find(m => m.id === userId);
                 if (member) {
-                member.access = !member.access;
-            }
+                    member.access = !member.access;
+                }
             }
             console.log(rooms[roomId])
             const data = rooms[roomId];
@@ -90,7 +107,7 @@ function registerCollaborateClassRoomHandlers(io) {
             if (currentRoomId && currentUserId) {
                 const member = rooms[currentRoomId]?.members.find(m => m.id === currentUserId);
                 if (member) {
-                    member.active = false; 
+                    member.active = false;
                     io.to(currentRoomId).emit('roomData', rooms[currentRoomId]);
                 }
             }

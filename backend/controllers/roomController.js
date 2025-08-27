@@ -14,7 +14,7 @@ exports.createRoom = async (req, res) => {
             admin: userId,
             name: roomName
         });
-        console.log(temp);
+        console.log('hi');
         const roommeber = await RoomMembers.create({
             role: 'admin',
             userId: userId,

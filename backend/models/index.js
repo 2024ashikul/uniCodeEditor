@@ -18,9 +18,11 @@ const Problem = require('./problems.js')(sequelize,DataTypes)
 const Announcement = require('./announcements.js') (sequelize, DataTypes)
 const Lesson = require('./lesson.js') (sequelize , DataTypes);
 const LessonM = require('../models/lessons');
+const Meeting = require('./meetings.js') (sequelize, DataTypes);
 
 User.hasMany(Rooms, {foreignKey : 'userId'})
 Rooms.belongsTo(User, {foreignKey : 'userId'})
+
 
 
 User.belongsToMany(Rooms, {
@@ -56,7 +58,7 @@ User.hasMany(Submission, {foreignKey : 'userId',onDelete : 'CASCADE',onUpdate : 
 Assignment.hasMany(Problem , {foreignKey : 'assignmentId'})
 Problem.belongsTo(Assignment , {foreignKey : 'assignmentId'})
 
-module.exports = { sequelize, User,Admin, Rooms, RoomMembers,Assignment,Submission,Problem, Announcement ,Lesson , LessonM};
+module.exports = { sequelize, User,Admin, Rooms, RoomMembers,Assignment,Submission,Problem, Announcement ,Lesson , LessonM, Meeting};
 
 (async () => {
   try {
