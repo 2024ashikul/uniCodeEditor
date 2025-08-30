@@ -14,7 +14,7 @@ const LessonContentSchema = new mongoose.Schema({
 
 const LessonSchema = new mongoose.Schema({
   id : {type : Number , required : true},
-  title: { type: String, required: true }, 
+  title: { type: String, required: true },
   contents: [LessonContentSchema],
 }, {
   timestamps: true

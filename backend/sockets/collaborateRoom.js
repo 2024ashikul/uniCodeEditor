@@ -23,6 +23,7 @@ async function createMeeting(roomId, userId) {
         type: 'collaborateroom',
         host: userId
     });
+    return newMeeting.id;
 }
 
 async function getMembers(roomId) {
@@ -74,8 +75,8 @@ function registerCollaborateRoomHandlers(io) {
                 console.log('here');
                 socket.emit('syncFile', {file : rooms[roomId].files[userId]});
             }
-            createMeeting(roomId, userId);
-
+            const meetingId = createMeeting(roomId, userId);
+            const data = rooms[roomId];
             io.to(roomId).emit('roomData', rooms[roomId]);
             console.log(rooms[roomId]);
             io.to(roomId).emit('memberJoin', userId);

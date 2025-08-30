@@ -21,6 +21,7 @@ async function createMeeting(roomId, userId) {
         type: 'collaborateclassroom',
         host: userId
     });
+    return newMeeting;
 }
 
 
@@ -55,10 +56,10 @@ function registerCollaborateClassRoomHandlers(io) {
             console.log(`${socket.id} joined room ${roomId}`);
             currentRoomId = roomId;
             currentUserId = userId;
-            createMeeting(roomId, userId);
+            await createMeeting(roomId, userId);
 
 
-            socket.join(roomId);
+            await socket.join(roomId);
             if (!rooms[roomId]) {
                 const members = await getMembers(roomId);
 
@@ -82,7 +83,7 @@ function registerCollaborateClassRoomHandlers(io) {
                 }
             }
             console.log(rooms[roomId])
-            const data = rooms[roomId];
+        
             io.to(roomId).emit('roomData', rooms[roomId]);
         });
 

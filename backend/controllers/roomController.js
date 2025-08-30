@@ -38,15 +38,15 @@ exports.createAnnoucement = async (req, res) => {
             title: form.title,
             description: form.description
         })
-        if(newAnnoucement){
-            return res.status(201).json({newAnnoucement , message : 'New announcment created!'})
-        }else{
-            return res.status(201).json({ message : 'An error occured'})
+        if (newAnnoucement) {
+            return res.status(201).json({ newAnnoucement, message: 'New announcment created!' })
+        } else {
+            return res.status(201).json({ message: 'An error occured' })
         }
         res.status(201).json(newAnnoucement);
     } catch (err) {
         console.log(err)
-        return res.status(400).json({message : 'Could not create an announcement'})
+        return res.status(400).json({ message: 'Could not create an announcement' })
     }
 }
 
@@ -57,7 +57,8 @@ exports.fetchAnnoucements = async (req, res) => {
         const announcements = await Announcement.findAll({
             where: {
                 roomId: roomId
-            }
+            },
+            order: [['createdAt', 'DESC']]
         });
         console.log('fetched announcements')
         res.status(201).json(announcements)
@@ -166,7 +167,7 @@ exports.roomMembers = async (req, res) => {
             include: [{ model: User, attributes: ['name', 'email'] }]
         });
         const members = membersfull.map(item => ({
-            role : item.role,
+            role: item.role,
             name: item.user.name,
             email: item.user.email
         }))
@@ -223,14 +224,7 @@ exports.roomMembersForAssignment = async (req, res) => {
             }
         });
 
-        // const result = members.map(item => ({
-        //     member: item,
-        //     submission: {
-        //         submissions.map((item)=> 
-
-        //         )
-        //     }
-        // }))
+    
         const result = members.map((element) => ({
             member: element,
             submission:
@@ -301,7 +295,7 @@ exports.getUserAccess = async (req, res) => {
     try {
         if (!userId) {
             console.log('not allowed')
-            return res.status(200).json({allowed : false})
+            return res.status(200).json({ allowed: false })
         }
         if (roomId) {
             const room = await RoomMembers.findOne({
@@ -381,11 +375,52 @@ exports.createLesson = async (req, res) => {
     }
 }
 
+exports.updateLesson = async (req, res) => {
+    try {
+        const { contents, title,  lessonId } = req.body;
+
+        const lesson = await Lesson.findOne({
+            where: {
+                id: lessonId
+            }
+        });
+        if (!lesson) {
+            return res.status(404).json({ message: "Lesson not found" });
+        }
+
+        lesson.title = title || lesson.title;
+        
+        await lesson.save();
+
+        const lessonM = await LessonM.findOne({ id: lessonId });
+
+        if (!lessonM) {
+            
+            const newLessonM = new LessonM({
+                id: lessonId,
+                title,
+                contents,
+            });
+            await newLessonM.save();
+        } else {
+            lessonM.title = title || lessonM.title;
+            lessonM.contents = contents || lessonM.contents;
+            await lessonM.save();
+        }
+
+        return res.status(200).json({ message: "Lesson updated successfully" });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(404).json({ message: 'Could not create lesson' })
+    }
+}
+
 exports.lessonInd = async (req, res) => {
     try {
         const { lessonId } = req.body;
-        
-        const lesson = await LessonM.findOne({id : lessonId})
+
+        const lesson = await LessonM.findOne({ id: lessonId })
 
         if (!lesson) {
             return res.status(404).json({ message: "Lesson not found" });

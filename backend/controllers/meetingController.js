@@ -11,7 +11,6 @@ exports.getMeetingStatus = async (req, res) => {
             attributes: ['roomId']
         });
         const rooms = roommembers.map(member => member.roomId);
-
         const activeMeetings = await Meeting.findAll({
             where: {
                 roomId: rooms,
@@ -23,6 +22,22 @@ exports.getMeetingStatus = async (req, res) => {
     } catch (err) {
         console.log(err)
     }
+}
 
+
+exports.leaveMeeting = async (req, res) => {
+    const { userId } = req.body;
+    try {
+        const meeting = await Meeting.findOne({
+            where: {
+                userId: userId
+            }
+        });
+        
+        await meeting.destroy();
+        
+    } catch (err) {
+        console.log(err)
+    }
 }
 

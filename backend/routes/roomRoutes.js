@@ -16,6 +16,7 @@ router.post('/roommembersforassigment',roomController.roomMembersForAssignment)
 router.post('/loadroomsjoined',roomController.loadRoomsJoined)
 router.post('/getuseraccess',roomController.getUserAccess)
 router.post('/createlesson',roomController.createLesson)
+router.post('/updatelesson',roomController.updateLesson)
 router.post('/fetchlessons',roomController.allLessons)
 router.post('/fetchlesson',roomController.lessonInd)
 
