@@ -50,7 +50,7 @@ export default function Annoucements({ roomId }) {
 
             const data = await res.json();
             if (res.ok) {
-                setAnnoucements(prev => [...prev, data.newAnnoucement])
+                setAnnoucements(prev => [data.newAnnoucement,...prev])
                 setMessage(data.message)
                 setPopUp(false);
                 setAnnoucement(false);
@@ -75,16 +75,16 @@ export default function Annoucements({ roomId }) {
                         buttonLabel={'Create a New Announcement'}
                     />
                 </div>
-                <div className=" min-w-full pt-4  flex  gap-2  rounded-2xl transition duration-1000">
-                    <div className="w-7/12">
+                <div className="flex-1 min-w-full pt-4  flex  gap-4  rounded-2xl transition duration-1000">
+                    <div className="flex-1 ">
                         {
                             announcements.length === 0 ?
                                 <NullComponent
                                     text={'No announcments found!'}
                                 />
                                 : announcements.map((item, i) => (
-                                    <div className="shadow-md border-fuchsia-200 flex-col rounded-2xl transition duration-500 flex w-full 
-                                hover:bg-slate-300 "
+                                    <div className="shadow-sm border-amber-700 flex-col rounded-2xl transition duration-500 flex w-full 
+                                hover:bg-slate-100  "
                                         key={i}>
 
                                         <div className="flex">
@@ -98,8 +98,8 @@ export default function Annoucements({ roomId }) {
                         }
 
                     </div>
-                    <div className="flex-1">
-                        <div className="w-[400px]">
+                    <div className="min-w-[400px]">
+                        <div className="">
                             <InlineButton buttonLabel={'Create a new CollabClass'}
                                 onClickAction={() => {
 
@@ -108,7 +108,7 @@ export default function Annoucements({ roomId }) {
                                 }
                             />
                         </div>
-                        <div className="w-[400px]">
+                        <div className="">
                             <InlineButton buttonLabel={'Create a new CollabMeet'}
                                 onClickAction={() => {
 

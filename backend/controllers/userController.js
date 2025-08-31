@@ -2,7 +2,7 @@ const { User, Admin } = require("../models");
 
 const jwt = require('jsonwebtoken')
 SECRET = "hi tehre"
-
+REFRESH_SECRET = 'hi there'
 
 exports.signup = async (req, res) => {
     try {
@@ -19,6 +19,7 @@ exports.signup = async (req, res) => {
             email: form.email,
             name: form.name,
         });
+
         return res.status(201).json({ message: 'created succesfully',type : 'success' });
     } catch (err) {
         console.log(err)
@@ -38,27 +39,58 @@ exports.login = async (req, res) => {
             }
         });
         if (!newItem) {
-            res.status(404).json({ message: 'Could not found user' ,type : 'warning'});
+            return res.status(404).json({ message: 'Could not found user' ,type : 'warning'});
         }
 
         const token = jwt.sign({ email: form.email, userId: newItem.id ,name : newItem.name}, SECRET, { expiresIn: '1d' });
+        const refreshToken = jwt.sign(
+            { userId: newItem.id },
+            REFRESH_SECRET, 
+            { expiresIn: '7d' }
+        );
 
-        res.status(201).json({ message: 'logged in', token });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: false, // true if using HTTPS
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000, 
+        });
+
+        return res.status(201).json({ message: 'logged in', token });
     } catch (err) {
         console.log(err)
     }
 }
 
-exports.check = async (req, res) => {
-    const auth = req.headers.authorization;
 
-    if (!auth) return res.sendStatus(401);
-    // if (!token) return res.status(401).json({ message: 'Not logged in' });
+exports.refreshToken = (req, res) => {
+    const token = req.cookies.refreshToken;
+    if (!token) return res.sendStatus(401);
 
     try {
-        const decoded = jwt.verify(auth.split(" ")[1], SECRET);
-        res.json({ msg: `Hello, ${decoded.email}` });
-    } catch {
-        res.sendStatus(403);
+        const payload = jwt.verify(token, REFRESH_SECRET);
+        const newAccessToken = jwt.sign(
+            { userId: payload.userId },
+            SECRET,
+            { expiresIn: '1d' }
+        );
+        res.json({ token: newAccessToken });
+    } catch (err) {
+        return res.sendStatus(403);
     }
 };
+
+
+// exports.verifyToken = (req, res, next) => {
+//     const authHeader = req.headers.authorization;
+//     if (!authHeader) return res.sendStatus(401);
+
+//     const token = authHeader.split(" ")[1];
+//     try {
+//         const decoded = jwt.verify(token, SECRET);
+//         req.user = decoded;
+//         next();
+//     } catch (err) {
+//         return res.sendStatus(403);
+//     }
+// };

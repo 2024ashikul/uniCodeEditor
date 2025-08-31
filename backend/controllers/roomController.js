@@ -85,7 +85,8 @@ exports.loadRooms = async (req, res) => {
 }
 
 exports.loadRoomsJoined = async (req, res) => {
-    const { userId, type } = req.body;
+    const userId = req.user.userId;
+    const { type } = req.body;
     console.log(userId)
     try {
 

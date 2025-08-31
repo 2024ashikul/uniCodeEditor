@@ -49,7 +49,7 @@ export default function PopUp({ form, name, setName, onSubmit, onChange, extraFi
                                 <label className="w-28 text-gray-700 font-medium pt-2" htmlFor="description">
                                     Description
                                 </label>
-                                <textarea required
+                                <textarea 
                                     value={form?.description || ""}
                                     id="description"
                                     name="description"

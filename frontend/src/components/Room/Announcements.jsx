@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
-import PopUp from "../SharedComponents/PopUp";
 import PageTitle from "../SharedComponents/PageTitle";
-import Button from "../SharedComponents/Button";
-import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import { API_URL } from "../../config";
 
-
-
 export default function Announcements({ roomId }) {
     const [announcements, setAnnoucements] = useState([]);
-
 
     useEffect(() => {
         fetch(`${API_URL}/fetchannouncements`, {
@@ -26,10 +20,7 @@ export default function Announcements({ roomId }) {
     }, [roomId])
 
 
-
-
     return (
-
         <>
             <div className={`flex flex-col `}>
                 <div className="flex mt-2 justify-between">

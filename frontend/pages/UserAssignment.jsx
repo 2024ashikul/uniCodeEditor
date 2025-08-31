@@ -1,6 +1,5 @@
-import { useParams } from "react-router-dom";
-import CodeEditor from "../src/components/CodeEditor";
-import EditorPage from "./EditorPage";
+import { Navigate, Route, Router, Routes, useNavigate, useParams } from "react-router-dom";
+
 import { useContext, useEffect, useState } from "react";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import { FileQuestionMark, Send, Dot } from "lucide-react";
@@ -9,24 +8,32 @@ import TopBar from "../src/components/SharedComponents/TopBar";
 
 import Submissions from "../src/components/Assignment/Submissions";
 import Problems from "../src/components/Assignment/Problems";
-import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
-import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
+
 import NullComponent from "../src/components/SharedComponents/NullComponent";
 import { API_URL } from "../src/config";
 
 
 export default function UserAssignment() {
-    const [activeTab, setActiveTab] = useState('problem');
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('problems');
     const { popUp } = useContext(UIContext);
     const { setTitle, setScrollHeight } = useContext(UIContext);
-   // const [authorized, setAuthorized] = useState(false);
-  //  const {  userId } = useContext(AuthContext);
+    // const [authorized, setAuthorized] = useState(false);
+    //  const {  userId } = useContext(AuthContext);
     const { assignmentId } = useParams();
     const [assignment, setAssignment] = useState(null);
     const [timleft, setTimeleft] = useState(null);
     const currentTime = new Date().toISOString().slice(0, 16);
-    
 
+   useEffect(() => {
+        const lastSegment = window.location.pathname.split("/").pop();
+        if (!lastSegment || lastSegment === assignmentId) {
+            setActiveTab("announcements");
+            navigate(`/assignment/${assignmentId}/problems`, { replace: true });
+        } else {
+            setActiveTab(lastSegment);
+        }
+    }, [assignmentId, navigate]);
 
 
     useEffect(() => {
@@ -42,16 +49,12 @@ export default function UserAssignment() {
             .catch((err) => console.log(err))
     }, [assignmentId])
 
-    
-
-
 
     useEffect(() => {
         setTitle('Assignment');
         setScrollHeight(100);
 
     }, [setTitle, setScrollHeight, assignment])
-
 
 
     useEffect(() => {
@@ -62,8 +65,6 @@ export default function UserAssignment() {
             });
         }
     }, [assignment, currentTime, setTimeleft]);
-    
-
 
 
     async function CalculateTimeLeft(current, scheduled) {
@@ -92,8 +93,6 @@ export default function UserAssignment() {
     const temp = assignment?.scheduleTime?.toString();
     console.log(CalculateTimeLeft(currentTime, temp));
 
-
-
     const extraInfo = (
         <div className="flex justify-center gap-2">
             <div>{assignment?.status.toUpperCase()} </div>  <Dot />
@@ -103,7 +102,7 @@ export default function UserAssignment() {
     );
 
     const tabs = [
-        { title: 'Problems', keyword: 'problem', icon: FileQuestionMark },
+        { title: 'Problems', keyword: 'problems', icon: FileQuestionMark },
         { title: 'My Submissions', keyword: 'submissions', icon: Send }
     ]
 
@@ -120,35 +119,25 @@ export default function UserAssignment() {
             <TopBar
                 tabs={tabs}
                 activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                setActiveTab={(tab) => navigate(`/assignment/${assignmentId}/${tab}`)}
             />
 
 
             <div className="flex flex-col p-8 ">
-
-                {activeTab === 'problem' ? (
-
-                    currentTime < assignment?.scheduleTime ? (
-                        <NullComponent
-                            text={'You can see the problems once the Time starts'}
-                        />
-                            
-            
-                    ) : (
-                        <Problems
-                            assignmentId={assignmentId}
-                        />
-                    )
-
-
-                ) : activeTab === 'submissions' ? (
-                    <Submissions
-                        assignmentId={assignmentId}
-                    />
-                ) : (<>
-                    hi
-                </>)
+                {currentTime < assignment?.scheduleTime ? (
+                    <NullComponent
+                        text={'You can see the problems once the Time starts'}
+                    />)
+                    :<>
+                    <Routes>
+                        <Route path="problems" element={<Problems assignmentId={assignmentId} />} />
+                        <Route path="submissions" element={<Submissions assignmentId={assignmentId} />} />
+                        <Route path="*" element={<Navigate to="problems" replace />} />
+                    </Routes>
+                    </>
                 }
+
+
             </div>
         </>
     )

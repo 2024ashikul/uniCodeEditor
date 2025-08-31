@@ -1,12 +1,25 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const assignment = require('./assignment.js');
 const lessons = require('./lessons.js');
+require('dotenv').config();
+
+// const sequelize = new Sequelize({
+//   dialect: 'sqlite',
+//   storage: './database.sqlite'
+// });
+
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT || 'postgres',
+    port: process.env.DB_PORT || 5432,
+  }
+);
 
 
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: './database.sqlite'
-});
 
 const User = require('./users.js')(sequelize, DataTypes);
 const Admin = require('./admin.js')(sequelize , DataTypes);

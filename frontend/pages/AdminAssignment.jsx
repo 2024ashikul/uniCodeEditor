@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom";
+import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import PopUp from "../src/components/SharedComponents/PopUp";
 
 import { FileQuestionMark, Send, Settings, MedalIcon } from "lucide-react";
@@ -19,6 +19,7 @@ import { API_URL } from "../src/config";
 export default function AdminAssignment({ roomId }) {
     const { popUp } = useContext(UIContext);
     const [activeTab, setActiveTab] = useState('problem');
+    const navigate = useNavigate();
     const { assignmentId } = useParams();
     const { setTitle, setScrollHeight } = useContext(UIContext);
     useEffect(() => {
@@ -47,12 +48,23 @@ export default function AdminAssignment({ roomId }) {
 
     }, [setTitle, setScrollHeight, assignmentId])
 
+    useEffect(() => {
+        const lastSegment = window.location.pathname.split("/").pop();
+        if (!lastSegment || lastSegment === assignmentId) {
+            setActiveTab("problems");
+            navigate(`/assignment/${assignmentId}/problems`, { replace: true });
+        } else {
+            setActiveTab(lastSegment);
+        }
+    }, [assignmentId, navigate]);
+
     const tabs = [
-        { title: 'Problems', keyword: 'problem', icon: FileQuestionMark },
+        { title: 'Problems', keyword: 'problems', icon: FileQuestionMark },
         { title: 'Submissions', keyword: 'submissions', icon: Send },
         { title: 'Settings', keyword: 'settings', icon: Settings },
         { title: 'Results', keyword: 'results', icon: MedalIcon }
     ]
+
 
     return (
         <>
@@ -63,38 +75,19 @@ export default function AdminAssignment({ roomId }) {
             <TopBar
                 tabs={tabs}
                 activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                setActiveTab={(tab) => navigate(`/assignment/${assignmentId}/${tab}`)}
             />
 
             <div className="flex flex-col p-8 ">
 
-                {activeTab === 'problem' ? (
-                    <Problems
-                        assignmentId={assignmentId}
-                    />
+                <Routes>
+                    <Route path="problems" element={<Problems assignmentId={assignmentId} />} />
+                    <Route path="submissions" element={<Submissions assignmentId={assignmentId} />} />
+                    <Route path="settings" element={<Settingss assignmentId={assignmentId} />} />
+                    <Route path="results" element={<Results assignmentId={assignmentId} roomId={roomId}/>} />
 
-                ) : activeTab === 'submissions' ? (
-                    <Submissions
-                        assignmentId={assignmentId}
-                    />
-                ) : activeTab === 'settings' ? (
-                    <>
-                        <Settingss
-                            assignmentId={assignmentId}
-                        />
-                    </>
-                ) : activeTab === 'results' ? (
-                    <>
-                        <Results
-                            assignmentId={assignmentId}
-                            roomId={roomId}
-                        />
-                    </>
-                ) : (
-                    <>
-                    </>
-                )
-                }
+                </Routes>
+
             </div>
         </>
     )

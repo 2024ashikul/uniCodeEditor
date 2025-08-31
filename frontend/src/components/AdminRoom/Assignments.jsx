@@ -80,8 +80,8 @@ export default function Assignements({ roomId }) {
                     <NullComponent text={'No assignments found'} />
                     
                    : assignments.map((item, i) => (
-                        <div className="shadow-sm items-center rounded-2xl cursor-pointer transition flex w-full 
-                                  hover:bg-slate-300
+                        <div className="shadow-sm items-center rounded-sm cursor-pointer transition flex w-full 
+                                  hover:bg-slate-100
                                     "
                             key={i}
                             onClick={() => {setTitle(item.title); navigate(`/assignment/${item.id}`) }}>

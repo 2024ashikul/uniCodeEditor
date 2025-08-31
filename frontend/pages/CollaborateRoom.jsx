@@ -1,13 +1,9 @@
-
-
 import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 const socket = io(`${API_URL}/collaborateRoom`);
 import { useState, useEffect, useRef, useContext } from 'react';
-
-
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import { CircleUserRound, Dot, File } from 'lucide-react';
@@ -21,8 +17,6 @@ import NavBar from '../src/components/NavBar';
 import History from '../src/components/CollabAllClass/History';
 import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
 import { API_URL } from '../src/config';
-
-
 
 
 export default function CollaborateRoom() {
@@ -44,13 +38,34 @@ export default function CollaborateRoom() {
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
     const [members, setMembers] = useState([]);
+    const [admin, setAdmin] = useState(false);
     const [member, setMember] = useState(userId);
     const [tabSize, setTabSize] = useState(4);
     const languages = ['python', 'cpp', 'C#'];
     const tabsizes = [2, 3, 4, 5, 6, 7, 8];
-    const {authorized, setAuthorized, setRole } = useContext(AccessContext);
+    const { authorized, setAuthorized, setRole } = useContext(AccessContext);
 
 
+
+    useEffect(() => {
+        if (!userId) return;
+        fetch(`${API_URL}/getadmin`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ roomId })
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setAdmin(data.admin == userId);
+
+
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }, [userId, roomId, admin])
 
     useEffect(() => {
         if (!userId) return;
@@ -67,7 +82,6 @@ export default function CollaborateRoom() {
                 }
                 else {
                     setAuthorized(false)
-
                 }
             })
 
@@ -81,9 +95,9 @@ export default function CollaborateRoom() {
     const [activeFile, setActiveFile] = useState("main.cpp");
     console.log(`active file is : ${activeFile}`);
 
-    
 
-    //IOS swit h
+
+    //IOS switch
     const IOSSwitch = styled((props) => (
         <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
     ))(({ theme }) => ({
@@ -152,7 +166,7 @@ export default function CollaborateRoom() {
         socket.on('sendMessage', (message) => {
             setMessage(message);
         })
-    }, [setMessage,authorized])
+    }, [setMessage, authorized])
 
 
 
@@ -165,8 +179,6 @@ export default function CollaborateRoom() {
             setIsEditor(true); //changeneeded
             console.log(data);
         })
-
-
         socket.on('syncFile', (data) => {
             setMyFiles(data.file);
             setFiles(data.file);
@@ -174,24 +186,20 @@ export default function CollaborateRoom() {
             setActiveFile(fileKeys[0]);
             console.log(data.file);
         })
-
-
-
         return () => {
             socket.off('roomData');
             socket.off('syncFile');
         };
-    }, [setIsEditor, userId,authorized])
+    }, [setIsEditor, userId, authorized])
 
     useEffect(() => {
         if (!authorized) return;
         console.log(userId);
-        
         socket.emit('joinRoom', ({ roomId, userId }));
         return () => {
             socket.off('joinRoom');
         };
-    }, [roomId, userId,authorized])
+    }, [roomId, userId, authorized])
 
     useEffect(() => {
         if (!authorized) return;
@@ -237,7 +245,7 @@ export default function CollaborateRoom() {
             socket.off('fileUpdate');
             socket.off('cursorUpdate');
         };
-    }, [roomId, isEditor, member,authorized]);
+    }, [roomId, isEditor, member, authorized]);
 
     useEffect(() => {
         if (!authorized) return;
@@ -247,7 +255,7 @@ export default function CollaborateRoom() {
         } else {
             setIsEditor(false);
         }
-    }, [setIsEditor, member, userId,authorized])
+    }, [setIsEditor, member, userId, authorized])
 
     useEffect(() => {
         if (!authorized) return;
@@ -260,7 +268,7 @@ export default function CollaborateRoom() {
 
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, [isEditor, roomId,authorized]);
+    }, [isEditor, roomId, authorized]);
 
     const addNewFile = () => {
         let newFileName = prompt("Enter new file name:", "newFile.js");
@@ -294,6 +302,27 @@ export default function CollaborateRoom() {
         }
     }
 
+    async function LeaveMeeting() {
+        try {
+            fetch(`${API_URL}/leavemeeting`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ roomId })
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    // setMeetings(data.meetings);
+                    // console.log(data)
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+        }catch(err){
+            console.log(err)
+        }
+}
     //Code functionality part
 
     const [font, setFont] = useState(12);
@@ -369,7 +398,7 @@ export default function CollaborateRoom() {
         socket.on("seeFile", handler);
         console.log('seen the file');
         return () => socket.off("seeFile", handler);
-    }, [member,authorized]);
+    }, [member, authorized]);
 
 
 
@@ -427,6 +456,11 @@ export default function CollaborateRoom() {
                         value={tabSize}
                         onChange={setTabSize}
                     />
+                    <div>
+                        {admin &&
+                            <button onClick={() => LeaveMeeting()}>Leave</button>
+                        }
+                    </div>
                 </div>
                 <div className='flex flex-col  flex-1 overflow-hidden'>
                     <div className={`flex flex-1  mb-2  gap-2 transition-all ease-in-out duration-300`}

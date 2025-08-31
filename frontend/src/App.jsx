@@ -27,6 +27,8 @@ import CollaborateClassRoom from '../pages/CollaborateClassRoom';
 import CollaborateRoom from '../pages/CollaborateRoom';
 import CollaborateTest from './components/CollaborateTest';
 import Collaborate from '../pages/Collaborate';
+import UpdateLesson from './components/AdminAssignment/UpdateLesson';
+import ProfilePage from '../pages/ProfilePage';
 
 
 
@@ -41,24 +43,25 @@ function App() {
               <Routes>
                 <Route element={<StyleLayout />}>
                   <Route element={<Layout />}>
-                    <Route path='/room/:roomId' element={<Room />} />
+                    <Route path='/room/:roomId/*' element={<Room />} />
 
                     <Route path='/login' element={<Login />} />
                     <Route path='/signup' element={<SignUp />} />
-                    <Route path='/assignment/:assignmentId' element={<Assignment />} />
-                    <Route path='/user' element={<PrivateRoute><User /></PrivateRoute>} />
+                    <Route path='/assignment/:assignmentId/*' element={<Assignment />} />
+                    <Route path='/user/*' element={<PrivateRoute><User /></PrivateRoute>} />
                     <Route path='room/:roomId/createlesson' element={<CreateLesson />} />
                     <Route path='/lesson/:lessonId' element={<Lesson />} />
-
+                    <Route path='/updatelesson/:lessonId' element={<UpdateLesson />} />
+                    <Route path='/profile' element={<ProfilePage />} />
                   </Route>
                   <Route path='/' element={<HomePage />} />
                   <Route path='/problem/:problemId' element={<EditorPage />} />
                   <Route path='/editor' element={<EditorPageGuest />} />
-                  <Route path='/test' element={<CollaborateTest/>} />
+                  <Route path='/test' element={<CollaborateTest />} />
                   <Route path='/collaborate' element={<Collaborate />} />
                   <Route path='/collaborateclass' element={<CollaborateClass />} />
-                   <Route path='/collaborateclassroom/:roomId' element={<CollaborateClassRoom />} />
-                   <Route path='/collaborateroom/:roomId' element={<CollaborateRoom />} />
+                  <Route path='/collaborateclassroom/:roomId' element={<CollaborateClassRoom />} />
+                  <Route path='/collaborateroom/:roomId' element={<CollaborateRoom />} />
                 </Route>
               </Routes>
 

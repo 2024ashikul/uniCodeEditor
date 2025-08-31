@@ -1,35 +1,46 @@
-
 import { Users, Notebook, Megaphone, Book } from 'lucide-react';
-import { memo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 
-import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import TopBanner from "../src/components/SharedComponents/TopBanner";
 import TopBar from "../src/components/SharedComponents/TopBar";
 import Assignements from "../src/components/Room/Assignments";
 import Members from "../src/components/Room/Members";
 import Announcements from "../src/components/Room/Announcements";
 import Chat from "../src/components/Room/Chat";
-import { UIContext } from "../src/Contexts/UIContext/UIContext";
-import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import Lessons from "../src/components/Room/Lessons";
 
 
-export default function UserRoom() {
 
-    const { roomId } = useParams();
+export default function UserRoom() {
+    const navigate = useNavigate();
 
     const [activeTab, setActiveTab] = useState('announcements');
+    const { roomId } = useParams();
+    console.log(roomId);
 
-    const tabs = [
+
+    const tabs = useMemo(() => [
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
         { title: 'Assignments', keyword: 'assignments', icon: Notebook },
         { title: 'Members', keyword: 'members', icon: Users },
         { title: 'Chats', keyword: 'chats', icon: Users },
         { title: 'Lessons', keyword: 'lessons', icon: Book }
-    ]
+    ], []);
+
+    useEffect(() => {
+        const lastSegment = window.location.pathname.split("/").pop();
+        if (!lastSegment || lastSegment === roomId) {
+            setActiveTab("announcements");
+            navigate(`/room/${roomId}/announcements`, { replace: true });
+        } else {
+            setActiveTab(lastSegment);
+        }
+    }, [roomId, navigate]);
 
 
+
+    console.log(activeTab);
     return (
         <>
             <div>
@@ -38,26 +49,26 @@ export default function UserRoom() {
             </div>
             <TopBar
                 tabs={tabs}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                // activeTab={activeTab}
+                // setActiveTab={setActiveTab}
+                activeTab={window.location.pathname.split("/").pop()}
+                setActiveTab={(tab) => navigate(`/room/${roomId}/${tab}`)}
             />
             <div className="flex flex-col p-8 ">
 
                 <div>
-                    {activeTab === "announcements" && <MemoAnnouncements roomId={roomId} />}
-                    {activeTab === "assignments" && <MemoAssignments roomId={roomId} />}
-                    {activeTab === "members" && <MemoMembers roomId={roomId} />}
-                    {activeTab === "chats" && <MemoChat />}
-                    {activeTab === "lessons" && <MemoLessons roomId={roomId} />}
+                    <Routes>
+
+                        <Route path="announcements" element={<Announcements roomId={roomId} />} />
+                        <Route path="assignments" element={<Assignements roomId={roomId} />} />
+                        <Route path="members" element={<Members roomId={roomId} />} />
+                        <Route path="lessons" element={<Lessons roomId={roomId} />} />
+                        <Route path="*" element={<Announcements roomId={roomId} />} />
+
+                    </Routes>
                 </div >
             </div >
         </>
 
     )
 }
-
-const MemoAnnouncements = memo(Announcements);
-const MemoAssignments = memo(Assignements);
-const MemoMembers = memo(Members);
-const MemoChat = memo(Chat);
-const MemoLessons = memo(Lessons);

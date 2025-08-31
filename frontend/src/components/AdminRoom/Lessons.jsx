@@ -29,9 +29,6 @@ export default function Lessons({ roomId }) {
     const navigate = useNavigate();
 
     
-
-
-
     return (
         <>
             <div className={`flex flex-col ${ popUp && 'transition duration-500 blur pointer-events-none'} `}>
@@ -52,17 +49,24 @@ export default function Lessons({ roomId }) {
                     />
                     
                     : lessons?.map((item, i) => (
-                        <div className="shadow-sm items-center rounded-2xl cursor-pointer transition flex w-full 
-                                  hover:bg-slate-300
+                        <div className="shadow-sm items-center rounded-2xl transition flex w-full 
+                                  
                                     "
                             key={i}
-                            onClick={() => navigate(`/lesson/${item.id}`)}>
+                            >
 
-                            <div className="px-4 py-2 flex-1">{item.id}</div>
+                            <div className="px-4 py-2">{item.id}</div>
                             <div className="px-4 py-2 flex-1">{item.title}</div>
-                            <div className="px-4 py-2 flex-1">{item.createdAt.slice(2, 10)}</div>
-                            <div className="px-4 py-2 flex-1 whitespace-pre-line  overflow-hidden">{item.description}</div>
-                            <div className="px-4 py-2 flex-1">{item.status}</div>
+                            <div className="px-4 py-2 ">{item.createdAt.slice(2, 10)}</div>
+                            <div className="px-4 py-2  whitespace-pre-line  overflow-hidden">{item.description}</div>
+                            <div className="px-4 py-2 ">{item.status}</div>
+                            
+                            <div 
+                            onClick={()=>navigate(`/updatelesson/${item.id}`)}
+                            className="px-4 py-2 rounded-3xl hover:bg-gray-400 hover:text-white underline">Update</div>
+                            <div 
+                            onClick={()=>navigate(`/lesson/${item.id}`)}
+                            className="px-4 py-2 rounded-3xl hover:bg-gray-400 hover:text-white underline ">View</div>
                         </div>
                     ))}
 

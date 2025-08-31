@@ -34,8 +34,6 @@ const PORT = process.env.PORT || 3000;
 
 
 
-
-
 mongoose.connect('mongodb://localhost:27017/mongo')
 .then(() => console.log("Connected to DB"))
 .catch(err => console.error("DB connection error:", err));

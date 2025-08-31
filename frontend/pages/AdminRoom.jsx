@@ -1,6 +1,6 @@
 
-import { useContext } from "react"
-import { useParams } from "react-router-dom";
+import { useContext, useEffect } from "react"
+import { Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
@@ -20,7 +20,7 @@ import Lessons from "../src/components/AdminRoom/Lessons";
 export default function AdminRoom() {
 
     const { roomId } = useParams();
-
+    const navigate = useNavigate();
     const { popUp } = useContext(UIContext);
     const [activeTab, setActiveTab] = useState('announcements');
 
@@ -32,6 +32,18 @@ export default function AdminRoom() {
         { title: 'Members', keyword: 'members', icon: Users },
     ]
 
+    
+
+    useEffect(() => {
+        const lastSegment = window.location.pathname.split("/").pop();
+        if (!lastSegment || lastSegment === roomId) {
+            setActiveTab("problems");
+            navigate(`/room/${roomId}/announcements`, { replace: true });
+        } else {
+            setActiveTab(lastSegment);
+        }
+    }, [roomId, navigate]);
+
     return (
         <>
             <div className={`${popUp && 'transition duration-500 blur pointer-events-none'}`}>
@@ -41,30 +53,19 @@ export default function AdminRoom() {
             <TopBar
                 tabs={tabs}
                 activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                setActiveTab={(tab) => navigate(`/room/${roomId}/${tab}`)}
             />
             <div className="flex flex-col p-8 ">
 
                 <div>
-                    {activeTab === 'announcements' ? (
-                        <Annoucements
-                            roomId={roomId}
-                        />
-                    ) : activeTab === 'assignments' ? (
-                        <Assignements
-                            roomId={roomId}
-                        />
-                    ) : activeTab === 'members' ? (
-                        <Members
-                            roomId={roomId}
-                        />
-                    ) : activeTab === 'lessons' ? (
-                        <Lessons
-                            roomId={roomId}
-                        />
-                    ) :
-                        <> hi</>
-                    }
+                    <Routes>
+
+                        <Route path="announcements" element={<Annoucements roomId={roomId} />} />
+                        <Route path="members" element={<Members roomId={roomId} />} />
+                        <Route path="assignments" element={<Assignements roomId={roomId} />} />
+                        <Route path="lessons" element={<Lessons roomId={roomId} />} />
+                        <Route path="*" element={<Annoucements roomId={roomId} />} />
+                    </Routes>
                 </div >
             </div >
         </>
