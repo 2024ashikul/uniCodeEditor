@@ -63,12 +63,13 @@ function registerCollaborateClassRoomHandlers(io) {
             if (!rooms[roomId]) {
                 const members = await getMembers(roomId);
 
-                rooms[roomId] = { members, history: [] };
+                rooms[roomId] = { members, history: [], files: { 'main.cpp': {content :'start hee' } }};
             }
             const member = rooms[roomId].members.find(m => m.id === userId);
             if (member) {
                 member.active = true;
             }
+            socket.emit('syncFile', { file: rooms[roomId].files });
 
             io.to(roomId).emit('roomData', rooms[roomId]);
             console.log(rooms[roomId]);
@@ -83,11 +84,44 @@ function registerCollaborateClassRoomHandlers(io) {
                 }
             }
             console.log(rooms[roomId])
-        
+
             io.to(roomId).emit('roomData', rooms[roomId]);
         });
 
+        socket.on('fileDelete', ({ roomId, fileToDelete }) => {
+            console.log('deleteing file');
+            if (!rooms[roomId]) return;
+            if (roomId && rooms[roomId].files) {
+                delete rooms[roomId].files[fileToDelete];
+                console.log(rooms[roomId].files);
+                socket.to(roomId).emit('fileDelete', fileToDelete);
+            }
+
+        });
+        socket.on('fileAdd', ({ roomId, newFileName ,content}) => {
+            console.log('adding file');
+            if (!rooms[roomId]) return;
+            if (roomId && rooms[roomId].files) {
+                rooms[roomId].files = {
+                    ...rooms[roomId].files,
+                    [newFileName]: {
+                        content : content
+                    }
+                };
+            }
+            socket.to(roomId).emit("fileAdd", { newFileName , content });
+        });
+
         socket.on("fileChange", ({ fileName, content, roomId }) => {
+            if (!rooms[roomId]) return;
+            rooms[roomId].files = {
+                ...rooms[roomId].files,
+                [fileName]: {
+                    ...(rooms[roomId].files[fileName] || {}),
+                    content
+                }
+            };
+            console.log(rooms[roomId].files)
             socket.to(roomId).emit("fileUpdate", { fileName, content });
         });
 
@@ -112,10 +146,9 @@ function registerCollaborateClassRoomHandlers(io) {
                     io.to(currentRoomId).emit('roomData', rooms[currentRoomId]);
                 }
             }
+            socket.to(currentRoomId).emit('memberJoin', currentUserId)
         });
     });
-
-
 }
 
 module.exports = { registerCollaborateClassRoomHandlers };

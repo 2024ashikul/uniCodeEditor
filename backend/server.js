@@ -9,6 +9,7 @@ const {registerCollaborateHandlers} = require('./sockets/collaborate')
 const {registerCollaborateRoomHandlers} =require('./sockets/collaborateRoom');
 const { registerCollaborateClassRoomHandlers } = require('./sockets/collaborateClassRoom');
 const { registerCollaborateClassHandlers } = require('./sockets/collaborateClass');
+const { registerShareScreenHandlers } = require('./sockets/shareScreen');
 
 const io = new Server(httpServer, {
   cors: {
@@ -22,22 +23,19 @@ const collaborate = io.of('/collaborate');
 const collaborateClass = io.of('/collaborateClass');
 const collaborateClassRoom = io.of('/collaborateClassRoom')
 const collaborateRoom = io.of('/collaborateRoom')
+const screenshare = io.of('/screenshare')
 
 registerCollaborateClassHandlers(collaborateClass);
 registerCollaborateHandlers(collaborate);
 registerCollaborateClassRoomHandlers(collaborateClassRoom);
 registerCollaborateRoomHandlers(collaborateRoom)
-
-
+registerShareScreenHandlers(screenshare)
 
 const PORT = process.env.PORT || 3000;
-
-
 
 mongoose.connect('mongodb://localhost:27017/mongo')
 .then(() => console.log("Connected to DB"))
 .catch(err => console.error("DB connection error:", err));
-
 
 sequelize.sync().then(() => {
   httpServer.listen(PORT,"0.0.0.0", () => {

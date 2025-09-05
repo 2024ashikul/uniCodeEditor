@@ -1,5 +1,6 @@
-const { Assignment, Submission, User, Problem } = require("../models");
 
+const { Assignment, Submission, User, Problem } = require("../models");
+const AiPrompt = require('../ai')
 const { Op, where } = require('sequelize');
 
 exports.addAssignment = async (req, res) => {
@@ -131,11 +132,13 @@ exports.createProblem = async (req, res) => {
         const newProblem = await Problem.create({
             title: form.title,
             statement: form.statement,
+            fullmarks : form.fullmarks || 10,
             assignmentId: assignmentId
         });
         if (newProblem) {
             console.log('New problem created')
-            return res.status(201).json(newProblem)
+            
+            return res.status(201).json({newProblem, message : 'New Problem created!'})
         } else {
             console.log("error")
         }
@@ -153,7 +156,9 @@ exports.updateProblem = async (req, res) => {
         });
         problem.title = form.title;
         problem.statement = form.statement;
+        problem.fullmarks = form.fullmarks || problem.fullmarks ;
         await problem.save();
+        console.log(temp);
         if (problem) {
             console.log('Problem Updated')
             return res.status(201).json({ problem, message: 'Problem updated' })
@@ -161,6 +166,7 @@ exports.updateProblem = async (req, res) => {
             console.log("error")
             return res.status(404).json({ message: 'Could not update Problem' })
         }
+        
     } catch (err) {
         console.log(err)
         return res.status(500).json({ message: 'Internal server error' })
@@ -269,4 +275,37 @@ exports.fetchSubmissionsIndividual = async (req, res) => {
     } catch (err) {
         console.log(err);
     }
+}
+
+exports.publishResult = async (req, res ) => {
+    const { assignmentId } = req.body;
+    console.log('publish result')
+    try {
+        const findAssignment = await Assignment.findOne({
+            where: { id: assignmentId }
+        })
+        findAssignment.resultpublished = true;
+        await findAssignment.save();
+        return res.status(201).json({message : 'Result Published successfully', type : 'success'});
+    } catch (err) {
+        console.log(err)
+        return res.status(201).json({message : 'Could not return the result', type : 'error'});
+    }
+}
+
+exports.changeWhoCanSeeResults = async (req ,res) => {
+    const {assignmentId} = req.body;
+    console.log('change publish result')
+    try {
+        const findAssignment = await Assignment.findOne({
+            where: { id: assignmentId }
+        })
+        findAssignment.everyoneseesresults = !findAssignment.everyoneseesresults;
+        await findAssignment.save();
+        return res.status(201).json({message : 'Result Published successfully', type : 'success'});
+    } catch (err) {
+        console.log(err)
+        return res.status(201).json({message : 'Could not return the result', type : 'error'});
+    }
+
 }

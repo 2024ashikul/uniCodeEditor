@@ -1,8 +1,9 @@
 const { where, Op } = require("sequelize");
-const { Rooms, RoomMembers, User, Announcement, Assignment, Submission, Problem, Lesson, LessonM } = require("../models");
+const { Rooms, RoomMembers, User, Announcement, Assignment, Submission, Problem, Lesson, LessonM, sequelize } = require("../models");
 const roomMember = require("../models/roomMember");
 const announcements = require("../models/announcements");
 const lesson = require("../models/lesson");
+const { group } = require("console");
 
 
 
@@ -10,21 +11,30 @@ exports.createRoom = async (req, res) => {
     const { userId, roomName } = req.body;
     console.log(userId)
     try {
-        const temp = await Rooms.create({
+        const room = await Rooms.create({
             admin: userId,
             name: roomName
         });
         console.log('hi');
-        const roommeber = await RoomMembers.create({
+         await RoomMembers.create({
             role: 'admin',
             userId: userId,
-            roomId: temp.id
-        })
+            roomId: room.id
+        });
+        const newRoom = await RoomMembers.findOne({
+            where: {
+                userId: userId,
+                roomId: room.id
+            },
+            include: {
+                model: Rooms
+            }
+        });
         console.log('Room Created');
-        return res.status(201).json({ message: 'Created a new room', id: temp.id });
+        return res.status(201).json({ message: 'Created a new room!', newRoom });
     } catch (err) {
         console.log(err)
-        return res.status(401).json({ message: 'An error occured', id: temp.id });
+        return res.status(401).json({ message: 'An error occured'});
     }
 }
 
@@ -85,12 +95,11 @@ exports.loadRooms = async (req, res) => {
 }
 
 exports.loadRoomsJoined = async (req, res) => {
-   // const userId = req.user.userId;
-    const { type,userId } = req.body;
+    // const userId = req.user.userId;
+    const { type, userId } = req.body;
     console.log(userId)
     try {
-
-        const roommebers = await RoomMembers.findAll({
+        const rooms = await RoomMembers.findAll({
             where: {
                 userId: userId
             },
@@ -99,18 +108,8 @@ exports.loadRoomsJoined = async (req, res) => {
             }
         });
 
-        if (type === 'onlyAdmin') {
-            const rooms = roommebers.filter(member => member.role === 'admin')
-            console.log('loaded rooms for admin');
-            return res.status(201).json({ rooms })
-        }
-
-        if (type === 'onlyUser') {
-            const rooms = roommebers.filter(member => member.role === 'user')
-            console.log('loaded rooms for admin');
-            return res.status(201).json({ rooms })
-        }
-        const rooms = roommebers;
+        
+        
 
         console.log('loaded rooms');
         return res.status(201).json({ rooms })
@@ -148,7 +147,7 @@ exports.joinRoom = async (req, res) => {
         });
 
         if (newRoom) {
-            return res.status(201).json({ message: 'Joined to the room', type: 'success' })
+            return res.status(201).json({ message: 'Joined to the room', type: 'success', newRoom })
         }
         return res.status(201).json({ message: 'Failed to join the room', type: 'success' })
     } catch (err) {
@@ -179,7 +178,7 @@ exports.roomMembers = async (req, res) => {
     }
 }
 
-exports.roomMembersForAssignment = async (req, res) => {
+exports.resultsForAdmin = async (req, res) => {
     const { assignmentId } = req.body;
     const assignment = await Assignment.findOne({
         where: {
@@ -225,7 +224,7 @@ exports.roomMembersForAssignment = async (req, res) => {
             }
         });
 
-    
+
         const result = members.map((element) => ({
             member: element,
             submission:
@@ -237,6 +236,99 @@ exports.roomMembersForAssignment = async (req, res) => {
 
 
         return res.status(201).json({ submissions, members, result });
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+
+exports.resultsForUser = async (req, res) => {
+    const { assignmentId, userId } = req.body;
+    const assignment = await Assignment.findOne({
+        where: {
+            id: assignmentId
+        }
+    });
+    try {
+        //getting members
+        const membersfull = await RoomMembers.findAll({
+            where: {
+                roomId: assignment.roomId
+            },
+            include: [{ model: User, attributes: ['name', 'email', 'id'] }]
+        });
+        const members = membersfull.map(item => ({
+            name: item.user.name,
+            email: item.user.email,
+            id: item.user.id
+        }))
+        const memberids = members.map(item => item.id)
+
+        //getting problem ids
+        const problemIds = await Problem.findAll({
+            where: {
+                assignmentId: assignmentId
+            },
+            attributes: ['id']
+        });
+        const ids = problemIds.map(p => p.id);
+
+        // const result = await Submission.findAll({
+        //     where: {
+        //         problemId: { [Op.in]: ids },
+        //         userId: userId
+        //     },
+        //     attributes: [
+        //         'problemId',
+        //         [sequelize.fn('MAX', sequelize.col('createdAt')), 'lastCreatedAt']
+        //     ],
+        //     group: ['problemId']
+        // });
+
+        const result = await Promise.all(
+            ids.map(async(id)=>{
+                const submission = await Submission.findOne({
+                    where:{
+                        problemId : id,
+                        userId : userId
+                    },
+                    order: [['createdAt', 'DESC']]
+                })
+                return {id, submission}
+            })
+        )
+
+        let results = await Promise.all(
+            members.map(async (member) => {
+                const submissions = await Submission.findAll({
+                    where: {
+                        problemId: { [Op.in]: ids },
+                        userId: member.id
+                    },
+                    attributes: ['AIscore', 'FinalScore','problemId',
+                        [sequelize.fn('MAX', sequelize.col('createdAt')), 'lastCreatedAt']
+                    ],
+                    group : ['problemId']
+                });
+
+                let totalscore = 0;
+                submissions.forEach((submission) => {
+                    if (submission.FinalScore) {
+                        totalscore += submission.FinalScore || 0;
+                    } else {
+                        totalscore += submission.AIscore || 0;
+                    }
+                });
+
+                return { member, totalscore };
+            })
+        );
+        results = results.sort((a, b) => b.totalscore - a.totalscore);
+        console.log(results);
+
+
+
+        return res.status(201).json({ results: results, result: result,problemids : ids });
     } catch (err) {
         console.log(err);
     }
@@ -378,7 +470,7 @@ exports.createLesson = async (req, res) => {
 
 exports.updateLesson = async (req, res) => {
     try {
-        const { contents, title,  lessonId } = req.body;
+        const { contents, title, lessonId } = req.body;
 
         const lesson = await Lesson.findOne({
             where: {
@@ -390,13 +482,13 @@ exports.updateLesson = async (req, res) => {
         }
 
         lesson.title = title || lesson.title;
-        
+
         await lesson.save();
 
         const lessonM = await LessonM.findOne({ id: lessonId });
 
         if (!lessonM) {
-            
+
             const newLessonM = new LessonM({
                 id: lessonId,
                 title,

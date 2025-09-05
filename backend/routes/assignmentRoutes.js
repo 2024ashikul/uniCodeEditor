@@ -14,5 +14,7 @@ router.post('/scheduleassignments',assignmentController.changeSchedule);
 router.post('/scheduleassignmentsuser',assignmentController.fetchAssignmentsUser)
 router.post('/deleteproblem' , assignmentController.deleteProblem)
 router.post('/updateproblem' , assignmentController.updateProblem)
+router.post('/publishresults',assignmentController.publishResult)
+router.post('/changewhocanseeresults',assignmentController.changeWhoCanSeeResults)
 
 module.exports = router;

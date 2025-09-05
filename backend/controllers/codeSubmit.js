@@ -1,9 +1,9 @@
-const fs = require('fs');
+const fs = require('fs').promises;
 const axios = require('axios');
 const { Submission, Problem } = require('../models');
 const { timeStamp } = require('console');
 const { GoogleGenAI } = require("@google/genai");
-
+const path = require('path')
 exports.codeRun = async (req, res) => {
     console.log('coderunning');
     const { code, language, stdin } = req.body;
@@ -79,18 +79,19 @@ exports.codeSubmit = async (req, res) => {
     console.log(timestamp);
     console.log(code);
     console.log({ language, problemId });
+    const filesDir = path.join(__dirname, '..', 'files');
+    const filePath = path.join(filesDir, `${timestamp}.${ext}`);
+    const txtPath = path.join(filesDir, `${timestamp}.txt`);
+    try{
+        await fs.mkdir(filesDir, { recursive: true });
 
-    fs.writeFile(`./files/${timestamp}.${ext}`, code, async (err) => {
-        if (err) {
+        // Now, write the files safely
+        await Promise.all([
+            fs.writeFile(filePath, code),
+            fs.writeFile(txtPath, code)
+        ]);
 
-            res.status(400).json({ message: 'failed to submit' });
-            throw err;
-
-        }
-
-        fs.writeFile(`./files/${timestamp}.txt`, code, async (txterr) => {
-            console.log(txterr);
-        })
+    
 
         const newSubmission = await Submission.create({
             file: timestamp,
@@ -111,7 +112,7 @@ exports.codeSubmit = async (req, res) => {
         })
         const statement = problem.statement;
         console.log(statement)
-        const ai = new GoogleGenAI({ apiKey: "AIzaSyDRVhZt-1xKKm3k2rnYM93aPqzR1gT6lnI" });
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
         const prompt = `
             You are an AI evaluator.
@@ -152,15 +153,13 @@ exports.codeSubmit = async (req, res) => {
             console.log("could not");
         }
 
-
-
-
         if (newSubmission) {
             res.status(201).json({ message: 'submitted succesfully' })
         } else {
             res.status(402).json({ message: 'could not submit' })
         }
     }
-    )
-
+catch(err){
+    console.log(err);
+}
 }

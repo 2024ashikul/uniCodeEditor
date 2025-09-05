@@ -12,6 +12,8 @@ const userRoutes = require('./routes/userRoutes');
 const roomRoutes = require('./routes/roomRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const meetingRoutes = require('./routes/meetingRoutes')
+const aiRoutes = require('./routes/aiRoutes')
+const lessonRoutes = require('./routes/lessonRoutes')
 
 
 app.use('/', submitRoutes);
@@ -19,6 +21,8 @@ app.use('/', userRoutes);
 app.use('/', roomRoutes);
 app.use('/', assignmentRoutes);
 app.use('/', meetingRoutes);
+app.use('/', aiRoutes)
+app.use('/lesson/',lessonRoutes)
 app.use('/files', express.static(path.join(__dirname, '/files')));
 
 
