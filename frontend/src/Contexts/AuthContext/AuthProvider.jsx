@@ -14,16 +14,14 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const storedToken = localStorage.getItem("token");
-
+        if(!storedToken) return ;
         if (storedToken) {
             try {
-                const decoded = jwtDecode(token);
-                setUserName(decoded.name);
-                console.log(userName);
-                setEmail(decoded.email);
-                console.log(email);
-                setUserId(decoded.userId);
                 const payload = JSON.parse(atob(storedToken.split('.')[1]));
+                const decoded = jwtDecode(storedToken);
+                setUserName(decoded.name);
+                setEmail(decoded.email);
+                setUserId(decoded.userId);
                 setUser(payload);
                 setToken(storedToken);
             } catch (err) {
@@ -31,7 +29,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem("token");
             }
         }
-    }, [token, email,userName]);
+    }, []);
 
 
 

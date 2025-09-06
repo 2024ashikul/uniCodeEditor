@@ -36,8 +36,8 @@ export default function AdminAssignment({ roomId }) {
             .then((data) => {
                 if (data) {
                     console.log(data)
-                    setTitle(data.title);
-                    setScrollHeight(20);
+                    setTitle('Assignment : '+ data.title);
+                    setScrollHeight(50);
                 }})
 
             .catch((err) => {

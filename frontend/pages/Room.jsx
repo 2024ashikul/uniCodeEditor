@@ -13,7 +13,7 @@ import AdminRoom from "./AdminRoom";
 export default function Room() {
 
     const { roomId } = useParams();
-    const {  setScrollHeight } = useContext(UIContext);
+    
     const [authorized, setAuthorized] = useState(null);
     const [role, setRole] = useState(null);
     
@@ -37,9 +37,7 @@ export default function Room() {
 
     }, [checkAccess, roomId, setAuthorized, setRole,authorized,role])
 
-    useEffect(() => {
-        
-    }, [ setScrollHeight])
+    
 
 
 
@@ -49,7 +47,7 @@ export default function Room() {
     return (
         <>
         <div className="">
-            {role === 'user' ? <UserRoom /> : role === 'admin' ? <AdminRoom /> : 'NOT AUTHORIZED'}
+            {role === 'member' ? <UserRoom /> : role === 'admin' ? <AdminRoom /> : 'NOT AUTHORIZED'}
         </div>
         </>
 

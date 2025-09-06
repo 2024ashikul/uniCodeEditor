@@ -2,12 +2,8 @@ import { useState, useEffect } from "react";
 import NullComponent from "../SharedComponents/NullComponent";
 import { API_URL } from "../../config";
 
-
-
 export default function Submissions({ assignmentId }) {
-
     const [submissions, setSubmissions] = useState([]);
-
     useEffect(() => {
         fetch(`${API_URL}/getsubmissions`, {
             method: 'POST',
@@ -27,33 +23,37 @@ export default function Submissions({ assignmentId }) {
 
             </div>
 
-            
             <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                {submissions?.length === 0 ? 
-                <NullComponent
-                
-text={'No submissions found'}                />
-                :
-                    
-                    submissions.map((item) => (
-                        <div key={item?.id} className="shadow-sm items-center rounded-2xl px-4 gap-2 flex cursor-pointer transition w-full 
-                                    hover:bg-slate-300  ">
-                            <div className="flex-1">{1}</div>
-                            <div className=" flex-1 flex-col items-center">
-                                <p className="text-lg">{item?.user?.name}</p>
-                                <p className="text-sm">{item?.user?.email}</p>
-                            </div>
-                            <div className="flex-1">{item?.AIscore}</div>
-                            <div className="flex-1">{item?.time.slice(11, 19)}</div>
-                            <div className="px-4 hover:bg-blue-100 border-1 rounded-2xl">
-                                <a href={`${API_URL}/files/${item?.file}.txt`} target="_blank">View</a>
-                            </div>
-                            <div className="px-4 w-auto hover:bg-blue-100 border-1 rounded-2xl">
-                                <a href={`${API_URL}/files/${item?.file}.${item?.ext}`} className="items-center justify-between" target="_blank">Download</a>
-                            </div>
+                <div className="grid grid-cols-5 bg-gray-100 rounded-xl font-semibold text-gray-700 px-4 py-3 shadow-sm">
+                    <div className="px-4">ID</div>
+                    <div className="">Name</div>
+                    <div className="px-4">Time</div>
+                    <div className="px-4">AI Score</div>
+                    <div className="text-center">Actions</div>
+                </div>
+                <div className="min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
+                    {submissions?.length === 0 ?
+                        <NullComponent
+                            text={'No submissions found'} />
+                        :
+                        submissions.map((item, index) => (
+                            <div key={item?.id} className="grid grid-cols-5 items-center bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer">
+                                <div className="px-4 py-2 ">{index + 1}</div>
+                                <div className=" px-4 py-2 ">{item?.user?.name}</div>
+                                <div className="px-4 py-2 ">{item?.time.slice(11, 19)}</div>
+                                <div className="px-4 py-2 ">{item?.AIscore}</div>
 
-                        </div>
-                    )) || null}
+                                <div className="px-4 gap-2 flex">
+                                    <a href={`${API_URL}/files/${item?.file}.txt`}
+                                        className="px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600" target="_blank">View</a>
+
+
+                                    <a href={`${API_URL}/files/${item?.file}.${item?.ext}`} className="px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600" target="_blank">Download</a>
+                                </div>
+
+                            </div>
+                        )) || null}
+                </div>
             </div>
         </>
     )

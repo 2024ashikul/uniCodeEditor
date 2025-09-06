@@ -10,6 +10,7 @@ import { Play, SendHorizontal, BadgeQuestionMark, Check } from 'lucide-react';
 import CustomDropDown from './SharedComponents/CustomDropDown';
 import MDEditor from "@uiw/react-md-editor";
 import { API_URL } from '../config';
+import { AlertContext } from '../Contexts/AlertContext/AlertContext';
 
 export default function CodeEditor({ problemId }) {
     const [terminalHeight, setTerminalHeight] = useState(0);
@@ -22,7 +23,7 @@ export default function CodeEditor({ problemId }) {
     const { userId } = useContext(AuthContext);
     const [problem, setProblem] = useState({});
     const { setNavCenter, setScrollHeight } = useContext(UIContext);
-
+    const {setMessage} = useContext(AlertContext);
     useEffect(()=>{
         setScrollHeight(0)
     },[setScrollHeight]);
@@ -101,7 +102,7 @@ export default function CodeEditor({ problemId }) {
             .then((res) => res.json())
             .then((data) => {
                 console.log(data);
-                alert(data.message)
+                setMessage(data.message)
             })
             .catch((err) => console.log(err))
     }

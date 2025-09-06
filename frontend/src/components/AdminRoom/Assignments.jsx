@@ -10,13 +10,13 @@ import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import { API_URL } from "../../config";
 
 export default function Assignements({ roomId }) {
-    const {popUp ,setPopUp,setTitle } = useContext(UIContext);
+    const { popUp, setPopUp, setTitle } = useContext(UIContext);
     const [form, setForm] = useState({
         title: '',
         description: ''
     });
 
-    const {setMessage , setType} = useContext(AlertContext);
+    const { setMessage, setType } = useContext(AlertContext);
     const [assignment, setAssignment] = useState(false);
     const [assignments, setAssignments] = useState([]);
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
@@ -37,26 +37,27 @@ export default function Assignements({ roomId }) {
     const createAssignment = async (e) => {
         e.preventDefault();
         console.log(form);
-        try{
-        const res = await fetch(`${API_URL}/updateassignment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ roomId, form })
-        })
-        const data = await res.json();
-            if(res.ok){
-                console.log(data); 
+        try {
+            const res = await fetch(`${API_URL}/updateassignment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ roomId, form })
+            })
+            const data = await res.json();
+            if (res.ok) {
+                console.log(data);
                 setAssignment
                 setMessage(data.message)
                 setPopUp(false);
                 setAssignment(false);
             }
-            
-    }catch(err){ console.log(err);
+
+        } catch (err) {
+            console.log(err);
             setMessage('Internal server error');
-            setType('error') 
+            setType('error')
         }
     }
 
@@ -64,7 +65,7 @@ export default function Assignements({ roomId }) {
 
     return (
         <>
-            <div className={`flex flex-col ${ popUp && 'transition duration-500 blur pointer-events-none'} `}>
+            <div className={`flex flex-col ${popUp && 'transition duration-500 blur pointer-events-none'} `}>
                 <div className="flex mt-2 justify-between">
                     <PageTitle
                         text={'Assignments'}
@@ -75,31 +76,46 @@ export default function Assignements({ roomId }) {
                     />
                 </div>
                 <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    {
-                    assignments.length === 0 ? 
-                    <NullComponent text={'No assignments found'} />
-                    
-                   : assignments.map((item, i) => (
-                        <div className="shadow-sm items-center rounded-sm cursor-pointer transition flex w-full 
-                                  hover:bg-slate-100
-                                    "
-                            key={i}
-                            onClick={() => {setTitle(item.title); navigate(`/assignment/${item.id}`) }}>
+                    <div className="grid grid-cols-6 bg-gray-100 rounded-xl font-semibold text-gray-700 px-4 py-3 shadow-sm">
+                        <div className="px-4">ID</div>
+                        <div className="px-4 col-span-2">Title</div>
+                        <div className="px-4">Created</div>
 
-                            <div className="px-4 py-2 flex-1">{item.id}</div>
-                            <div className="px-4 py-2 flex-1">{item.title}</div>
-                            <div className="px-4 py-2 flex-1">{item.createdAt.slice(2, 10)}</div>
-                            <div className="px-4 py-2 flex-1 whitespace-pre-line  overflow-hidden">{item.description}</div>
-                            <div className="px-4 py-2 flex-1">{item.status.toUpperCase()}</div>
-                        </div>
-                    ))}
+                        <div className="px-4">Status</div>
+                        <div className="text-center">Actions</div>
+                    </div>
+                    {
+                        assignments.length === 0 ?
+                            <NullComponent text={'No assignments found'} />
+
+                            : assignments.map((item, i) => (
+                                <div className="grid grid-cols-6 items-center bg-white
+                        shadow  hover:shadow-md transition cursor-pointer
+                                    "
+                                    key={i}
+                                    onClick={() => { setTitle(item.title); navigate(`/assignment/${item.id}`) }}>
+
+                                    <div className="px-4 py-2 ">{item.id}</div>
+                                    <div className="px-4 py-2 col-span-2">{item.title}</div>
+                                    <div className="px-4 py-2 ">{item.createdAt.slice(2, 10)}</div>
+                                    <div className="px-4 py-2 ">{item.status.toUpperCase()}</div>
+                                    <div className="flex justify-between items-center m-auto">
+                                        <button
+                                            onClick={() => navigate(`/lesson/${item.id}`)}
+                                            className="px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600"
+                                        >
+                                            View
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
 
                 </div>
             </div>
             {assignment &&
                 <PopUp
-                    
-                    form = {form}
+
+                    form={form}
                     name={assignment}
                     setName={setAssignment}
                     onChange={handleChange}

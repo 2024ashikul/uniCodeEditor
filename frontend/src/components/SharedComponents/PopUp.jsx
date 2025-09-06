@@ -1,35 +1,40 @@
-import { useContext, useEffect } from "react"
-import { UIContext } from "../../Contexts/UIContext/UIContext"
 import { CircleX } from "lucide-react";
 
 
 export default function PopUp({ form, name, setName, onSubmit, onChange, extraFields, title, buttonTitle, ManualEdit, ManualCode }) {
-    const { setPopUp } = useContext(UIContext);
 
-    useEffect(() => {
-        setPopUp(true);
-    }, [setPopUp])
+    // This useEffect is no longer needed as the parent component will manage the pop-up's state.
+    // useEffect(() => {
+    //     setPopUp(true);
+    // }, [setPopUp])
 
 
     return (
-        <>
-            <div className={`${name ? 'opacity-100' : 'opacity-0'}
-             px-4   bg-fuchsia-100 py-2 z-50 ease-in-out transition 
-             duration-500 my-12 flex inset-0 mx-auto  top-10 flex-col h-[500px]
-              w-[700px] border rounded-2xl fixed 
-             `}
-            >
-                <button className="ml-auto" onClick={() => { setName(false); setPopUp(false) }}><CircleX
-                    className="hover:text-red-500 cursor-pointer"
-                /></button>
-                <p className="text text-3xl self-center">{title}</p>
+        <div className={`
+            ${name ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+            fixed inset-0 flex items-center justify-center z-50 transition-all duration-500
+        `}>
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setName(false) }}></div>
+
+            <div className={`
+                relative px-8 py-6 my-12 flex flex-col w-[90%] max-w-2xl 
+                bg-white border border-gray-200 rounded-3xl shadow-2xl 
+                z-50 transform transition-all duration-500
+            `}>
+                <button
+                    className="ml-auto text-gray-400 hover:text-red-500 transition duration-300"
+                    onClick={() => { setName(false) }}
+                >
+                    <CircleX size={24} />
+                </button>
+                
+                <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-6">{title}</h2>
 
                 {ManualEdit ? ManualCode :
-                    <form method="POST" onSubmit={onSubmit} className="flex flex-col h-full gap-2 items-center justify-center"  >
-                        <div className="px-10 py-6 w-full max-w-2xl mx-auto space-y-4  rounded-xl">
-
-                            <div className="flex items-center gap-4">
-                                <label className="w-28 text-gray-700 font-medium" htmlFor="title">
+                    <form method="POST" onSubmit={onSubmit} className="flex flex-col gap-6"  >
+                        <div className="space-y-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                <label className="w-full sm:w-28 text-gray-700 font-medium" htmlFor="title">
                                     Title
                                 </label>
                                 <input
@@ -40,13 +45,12 @@ export default function PopUp({ form, name, setName, onSubmit, onChange, extraFi
                                     type="text"
                                     placeholder="Enter title"
                                     onChange={onChange}
-                                    className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="flex-1 w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition duration-300"
                                 />
                             </div>
 
-
-                            <div className="flex items-start gap-4">
-                                <label className="w-28 text-gray-700 font-medium pt-2" htmlFor="description">
+                            <div className="flex flex-col sm:flex-row items-start gap-4">
+                                <label className="w-full sm:w-28 text-gray-700 font-medium pt-2" htmlFor="description">
                                     Description
                                 </label>
                                 <textarea 
@@ -55,19 +59,27 @@ export default function PopUp({ form, name, setName, onSubmit, onChange, extraFi
                                     name="description"
                                     placeholder="Enter description"
                                     onChange={onChange}
-                                    className="flex-1 h-28 px-4 py-2 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="flex-1 w-full h-28 px-4 py-3 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition duration-300"
                                 />
                             </div>
                         </div>
+
                         {extraFields}
 
-                        <div onClick={() => { }}><button type="submit" className="border px-10 py-1 rounded-2xl transition duration-500
-                        hover:bg-blue-500 hover:text-white hover:transition hover:duration-500">
-                            {buttonTitle}</button></div>
+                        <div className="flex justify-center">
+                            <button 
+                                type="submit" 
+                                className="px-12 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white 
+                                font-semibold rounded-full shadow-lg hover:shadow-xl transform 
+                                hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-2 
+                                focus:ring-blue-500 focus:ring-offset-2"
+                            >
+                                {buttonTitle}
+                            </button>
+                        </div>
                     </form>
                 }
-
             </div>
-        </>
+        </div>
     )
 }

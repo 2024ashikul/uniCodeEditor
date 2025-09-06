@@ -8,28 +8,32 @@ import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import InlineButton from "../SharedComponents/InlineButton";
 import { API_URL } from "../../config";
+import { sendAIRequest } from "../../AIRequest";
+import FloatingAIBox from "../SharedComponents/FloatingAIBox";
+
 
 export default function Problems({ assignmentId }) {
+    const [isAIOpen, setIsAIOpen] = useState(false);
     const [problems, setProblems] = useState([]);
     const [problem, setProblem] = useState(false);
     const [edit, setEdit] = useState(false);           // for "Edit Problem" popup
     const [editProblemId, setEditProblemId] = useState(null);
+    const [activeProblem, setActiveProblem] = useState(null);
     const { setMessage, setType } = useContext(AlertContext);
     const { popUp, setPopUp } = useContext(UIContext);
     // const [markDownValue, setMarkDownValue] = useState("");
     const [form, setForm] = useState({
         title: '',
-        statement: ''
+        statement: '',
+        fullmarks: ''
     })
-    
+
     const handleChange = e => { setForm({ ...form, [e.target.name]: e.target.value }) };
     console.log(form);
 
     const createProblem = async (e) => {
-        console.log("here")
-
         e.preventDefault();
-        console.log(form)
+
         await fetch(`${API_URL}/createproblem`, {
             method: 'POST',
             headers: {
@@ -40,7 +44,7 @@ export default function Problems({ assignmentId }) {
             .then((res) => res.json())
             .then((data) => {
                 console.log(data);
-                setProblems(prev => [...prev, data]);
+                setProblems(prev => [...prev, data.newProblem]);
                 setPopUp(false);
                 setProblem(false);
                 setMessage('Problem created successfully')
@@ -49,8 +53,6 @@ export default function Problems({ assignmentId }) {
     }
 
     const updateProblem = async (e) => {
-
-
         e.preventDefault();
         console.log(form)
         try {
@@ -73,7 +75,7 @@ export default function Problems({ assignmentId }) {
             }
         } catch (err) {
             console.log(err)
-            setMessage('Problem created successfully')
+            setMessage('Could not  create problem')
         }
     }
 
@@ -92,7 +94,11 @@ export default function Problems({ assignmentId }) {
 
             console.log(data);
             if (res.ok) {
-                setProblems(prev => prev.filter(problem => problem.id !== problemId));
+                setProblems(prev => {
+                    const updated = prev.filter(problem => problem.id !== problemId);
+                    setActiveProblem(updated[0] || null);
+                    return updated;
+                });
                 setMessage(data.message)
             }
 
@@ -104,6 +110,14 @@ export default function Problems({ assignmentId }) {
 
 
     }
+    async function handleSend(input) {
+        const res = await sendAIRequest('generate/problem', input);
+        console.log(res);
+        setForm((prev) => ({
+            ...prev,
+            statement: res,
+        }));
+    }
 
     useEffect(() => {
         fetch(`${API_URL}/fetchproblems`, {
@@ -114,9 +128,15 @@ export default function Problems({ assignmentId }) {
             body: JSON.stringify({ assignmentId })
         })
             .then((res) => res.json())
-            .then((data) => { setProblems(data); console.log(data) })
+            .then((data) => {
+                setProblems(data);
+                console.log(data);
+                setActiveProblem(data[0]);
+            })
             .catch((err) => console.log(err))
     }, [assignmentId])
+
+
 
     const PopUpCode = (<form method="POST" onSubmit={createProblem} className="flex flex-col h-full gap-2 items-center justify-center"
     >
@@ -137,14 +157,42 @@ export default function Problems({ assignmentId }) {
 
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+
+            </div>
+
+            <div className="flex items-center gap-4">
+                <label className="w-28 text-gray-700 font-medium" htmlFor="fullmarks">
+                    Full marks
+                </label>
+                <input
+                    required
+                    id="fullmarks"
+                    name="fullmarks"
+                    type="number"
+                    value={form.fullmarks}
+                    placeholder="Enter Full fullmarks"
+                    onChange={handleChange}
+
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
             </div>
 
 
-            <div className="flex items-start gap-4">
-                <label className="w-28 text-gray-700 font-medium pt-2" htmlFor="description">
-                    Statement
-                </label>
+            <div className="flex flex-col items-start gap-4">
+                <div className="flex justify-between">
+                    <label className=" text-gray-700 font-medium pt-2" htmlFor="description">
+                        Statement :
+                    </label>
+
+                    <button type="button" onClick={() => setIsAIOpen(true)}>use AI </button>
+                    <FloatingAIBox
+                        isOpen={isAIOpen}
+                        onClose={() => setIsAIOpen(false)}
+                        onSend={handleSend}
+                    />
+                </div>
                 <MDEditor
+                    className="w-full"
                     value={form.statement}
                     onChange={(value) => setForm({ ...form, statement: value })}
                 />
@@ -179,6 +227,23 @@ export default function Problems({ assignmentId }) {
                 />
             </div>
 
+            <div className="flex items-center gap-4">
+                <label className="w-28 text-gray-700 font-medium" htmlFor="fullmarks">
+                    Full marks
+                </label>
+                <input
+                    required
+                    id="fullmarks"
+                    name="fullmarks"
+                    type="number"
+                    value={form.fullmarks}
+                    placeholder="Enter Full fullmarks"
+                    onChange={handleChange}
+
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+            </div>
+
 
             <div className="flex items-start gap-4">
                 <label className="w-28 text-gray-700 font-medium pt-2" htmlFor="description">
@@ -190,6 +255,7 @@ export default function Problems({ assignmentId }) {
                 />
 
             </div>
+
         </div>
 
 
@@ -213,7 +279,7 @@ export default function Problems({ assignmentId }) {
                     />
                 </div>
 
-                <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
+                {/* <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
                     {
                         problems.length === 0 ?
                             <NullComponent
@@ -229,12 +295,15 @@ export default function Problems({ assignmentId }) {
                                             <div className="px-4 py-2 flex-1 text-xl self-center">{item.title}</div>
 
                                         </div>
+                                        <div className="px-4">
+                                            Full fullmarks : {item.fullmarks}
+                                        </div>
                                         <div className="justify-end " >
                                             <InlineButton
                                                 buttonLabel={'Edit'}
                                                 onClickAction={() => {
                                                     setEditProblemId(item.id);
-                                                    setForm({ title: item.title, statement: item.statement });
+                                                    setForm({ title: item.title, statement: item.statement, fullmarks: item.fullmarks });
                                                     setEdit(true);
                                                 }}
                                             />
@@ -254,35 +323,97 @@ export default function Problems({ assignmentId }) {
                                 </div>
                             ))}
 
+                </div> */}
+
+
+                <div className="grid pt-8 grid-cols-16 gap-4">
+
+                    <div className="col-span-3 flex flex-col">
+                        {problems.map((item, index) => (
+                            activeProblem === item ?
+                                <div className=" bg-green-400 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
+                                    Problem {index + 1}
+                                </div>
+                                :
+                                <div className="bg-cyan-100 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
+                                    Problem {index + 1}
+                                </div>
+                        ))}
+
+                    </div>
+                    <div className="col-span-13">
+
+                        {
+                            activeProblem &&
+                            <div className="shadow-md border-fuchsia-200 flex-col rounded-2xl transition duration-500 flex w-full "
+                            >
+                                <div className="flex flex-1 bg-gray-200 gap-2 rounded-2xl items-center px-4">
+
+                                    <div className="flex flex-1">
+                                        <div className="px-4 py-2 flex-1 text-xl self-center">{activeProblem.title}</div>
+                                    </div>
+                                    <div className="px-4">
+                                        Full marks : {activeProblem.fullmarks}
+                                    </div>
+                                    <div className="justify-end " >
+                                        <InlineButton
+                                            buttonLabel={'Edit'}
+                                            onClickAction={() => {
+                                                setEditProblemId(activeProblem.id);
+                                                setForm({ title: activeProblem.title, statement: activeProblem.statement, fullmarks: activeProblem.fullmarks });
+                                                setEdit(true);
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div className="justify-end" >
+                                        <InlineButton
+                                            buttonLabel={'Delete'}
+                                            onClickAction={() => {
+                                                if (confirm("Are you sure you want to delete this problem?")) {
+                                                    deleteProblem(activeProblem.id);
+                                                }
+
+                                            }}
+                                        /> </div>
+                                </div>
+
+                                <div className="pl-8 py-2 flex-1 overflow-hidden">
+                                    <MDEditor.Markdown source={activeProblem.statement} />
+                                </div>
+
+                            </div>
+                        }
+                    </div>
                 </div>
 
 
+
+                {problem &&
+                    <PopUp
+                        name={problem}
+                        setName={setProblem}
+                        onSubmit={createProblem}
+                        onChange={handleChange}
+                        extraFields={null}
+                        title={'Problem'}
+                        buttonTitle={'Create a new Problem'}
+                        ManualCode={PopUpCode}
+                        ManualEdit={true}
+                        form={form}
+                    />
+                }
+
+                {edit && (
+                    <PopUp
+                        name={edit}
+                        setName={setEdit}
+                        title="Edit Problem"
+                        ManualCode={PopUpCodeEdit}
+                        ManualEdit={true}
+                    />
+                )}
             </div>
-            {problem &&
-                <PopUp
-                    name={problem}
-                    setName={setProblem}
-                    onSubmit={createProblem}
-                    onChange={handleChange}
-                    extraFields={null}
-                    title={'Problem'}
-                    buttonTitle={'Create a new Problem'}
-                    ManualCode={PopUpCode}
-                    ManualEdit={true}
-                    form={form}
-                />
-            }
-
-            {edit && (
-                <PopUp
-                    name={edit}
-                    setName={setEdit}
-                    title="Edit Problem"
-                    ManualCode={PopUpCodeEdit}
-                    ManualEdit={true}
-                />
-            )}
-
 
         </>
     )

@@ -1,78 +1,116 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { API_URL } from "../../config";
-
-
+import PageTitle from "../SharedComponents/PageTitle";
+import Button from "../SharedComponents/Button";
+import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 
 export default function Results({ assignmentId }) {
-
-
     const [members, setMembers] = useState([]);
+    const {setMessage, setType} = useContext(AlertContext);
     useEffect(() => {
-        fetch(`${API_URL}/roommembersforassigment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        const fetchResults = async () => {
+            try {
+                const res = await fetch(`${API_URL}/resultsforadmin`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ assignmentId })
+                });
+                const data = await res.json();
                 console.log(data);
                 setMembers(data.result);
+            } catch (err) {
+                console.error("Failed to fetch results:", err);
+            }
+        };
+        fetchResults();
+    }, [assignmentId]);
 
+    const handlePublish = async () => {
+        try {
+            const res = await fetch(`${API_URL}/publishresults`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ assignmentId })
             })
-            .catch((err) => console.log(err))
-    }, [assignmentId])
-    console.log(members);
+            const data = await res.json();
+            if (res.ok) {
+                setMessage(data.message)
+                setType(data.type);
+            }
+
+        }catch(err){
+            console.log(err)
+            setMessage('Internal server error');
+            setType('error');
+        }
+    }
+
     return (
-        <>
-            <div className="flex mt-2 justify-between">
-                <p className="text-3xl py-2 ">Results</p>
-
+        <div className="flex flex-col mt-2">
+            <div className="flex justify-between">
+                <PageTitle text={'Assingments results'} />
+                <Button
+                    onClickAction={handlePublish}
+                    buttonLabel={'Publish the result'}
+                />
             </div>
+            <div className="w-full pt-4 flex flex-col gap-4 rounded-2xl">
+                {members.length === 0 ? (
+                    <p className="text-gray-500 text-center">No results to display. Check back later.</p>
+                ) : (
+                    members.map((item, index) => (
+                        <div key={item.member.id} className="bg-white rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-[1.01] hover:shadow-lg">
+                            {/* Member Info Section */}
+                            <div className="flex flex-col md:flex-row md:items-center justify-between border-b pb-2 mb-2">
+                                <div className="flex-1 flex items-center gap-4 mb-2 md:mb-0">
+                                    <p className="text-xl font-bold text-gray-800">{index + 1}.</p>
+                                    <div>
+                                        <p className="text-lg font-semibold text-gray-700">{item.member.name}</p>
+                                        <p className="text-sm text-gray-500">{item.member.email}</p>
+                                    </div>
+                                </div>
+                                {/* Total Score Calculation */}
+                                <div className="text-lg font-bold text-gray-900">
+                                    Total Score: {item.submission.flat().reduce((sum, sub) => sum + (sub.AIscore || 0), 0)}
+                                </div>
+                            </div>
 
-            <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                {members.map(item => (
-                    <div className="flex gap-2 flex-col shadow px-2 py-2" key={item.id}>
-                        <div className="flex bg-gray-300">
-                            <p className="text-lg flex-1">{1}</p>
-                            <p className="text-lg flex-1">{item?.member.name}</p>
-                            <p className="text-lg flex-1">{item?.member.email}</p>
-                            <div>
-                                Total Score: {item.submission.flat().reduce((sum, sub) => sum + (sub.AIscore || 0), 0)}
+                            {/* Submissions Section */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                                {item.submission.map((group, problemIndex) => (
+                                    <div key={problemIndex} className="p-3 bg-gray-100 rounded-lg">
+                                        <h4 className="font-medium text-gray-800 mb-2">Problem {problemIndex + 1}</h4>
+                                        {group.length > 0 ? (
+                                            <div className="flex flex-col gap-2">
+                                                {group.map((submission, subIndex) => (
+                                                    <div key={subIndex} className="text-sm border-b last:border-b-0 pb-2">
+                                                        <div className="flex justify-between items-center">
+                                                            <p className="font-semibold text-gray-600">Submission {subIndex + 1}</p>
+                                                            <p className="font-bold text-blue-600">{submission.AIscore || 0}</p>
+                                                        </div>
+                                                        <a
+                                                            href={`${API_URL}/files/${submission?.file}.txt`}
+                                                            className="text-blue-500 hover:text-blue-700 underline text-xs"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            View Code
+                                                        </a>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs text-gray-500 italic">Not Submitted</p>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        <div className="text-sm flex justify-between">
-
-
-                            {item.submission.map((group, idx) => (
-                                <div key={idx} className="flex gap-4 overflow-scroll justify-between">
-                                    {group.length > 0 ?
-                                        group.map(temp => (
-                                            <div className="h-20 min-w-24  justify-center">
-                                                <div className="justify-center">Problem {idx + 1}</div>
-                                                <div className="justify-center"><a href={`${API_URL}/files/${temp?.file}.txt`} className="underline" target="_blank">View</a></div>
-                                                <div className="justify-center">{temp.AIscore || 0}</div>
-                                            </div>
-                                        ))
-                                        :
-                                        <div className="h-20 min-w-24  justify-center">
-                                            <div>Problem {idx + 1}</div>
-                                            <div>'NaN'</div>
-                                            <div>{0}</div>
-                                        </div>
-                                    }
-                                </div>
-                            ))}
-
-                        </div>
-
-                    </div>
-                ))}
-
+                    ))
+                )}
             </div>
-            
-        </>
-    )
+        </div>
+    );
 }

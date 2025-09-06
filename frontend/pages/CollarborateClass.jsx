@@ -3,22 +3,22 @@ import CodeEditorCollaborateClass from "../src/components/CodeEditorCollaborateC
 import NavBar from "../src/components/NavBar";
 
 
-export default function CollaborateClass(){
-    const [isEditor,setIsEditor] = useState(null);
-        const [username,setUserName] = useState(null);
-        const [id, setId] = useState('');
-        function join(){
-            setIsEditor(false);
-        }
-    
-        function create(){
-            setIsEditor(true);
-        }
-        if(isEditor==null){
-    return (
-        <>
-        <NavBar />
-                        <div className="flex flex-col gap-2 items-center justify-between mt-20 ">
+export default function CollaborateClass() {
+    const [isEditor, setIsEditor] = useState(null);
+    const [username, setUserName] = useState(null);
+    const [id, setId] = useState('');
+    function join() {
+        setIsEditor(false);
+    }
+
+    function create() {
+        setIsEditor(true);
+    }
+    if (isEditor == null) {
+        return (
+            <>
+                <NavBar />
+                <div className="flex flex-col gap-2 items-center justify-between mt-20 ">
                     <div className="flex text-2xl self-center justify-between">Collaborate Class</div>
                     <div className="flex flex-col h-full gap-2 items-center justify-center" >
                         <div className="px-10 py-6 w-full max-w-2xl mx-auto space-y-4  rounded-xl">
@@ -28,7 +28,7 @@ export default function CollaborateClass(){
                                     Your Name
                                 </label>
                                 <input
-                                placeholder="Your name"
+                                    placeholder="Your name"
                                     onChange={(e) => setId(e.target.value)}
                                     type="text" name="collarborateId" id="id"
                                     className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -63,14 +63,15 @@ export default function CollaborateClass(){
 
                     </div>
                 </div>
-        </>
-    )}
+            </>
+        )
+    }
     return (
         <>
-        <div className="flex flex-col h-screen">
-            <NavBar />
-         <CodeEditorCollaborateClass  isEditor={isEditor}  roomId={id} username={username}/>
-</div>
-         </>
+            <div className="flex flex-col h-screen">
+                <NavBar />
+                <CodeEditorCollaborateClass isEditor={isEditor} roomId={id} username={username} />
+            </div>
+        </>
     )
 }

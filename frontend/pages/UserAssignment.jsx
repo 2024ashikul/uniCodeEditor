@@ -2,7 +2,7 @@ import { Navigate, Route, Router, Routes, useNavigate, useParams } from "react-r
 
 import { useContext, useEffect, useState } from "react";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
-import { FileQuestionMark, Send, Dot } from "lucide-react";
+import { FileQuestionMark, Send, Dot, Book } from "lucide-react";
 import TopBanner from "../src/components/SharedComponents/TopBanner";
 import TopBar from "../src/components/SharedComponents/TopBar";
 
@@ -11,6 +11,7 @@ import Problems from "../src/components/Assignment/Problems";
 
 import NullComponent from "../src/components/SharedComponents/NullComponent";
 import { API_URL } from "../src/config";
+import Results from "../src/components/Assignment/Results";
 
 
 export default function UserAssignment() {
@@ -103,7 +104,8 @@ export default function UserAssignment() {
 
     const tabs = [
         { title: 'Problems', keyword: 'problems', icon: FileQuestionMark },
-        { title: 'My Submissions', keyword: 'submissions', icon: Send }
+        { title: 'My Submissions', keyword: 'submissions', icon: Send },
+        {title :'Results', keyword : 'results',icon : Book}
     ]
 
 
@@ -132,6 +134,7 @@ export default function UserAssignment() {
                     <Routes>
                         <Route path="problems" element={<Problems assignmentId={assignmentId} />} />
                         <Route path="submissions" element={<Submissions assignmentId={assignmentId} />} />
+                        <Route path="results" element={<Results assignmentId={assignmentId} isPublished={assignment?.resultpublished }/>} />
                         <Route path="*" element={<Navigate to="problems" replace />} />
                     </Routes>
                     </>

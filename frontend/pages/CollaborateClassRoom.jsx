@@ -1,16 +1,18 @@
-
-
 import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
-import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io(`${API_URL}/collaborateClassRoom`);
+
+const socket = io(`${API_URL}/collaborateClassRoom`, {
+    reconnection: true, // Enable automatic reconnection
+    reconnectionAttempts: Infinity, // Set to infinite attempts
+    reconnectionDelay: 1000, // Wait 1 second before retrying
+    reconnectionDelayMax: 3000, // Maximum wait time before each retry
+
+});
 import { useState, useEffect, useRef, useContext } from 'react';
-
-
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
-import { CircleUserRound, Dot, File } from 'lucide-react';
+import { CircleUserRound, Dot, File, Trash } from 'lucide-react';
 import { AccessContext } from '../src/Contexts/AccessContext/AccessContext';
 import { AlertContext } from '../src/Contexts/AlertContext/AlertContext';
 import { useParams } from 'react-router-dom';
@@ -21,11 +23,12 @@ import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
 import { API_URL } from '../src/config';
 
 
+
+
 export default function CollaborateClassRoom() {
     const { userId } = useContext(AuthContext);
     const [isEditor, setIsEditor] = useState(false);
     const { roomId } = useParams();
-    console.log(roomId);
     const { checkAccess } = useContext(AccessContext);
     const [terminalHeight, setTerminalHeight] = useState(0);
     const [code, setCode] = useState('// Start coding...');
@@ -39,17 +42,21 @@ export default function CollaborateClassRoom() {
     const [history, setHistory] = useState([]);
     const [members, setMembers] = useState([]);
     const [tabSize, setTabSize] = useState(4);
+    const [connected, setConnected] = useState(false);
     const languages = ['python', 'cpp', 'C#'];
     const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
     const tabsizes = [2, 3, 4, 5, 6, 7, 8];
     const { authorized, setAuthorized, setRole } = useContext(AccessContext);
-
+    const [files, setFiles] = useState({
+        "main.cpp": { language: "cpp", content: "// Start coding..." }
+    });
+    const [activeFile, setActiveFile] = useState("main.cpp");
+    const { setMessage } = useContext(AlertContext);
 
 
     useEffect(() => {
         checkAccess({ roomId })
             .then((auth) => {
-                console.log(auth)
                 if (auth.allowed === true) {
                     setAuthorized(true);
                     setRole(auth.role);
@@ -59,20 +66,76 @@ export default function CollaborateClassRoom() {
                 }
                 else {
                     setAuthorized(false)
-
                 }
             })
 
     }, [checkAccess, roomId, setAuthorized, setRole])
 
-    const [files, setFiles] = useState({
-        "main.cpp": { language: "cpp", content: "// Start coding..." }
-    });
+    
 
-    const [activeFile, setActiveFile] = useState("main.cpp");
 
-    const { setMessage } = useContext(AlertContext);
-    console.log(isEditor);
+
+    function handleFileSelect(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            const content = event.target.result;
+            const fileName = f.name;
+
+            setFiles(prev => ({
+                ...prev,
+                [fileName]: {
+                    language: "javascript",
+                    content: content
+                }
+            }));
+            setActiveFile(fileName);
+            socket.emit('fileAdd', { roomId, newFileName: fileName, content })
+        };
+
+        reader.readAsText(f);
+    }
+
+    const deleteFile = (fileToDelete) => {
+        if (fileToDelete === activeFile) {
+            alert("You cannot delete the currently active file. Please switch files first.");
+            return;
+        }
+        const updatedFiles = { ...files };
+        delete updatedFiles[fileToDelete];
+
+        setFiles(updatedFiles);
+        socket.emit('fileDelete', { fileToDelete, roomId });
+    }
+
+    useEffect(() => {
+        socket.on('fileDelete', (fileToDelete) => {
+
+            const updatedFiles = { ...files };
+            delete updatedFiles[fileToDelete];
+            setFiles(updatedFiles);
+            if (!updatedFiles[activeFile]) {
+                const fileNames = Object.keys(updatedFiles);
+                setActiveFile(fileNames.length > 0 ? fileNames[0] : null);
+            }
+        });
+
+        socket.on('fileAdd', ({ newFileName, content }) => {
+            setFiles(prev => ({
+                ...prev,
+                [newFileName]: {
+                    language: "javascript",
+                    content: content
+                }
+            }));
+        });
+        return () => {
+            socket.off('fileDelete');
+            socket.off('fileAdd');
+        };
+    }, [files, activeFile]);
 
 
     const IOSSwitch = styled((props) => (
@@ -137,13 +200,10 @@ export default function CollaborateClassRoom() {
 
 
     useEffect(() => {
-        console.log('here')
         socket.on('sendMessage', (message) => {
             setMessage(message);
         })
     }, [setMessage])
-
-
 
 
     useEffect(() => {
@@ -155,44 +215,54 @@ export default function CollaborateClassRoom() {
                     pointerRef.current.style.top = `${y}px`;
                 }
             });
-
             return () => socket.off('pointerUpdate');
         }
     }, [isEditor]);
 
 
-    //Code Room Part
-
 
     useEffect(() => {
         socket.on('roomData', (data) => {
             setMembers(data.members);
-
             const member = data.members.find(m => m.id === userId)
             setIsEditor(member.access);
-            console.log(data);
+
         })
-
-
-
+        socket.on('syncFile', (data) => {
+            setFiles(data.file);
+            const fileKeys = Object.keys(data.file);
+            setActiveFile(fileKeys[0]);
+        })
         return () => {
             socket.off('roomData');
+            socket.off('syncFile');
         };
     }, [setIsEditor, userId])
 
     useEffect(() => {
-        if(!authorized) return;
-        console.log(userId);
+        if (!authorized) return;
+
         socket.emit('joinRoom', ({ roomId, userId }));
+
+        socket.on("disconnect", (reason) => {
+            console.log("Disconnected from server:", reason);
+            setConnected(false);
+        });
+        socket.on('connect', () => {
+            console.log('Successfully connected!');
+            setConnected(true);
+        });
+        setConnected(socket.connected);
         return () => {
             socket.off('joinRoom');
+            socket.off('disconnect');
+            socket.off('connect');
         };
-    }, [roomId, userId,authorized])
+    }, [roomId, userId, authorized])
 
     useEffect(() => {
-        if(!authorized) return;
-        console.log("here")
-        //socket.emit('joinRoom', roomId);
+        if (!authorized) return;
+
         function renderTeacherCursor() {
             if (!isEditor && editorRef.current && latestTeacherCursor.current) {
                 teacherCursorDecoration.current = editorRef.current.deltaDecorations(
@@ -230,7 +300,7 @@ export default function CollaborateClassRoom() {
             socket.off('fileUpdate');
             socket.off('cursorUpdate');
         };
-    }, [roomId, isEditor,authorized]);
+    }, [roomId, isEditor, authorized]);
 
     useEffect(() => {
         if (!isEditor) return;
@@ -258,6 +328,7 @@ export default function CollaborateClassRoom() {
             [newFileName]: { language: "javascript", content: "" }
         }));
         setActiveFile(newFileName);
+        socket.emit('fileAdd', ({ roomId, newFileName, content: "" }))
     };
 
     useEffect(() => {
@@ -291,17 +362,11 @@ export default function CollaborateClassRoom() {
     }
 
 
-
-
-    //Code functionality part
-
     const [font, setFont] = useState(12);
 
 
     async function handleRun() {
-
         setLoading(true);
-
         await fetch(`${API_URL}/runcode`, {
             method: 'POST',
             headers: {
@@ -335,13 +400,12 @@ export default function CollaborateClassRoom() {
 
     function getTime() {
         const time = new Date().toLocaleTimeString();
-        console.log(time);
+
         return time;
     }
     if (authorized === null) return (<> <NavBar /><p>Loading</p></>)
     if (!authorized) return (<><NavBar /><p>Not Authorized</p></>)
 
-    console.log(font);
 
     return (
         <>
@@ -386,6 +450,7 @@ export default function CollaborateClassRoom() {
                         value={tabSize}
                         onChange={setTabSize}
                     />
+                    <p>{!connected && 'trying to connect'}</p>
                 </div>
                 <div className='flex flex-col  flex-1 overflow-hidden'>
                     <div className={`flex flex-1  mb-2  gap-2 transition-all ease-in-out duration-300`}
@@ -397,6 +462,7 @@ export default function CollaborateClassRoom() {
                                 height="100%"
                                 //onChange={e => setCode(e)}
                                 onChange={(value) => {
+                                    if (!isEditor) return;
                                     const updatedContent = value;
                                     setCode(value);
 
@@ -407,7 +473,6 @@ export default function CollaborateClassRoom() {
                                             content: updatedContent
                                         }
                                     }));
-
 
                                     socket.emit("fileChange", {
                                         roomId,
@@ -438,8 +503,6 @@ export default function CollaborateClassRoom() {
                                     matchBrackets: 'always',
                                 }}
                             >
-
-
                             </Editor>
 
                         </div>
@@ -451,14 +514,19 @@ export default function CollaborateClassRoom() {
                                 <div className='flex px-4 text-xl font-semibold gap-4'><p>Members</p><span className='text-md'>{members.length}</span></div>
                                 <div className='flex flex-col'>
 
-                                    {members.map((item) => (
+                                    {members.map((item, index) => (
 
-                                        <div key={1} className="flex justify-between text-md items-center w-full px-2 py-1" >
+                                        <div key={index} className="flex justify-between text-md items-center w-full px-2 py-1" >
                                             <div className='flex-1 flex gap-2'><span><CircleUserRound className='py-0.75' /></span><p>{item.name}</p><span>{item.active && <Dot className='red' />}</span></div>
                                             <div>
+
                                                 <IOSSwitch
                                                     checked={item.access === true ? true : false}
-                                                    onChange={() => changeAccess(item.id)}
+                                                    onChange={() => {
+                                                        if (isEditor) { changeAccess(item.id) } else {
+                                                            alert("Only admin can change the permissions")
+                                                        }
+                                                    }}
                                                     inputProps={{ 'aria-label': 'iOS design switch' }}
                                                 />
                                             </div>
@@ -473,8 +541,9 @@ export default function CollaborateClassRoom() {
                                 className='flex flex-col flex-1 overflow-scroll  h-full  w-full py-2 rounded-2xl shadow-2xl  transition-colors duration-300 '
                             >
                                 <div className='flex px-4 text-xl font-semibold gap-4'><p>Files</p></div>
+                                <div className='flex justify-center'> {isEditor && <button onClick={addNewFile}>➕ New File</button>}</div>
+                                <div className='flex justify-center'>{isEditor && <input type="file" className='text-[14px] border-' onChange={handleFileSelect} />}</div>
 
-                                {isEditor && <button onClick={addNewFile}>➕ New File</button>}
 
                                 <ul className='px-2'>
                                     {Object.keys(files).map(fileName => (
@@ -482,8 +551,20 @@ export default function CollaborateClassRoom() {
                                             key={fileName}
                                             onClick={() => setActiveFile(fileName)}
                                             style={{ cursor: 'pointer', background: activeFile === fileName ? '#ddd' : 'transparent' }}
+                                            className='flex'
                                         >
                                             <div className='flex gap-2'>  <File className='py-0.75' /> {fileName}</div>
+                                            {isEditor &&
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        deleteFile(fileName);
+                                                    }}
+                                                    className='ml-auto px-1'
+                                                >
+                                                    <Trash className='py-0.75' />
+                                                </button>
+                                            }
                                         </li>
                                     ))}
                                 </ul>
@@ -493,14 +574,11 @@ export default function CollaborateClassRoom() {
 
                             <textarea type='text' placeholder='Input STDIN' className='border  w-full rounded-2xl focus:outline-0 p-4 resize-none' onChange={(e) => setStdin(e.target.value)}
                                 style={{ fontSize: `${font}` }}>
-
                             </textarea>
                             <div
                                 className='flex justify-center items-center bg-slate-300   w-full py-2 rounded-2xl shadow-2xl hover:bg-blue-500 active:font-bold active:bg-yellow-300  transition-colors duration-300 '
                                 onClick={handleRun}>
-
                                 Run
-
                             </div>
 
 
@@ -515,8 +593,8 @@ export default function CollaborateClassRoom() {
 
 
                         <div className={`justify-end transition-all duration-500 ${terminalHeight == 25 && 'rotate-180'}`}>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
                             </svg>
 
                         </div>
@@ -543,8 +621,8 @@ export default function CollaborateClassRoom() {
                         >
 
 
-                            {history.map(item => (
-                                <div className='flex flex-col py-1 px-8'>
+                            {history.map((item, index) => (
+                                <div className='flex flex-col py-1 px-8' key={index}>
 
                                     <div className='flex'>
                                         <p className='px-2 text-[14px]'>{item.currentTime}</p>

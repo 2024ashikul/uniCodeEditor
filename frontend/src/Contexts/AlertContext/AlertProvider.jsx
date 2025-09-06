@@ -11,24 +11,22 @@ export const AlertProvider = ({ children }) => {
 
         if (message) {
             const timer = setTimeout(() => {
-
                 setMessage(null);
-            }, 4000);
-
+            }, 10000);
 
             return () => { clearTimeout(timer); };
         }
         console.log('done');
 
     }, [message]);
-
+    
     return (
         <AlertContext.Provider value={{ message, setMessage ,type, setType}}>
             {children}
 
             {
                 (<div className={`
-            absolute top-14 right-2 
+            fixed top-14 right-2 
             overflow-visible 
              shadow-lg transition duration-1000 
             ${message ? 'opacity-100' : 'opacity-0'}

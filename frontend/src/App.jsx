@@ -29,6 +29,8 @@ import CollaborateTest from './components/CollaborateTest';
 import Collaborate from '../pages/Collaborate';
 import UpdateLesson from './components/AdminAssignment/UpdateLesson';
 import ProfilePage from '../pages/ProfilePage';
+import ShareScreen from '../pages/ShareScreen';
+import User1 from '../pages/User1';
 
 
 
@@ -48,7 +50,7 @@ function App() {
                     <Route path='/login' element={<Login />} />
                     <Route path='/signup' element={<SignUp />} />
                     <Route path='/assignment/:assignmentId/*' element={<Assignment />} />
-                    <Route path='/user/*' element={<PrivateRoute><User /></PrivateRoute>} />
+                    <Route path='/user/*' element={<PrivateRoute><User1 /></PrivateRoute>} />
                     <Route path='room/:roomId/createlesson' element={<CreateLesson />} />
                     <Route path='/lesson/:lessonId' element={<Lesson />} />
                     <Route path='/updatelesson/:lessonId' element={<UpdateLesson />} />
@@ -62,6 +64,7 @@ function App() {
                   <Route path='/collaborateclass' element={<CollaborateClass />} />
                   <Route path='/collaborateclassroom/:roomId' element={<CollaborateClassRoom />} />
                   <Route path='/collaborateroom/:roomId' element={<CollaborateRoom />} />
+                  <Route path='/sharescreen/:roomId' element={<ShareScreen />} />
                 </Route>
               </Routes>
 

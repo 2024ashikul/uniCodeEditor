@@ -34,13 +34,12 @@ export default function Assignment() {
     useEffect(() => {
         setTitle('Assignment');
         setScrollHeight(100);
-
     }, [setTitle, setScrollHeight])
 
 
     return (
         <>
-            {role === 'user' ? <UserAssignment /> : role === 'admin' ? <AdminAssignment /> : 'NOT AUTHORIZED'}
+            {role === 'member' ? <UserAssignment /> : role === 'admin' ? <AdminAssignment /> : 'NOT AUTHORIZED'}
         </>
     )
 

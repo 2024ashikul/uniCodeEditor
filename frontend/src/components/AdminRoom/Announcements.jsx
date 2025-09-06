@@ -82,8 +82,10 @@ export default function Annoucements({ roomId }) {
                                 <NullComponent
                                     text={'No announcments found!'}
                                 />
-                                : announcements.map((item, i) => (
-                                    <div className="shadow-sm border-amber-700 flex-col rounded-2xl transition duration-500 flex w-full 
+                                : 
+                                
+                                announcements.map((item, i) => (
+                                    <div className="shadow-lg border-amber-700 flex-col mb-4 rounded-2xl transition duration-500 flex w-full 
                                 hover:bg-slate-100  "
                                         key={i}>
 

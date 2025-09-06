@@ -20,10 +20,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../../config";
 import TopBar from "../SharedComponents/TopBar";
 import PageTitle from "../SharedComponents/PageTitle";
+import FloatingAIBox from "../SharedComponents/FloatingAIBox";
+import { sendAIRequest } from "../../AIRequest";
 
 export default function CreateLesson() {
     const { roomId } = useParams();
-
+    const [isAIOpen, setIsAIOpen] = useState(false);
     const [active, setActive] = useState("text");
     const [content, setContent] = useState("");
     const [contents, setContents] = useState([]);
@@ -39,6 +41,11 @@ export default function CreateLesson() {
         })
     );
 
+    async function handleSend(input) {
+            const res = await sendAIRequest('generate/problem', input);
+            console.log(res);
+            setContent(res);
+        }
 
 
     const createLesson = async () => {
@@ -55,7 +62,7 @@ export default function CreateLesson() {
             if (res.ok) {
                 setMessage('Lesson Created Succesfully')
                 setType('success')
-                navigate(`/room/${roomId}`)
+                navigate(`/room/${roomId}/lessons`)
             } else {
                 setMessage('Could not create new lesson')
                 setType('error')
@@ -109,12 +116,13 @@ export default function CreateLesson() {
 
     return (
         <>
-            
+
             <div className="flex justify-between gap-20 mx-20 my-4">
-                <input 
-                    type="text" 
-                    value={title} 
-                    onChange={(e) => setTitle(e.target.value)} 
+                <input
+                    required
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     className="border-1 flex-1 rounded-md px-4 py-1"
                     placeholder="Title of the lesson" />
                 <button onClick={createLesson} className="px-4 py-1 bg-blue-500 text-white cursor-pointer rounded-md">Create lesson</button>
@@ -155,6 +163,13 @@ export default function CreateLesson() {
                     >
                         {editingIndex !== null ? "Update" : "Add"}
                     </button>
+                    {active === 'text' && <button type="button" onClick={() => setIsAIOpen(true)}>use AI </button>}
+                    <FloatingAIBox
+                        isOpen={isAIOpen}
+                        onClose={() => setIsAIOpen(false)}
+                        onSend={handleSend}
+                    />
+                    
                 </div>
 
                 <div>
@@ -164,6 +179,7 @@ export default function CreateLesson() {
                             value={content}
                             onChange={(value) => setContent(value || "")}
                         />
+
                     )}
                     {active === "video" && (
                         <input

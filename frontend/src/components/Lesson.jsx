@@ -46,11 +46,11 @@ export default function Lesson() {
 
     return (
         <>
-            <div className="mx-20 ">
+            <div className="mx-40 ">
                 <TopBanner />
                 <div className="flex w-full border-b">
-                    <span className="text-3xl font-semibold">{lesson?.title}</span>
-                    <span className="align-bottom ">{lesson?.createdAt.slice(0,10)}</span>
+                    {/* <span className="text-3xl font-semibold">{lesson?.title}</span> */}
+                    {/* <span className="align-bottom ">{lesson?.createdAt.slice(0,10)}</span> */}
                 </div>
                 <div className="flex flex-col gap-10 text-3xl py-4 justify-center items-center">
                     {contents?.map((item, index) => {

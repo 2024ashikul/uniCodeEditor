@@ -37,6 +37,55 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
     const { setMessage } = useContext(AlertContext);
     console.log(isEditor);
 
+    //new change
+    function handleFileSelect(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            const content = event.target.result;
+            const fileName = f.name;
+
+            setFiles(prev => ({
+                ...prev,
+                [fileName]: {
+                    language: "javascript",
+                    content: content
+                }
+            }));
+            setActiveFile(fileName);
+        };
+        reader.readAsText(f);
+    }
+
+    const deleteFile = (fileToDelete) => {
+        if (fileToDelete === activeFile) {
+            alert("You cannot delete the currently active file. Please switch files first.");
+            return;
+        }
+        const updatedFiles = { ...files };
+        delete updatedFiles[fileToDelete];
+
+        setFiles(updatedFiles);
+        io.to(roomId).emit('fileDelete', {files,roomId});
+    }
+
+    useEffect(() => {
+        socket.on('fileDelete', (fileToDelete) => {
+            fileToDelete
+            const updatedFiles={...files};
+            delete updatedFiles[fileToDelete];
+            setFiles(updatedFiles);
+            if (!updatedFiles[activeFile]) {
+                const fileNames = Object.keys(updatedFiles);
+                setActiveFile(fileNames.length > 0 ? fileNames[0] : null);
+            }
+        });
+        return () => {
+            socket.off('fileDelete');
+        };
+    }, [files,activeFile]);
 
     const IOSSwitch = styled((props) => (
         <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -105,10 +154,6 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
             setMessage(message);
         })
     }, [setMessage])
-
-
-
-
 
 
     useEffect(() => {
@@ -229,20 +274,6 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
 
 
 
-
-    useEffect(() => {
-        socket.on("fileChange", ({ fileName, content }) => {
-            setFiles(prev => ({
-                ...prev,
-                [fileName]: { ...prev[fileName], content }
-            }));
-        });
-
-        return () => {
-            socket.off("fileChange");
-        };
-    }, []);
-
     function handleEditorMount(editor) {
         editorRef.current = editor;
 
@@ -255,6 +286,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
             });
         }
     }
+    
 
 
 
@@ -364,6 +396,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                                 height="100%"
                                 //onChange={e => setCode(e)}
                                 onChange={(value) => {
+                                    if(!isEditor) return;
                                     const updatedContent = value;
                                     setCode(value);
 
@@ -375,7 +408,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                                         }
                                     }));
 
-
+                                    
                                     socket.emit("fileChange", {
                                         roomId,
                                         fileName: activeFile,
@@ -435,8 +468,9 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                                 className='flex flex-col flex-1 overflow-scroll  h-full  w-full py-2 rounded-2xl shadow-2xl  transition-colors duration-300 '
                             >
                                 <div className='flex px-4 text-xl font-semibold gap-4'><p>Files</p></div>
-
-                                {isEditor && <button onClick={addNewFile}>➕ New File</button>}
+                                
+                                <div>{isEditor && <input type="file" className='text-sm' onChange={handleFileSelect} />}</div>
+                                <div> {isEditor && <button onClick={addNewFile}>➕ New File</button>}</div>
 
                                 <ul className='px-2'>
                                     {Object.keys(files).map(fileName => (
@@ -444,8 +478,18 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                                             key={fileName}
                                             onClick={() => setActiveFile(fileName)}
                                             style={{ cursor: 'pointer', background: activeFile === fileName ? '#ddd' : 'transparent' }}
+                                            className='flex'
                                         >
-                                         <div className='flex gap-2'>  <File className='py-0.75' /> {fileName}</div>
+                                            <div className='flex gap-2'>  <File className='py-0.75' /> {fileName}</div>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    deleteFile(fileName);
+                                                }}
+                                                style={{ marginLeft: 'auto', border: 'none', background: 'none', cursor: 'pointer', color: 'red' }}
+                                            >
+                                                &times;
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
@@ -473,9 +517,6 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                     <div className="flex h-8 px-4 py-0  items-center font-semibold border-t border-green-500 m-0"
                         onClick={() => { terminalHeight == 25 ? setTerminalHeight(0) : setTerminalHeight(25) }}
                     >
-
-
-
                         <div className={`justify-end transition-all duration-500 ${terminalHeight == 25 && 'rotate-180'}`}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
