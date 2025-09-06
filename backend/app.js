@@ -22,7 +22,7 @@ const roomRoutes = require('./routes/roomRoutes');
 const assignmentRoutes = require('./routes/assignmentRoutes');
 const meetingRoutes = require('./routes/meetingRoutes')
 const aiRoutes = require('./routes/aiRoutes')
-const lessonRoutes = require('./routes/lessonRoutes')
+const lessonRoutes = require('./routes/routesLesson')
 
 
 app.use('/', submitRoutes);
