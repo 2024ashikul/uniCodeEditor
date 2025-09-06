@@ -5,18 +5,15 @@ const announcements = require("../models/announcements");
 const lesson = require("../models/lesson");
 const { group } = require("console");
 
-
-
-exports.createRoom = async (req, res) => {
+exports.create = async (req, res) => {
     const { userId, roomName } = req.body;
-    console.log(userId)
     try {
         const room = await Rooms.create({
             admin: userId,
             name: roomName
         });
-        console.log('hi');
-         await RoomMembers.create({
+
+        await RoomMembers.create({
             role: 'admin',
             userId: userId,
             roomId: room.id
@@ -30,18 +27,15 @@ exports.createRoom = async (req, res) => {
                 model: Rooms
             }
         });
-        console.log('Room Created');
         return res.status(201).json({ message: 'Created a new room!', newRoom });
     } catch (err) {
         console.log(err)
-        return res.status(401).json({ message: 'An error occured'});
+        return res.status(500).json({ message: 'Internal server error' });
     }
 }
 
 exports.createAnnoucement = async (req, res) => {
-    console.log("annoucements");
     const { roomId, form } = req.body;
-    console.log({ roomId, form });
     try {
         const newAnnoucement = await Announcement.create({
             roomId: roomId,
@@ -50,19 +44,17 @@ exports.createAnnoucement = async (req, res) => {
         })
         if (newAnnoucement) {
             return res.status(201).json({ newAnnoucement, message: 'New announcment created!' })
-        } else {
-            return res.status(201).json({ message: 'An error occured' })
         }
-        res.status(201).json(newAnnoucement);
+        return res.status(400).json({ message: 'An error occured' })
+
     } catch (err) {
         console.log(err)
-        return res.status(400).json({ message: 'Could not create an announcement' })
+        return res.status(500).json({ message: 'Internal server error!' })
     }
 }
 
 exports.fetchAnnoucements = async (req, res) => {
     const { roomId } = req.body;
-
     try {
         const announcements = await Announcement.findAll({
             where: {
@@ -70,33 +62,17 @@ exports.fetchAnnoucements = async (req, res) => {
             },
             order: [['createdAt', 'DESC']]
         });
-        console.log('fetched announcements')
-        res.status(201).json(announcements)
+        return res.status(200).json(announcements)
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: 'Internal server error!' })
     }
 }
 
 
-exports.loadRooms = async (req, res) => {
-    const userId = req.body.userId;
-    console.log(userId)
-    try {
-        const room = await Rooms.findAll({
-            where: {
-                admin: userId
-            }
-        });
-        console.log('loaded rooms');
-        return res.status(201).json({ room })
-    } catch (err) {
-        console.log(err)
-    }
-}
 
-exports.loadRoomsJoined = async (req, res) => {
-    
-    const {  userId } = req.body;
+exports.roomsJoined = async (req, res) => {
+    const { userId } = req.body;
     console.log(userId)
     try {
         const rooms = await RoomMembers.findAll({
@@ -107,18 +83,15 @@ exports.loadRoomsJoined = async (req, res) => {
                 model: Rooms
             }
         });
-
-
-        console.log('loaded rooms');
-        return res.status(201).json({ rooms })
+        return res.status(200).json({ rooms })
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: 'Internal server error!' })
     }
 }
 
-exports.joinRoom = async (req, res) => {
+exports.join = async (req, res) => {
     const { userId, roomId } = req.body;
-    console.log({ userId, roomId });
     try {
         const room = await Rooms.findOne({
             where: {
@@ -137,7 +110,6 @@ exports.joinRoom = async (req, res) => {
         if (existingRoom) {
             return res.status(409).json({ message: 'Room already joined', type: 'warning' })
         }
-
         const newRoom = await RoomMembers.create({
             userId: userId,
             roomId: roomId,
@@ -145,23 +117,22 @@ exports.joinRoom = async (req, res) => {
         });
 
         if (newRoom) {
-            return res.status(201).json({ message: 'Joined to the room', type: 'success', newRoom })
+            return res.status(201).json({ message: 'Joined to the room', newRoom })
         }
-        return res.status(201).json({ message: 'Failed to join the room', type: 'success' })
+        return res.status(401).json({ message: 'Failed to join the room' })
     } catch (err) {
         console.log(err);
-        return res.status(400).json({ message: 'An error occured', type: 'error' })
+        return res.status(500).json({ message: 'Internal Server Error' })
     }
 }
 
-exports.roomMembers = async (req, res) => {
+exports.members = async (req, res) => {
     const { roomId } = req.body;
     try {
         const membersfull = await RoomMembers.findAll({
             where: {
                 roomId: roomId
             },
-
             include: [{ model: User, attributes: ['name', 'email'] }]
         });
         const members = membersfull.map(item => ({
@@ -169,197 +140,12 @@ exports.roomMembers = async (req, res) => {
             name: item.user.name,
             email: item.user.email
         }))
-        console.log('loaded roommebers')
-        return res.status(201).json(members);
+        return res.status(200).json(members);
     } catch (err) {
         console.log(err);
+        return res.status(500).json({ message: 'Internal Server Error' })
     }
 }
-
-exports.resultsForAdmin = async (req, res) => {
-    const { assignmentId } = req.body;
-    const assignment = await Assignment.findOne({
-        where: {
-            id: assignmentId
-        }
-    });
-    try {
-        //getting members
-        const membersfull = await RoomMembers.findAll({
-            where: {
-                roomId: assignment.roomId
-            },
-            include: [{ model: User, attributes: ['name', 'email', 'id'] }]
-        });
-        const members = membersfull.map(item => ({
-            name: item.user.name,
-            email: item.user.email,
-            id: item.user.id
-        }))
-        const memberids = members.map(item => item.id)
-
-        //getting problem ids
-        const problemIds = await Problem.findAll({
-            where: {
-                assignmentId: assignmentId
-            },
-            attributes: ['id']
-        });
-        const ids = problemIds.map(p => p.id);
-
-        const submissions = await Submission.findAll({
-            where: {
-                problemId: {
-                    [Op.in]: ids
-                },
-                userId: {
-                    [Op.in]: memberids
-                }
-            },
-            include: {
-                model: User,
-                attributes: ['id', 'email', 'name']
-            }
-        });
-
-
-        const result = members.map((element) => ({
-            member: element,
-            submission:
-                problemIds.map(problem => (
-                    submissions.filter(item => (item.userId === element.id && item.problemId == problem.id || NaN)
-                    ))
-                )
-        }));
-
-
-        return res.status(201).json({ submissions, members, result });
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-
-exports.resultsForUser = async (req, res) => {
-    const { assignmentId, userId } = req.body;
-    const assignment = await Assignment.findOne({
-        where: {
-            id: assignmentId
-        }
-    });
-    try {
-        //getting members
-        const membersfull = await RoomMembers.findAll({
-            where: {
-                roomId: assignment.roomId
-            },
-            include: [{ model: User, attributes: ['name', 'email', 'id'] }]
-        });
-        const members = membersfull.map(item => ({
-            name: item.user.name,
-            email: item.user.email,
-            id: item.user.id
-        }))
-        const memberids = members.map(item => item.id)
-
-        //getting problem ids
-        const problemIds = await Problem.findAll({
-            where: {
-                assignmentId: assignmentId
-            },
-            attributes: ['id']
-        });
-        const ids = problemIds.map(p => p.id);
-
-        // const result = await Submission.findAll({
-        //     where: {
-        //         problemId: { [Op.in]: ids },
-        //         userId: userId
-        //     },
-        //     attributes: [
-        //         'problemId',
-        //         [sequelize.fn('MAX', sequelize.col('createdAt')), 'lastCreatedAt']
-        //     ],
-        //     group: ['problemId']
-        // });
-
-        const result = await Promise.all(
-            ids.map(async(id)=>{
-                const submission = await Submission.findOne({
-                    where:{
-                        problemId : id,
-                        userId : userId
-                    },
-                    order: [['createdAt', 'DESC']]
-                })
-                return {id, submission}
-            })
-        )
-
-        let results = await Promise.all(
-            members.map(async (member) => {
-                const submissions = await Submission.findAll({
-                    where: {
-                        problemId: { [Op.in]: ids },
-                        userId: member.id
-                    },
-                    attributes: ['AIscore', 'FinalScore','problemId',
-                        [sequelize.fn('MAX', sequelize.col('createdAt')), 'lastCreatedAt']
-                    ],
-                    group : ['problemId']
-                });
-
-                let totalscore = 0;
-                submissions.forEach((submission) => {
-                    if (submission.FinalScore) {
-                        totalscore += submission.FinalScore || 0;
-                    } else {
-                        totalscore += submission.AIscore || 0;
-                    }
-                });
-
-                return { member, totalscore };
-            })
-        );
-        results = results.sort((a, b) => b.totalscore - a.totalscore);
-        console.log(results);
-
-
-
-        return res.status(201).json({ results: results, result: result,problemids : ids });
-    } catch (err) {
-        console.log(err);
-    }
-}
-/*
-try {
-        const problemIds = await Problem.findAll({
-            where: {
-                assignmentId: assignmentId
-            },
-            attributes: ['id']
-        });
-        const ids = problemIds.map(p => p.id);
-        console.log(ids);
-        const submissions = await Submission.findAll({
-            where: {
-                problemId: {
-                    [Op.in]: ids
-                },
-                userId : userId
-            },
-            include: {
-                model: User,
-                attributes: ['id', 'email', 'name']
-            }
-        });
-        console.log('fetched sumissions for user');
-        res.status(201).json(submissions)
-    } catch (err) {
-        console.log(err);
-    }
-*/
-
 
 exports.getAdmin = async (req, res) => {
     const { roomId } = req.body;
@@ -371,8 +157,7 @@ exports.getAdmin = async (req, res) => {
         })
         const admin = room.admin;
         const name = room.name;
-        console.log('got the admin ')
-        return res.status(201).json({ admin, name })
+        return res.status(200).json({ admin, name })
 
     } catch (err) {
         console.log(err)
@@ -381,7 +166,6 @@ exports.getAdmin = async (req, res) => {
 
 exports.getUserAccess = async (req, res) => {
     const { roomId, userId, assignmentId, problemId } = req.body;
-
     console.log({ roomId, userId, assignmentId, problemId });
     try {
         if (!userId) {
@@ -438,7 +222,7 @@ exports.getUserAccess = async (req, res) => {
         }
     } catch (err) {
         console.log(err)
-        return res.status(200).json(false)
+        return res.status(500).json(false)
     }
 }
 

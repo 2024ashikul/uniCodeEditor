@@ -10,8 +10,6 @@ async function hashPassword(plainPassword) {
     return hashedPassword;
 }
 
-
-
 exports.signup = async (req, res) => {
     try {
         const { form } = req.body;

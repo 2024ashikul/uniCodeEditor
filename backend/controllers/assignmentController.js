@@ -5,7 +5,6 @@ const { Op, where } = require('sequelize');
 
 exports.create = async (req, res) => {
     const { roomId, form, assignmentId } = req.body;
-
     try {
         if (assignmentId) {
             const existingAssignment = await Assignment.findOne({
@@ -82,7 +81,6 @@ exports.fetchAllUser = async (req, res) => {
 }
 
 exports.changeSchedule = async (req, res) => {
-
     try {
         const { assignmentId, form } = req.body;
         const assignment = await Assignment.findOne({
@@ -110,173 +108,6 @@ exports.changeSchedule = async (req, res) => {
     }
 }
 
-
-exports.fetchProblems = async (req, res) => {
-    const { assignmentId } = req.body;
-    try {
-        const problems = await Problem.findAll({
-            where: {
-                assignmentId: assignmentId
-            }
-        });
-        console.log('fetched prolbems')
-        return res.status(201).json(problems)
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({ message: "Server error", error: err.message });
-    }
-}
-
-exports.createProblem = async (req, res) => {
-    const { assignmentId, form } = req.body;
-    try {
-        const newProblem = await Problem.create({
-            title: form.title,
-            statement: form.statement,
-            fullmarks: form.fullmarks || 10,
-            assignmentId: assignmentId
-        });
-        if (newProblem) {
-            console.log('New problem created')
-            return res.status(201).json({ newProblem, message: 'New Problem created!' })
-        } else {
-            return res.status(400).json({ message: 'Could not create problem' })
-        }
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({ message: "Server error", error: err.message });
-    }
-
-}
-
-exports.updateProblem = async (req, res) => {
-    const { editProblemId, form } = req.body;
-    try {
-        const problem = await Problem.findOne({
-            where: { id: editProblemId }
-        });
-        problem.title = form.title;
-        problem.statement = form.statement;
-        problem.fullmarks = form.fullmarks || problem.fullmarks;
-        await problem.save();
-        console.log(temp);
-        if (problem) {
-            console.log('Problem Updated')
-            return res.status(201).json({ problem, message: 'Problem updated' })
-        } else {
-            console.log("error")
-            return res.status(404).json({ message: 'Could not update Problem' })
-        }
-
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({ message: 'Internal server error' })
-    }
-
-}
-
-exports.deleteProblem = async (req, res) => {
-    const { problemId } = req.body;
-    try {
-        const deletedCount = await Problem.destroy({
-            where: { id: problemId }
-        });
-
-        if (deletedCount > 0) {
-            return res.status(200).json({ message: 'Problem deleted' });
-        } else {
-            return res.status(404).json({ message: 'Problem not found or already deleted' });
-        }
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({ message: 'could not perform the action' })
-    }
-
-}
-
-
-exports.fetchProblem = async (req, res) => {
-    const { problemId } = req.body;
-    try {
-        const problem = await Problem.findOne({
-            where: {
-                id: problemId
-            }
-        });
-        if (problem) {
-            console.log('fetched problems')
-            return res.status(201).json(problem)
-        } else {
-            console.log("error")
-        }
-
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-exports.fetchSubmissions = async (req, res) => {
-    console.log('here')
-    const { assignmentId } = req.body;
-    console.log('here')
-    try {
-        const problemIds = await Problem.findAll({
-            where: {
-                assignmentId: assignmentId
-            },
-            attributes: ['id']
-        });
-        const ids = problemIds.map(p => p.id);
-        console.log(ids);
-        const submissions = await Submission.findAll({
-            where: {
-                problemId: {
-                    [Op.in]: ids
-                }
-            },
-            include: {
-                model: User,
-                attributes: ['id', 'email', 'name']
-            }
-        });
-        console.log('fetched sumissions');
-        res.status(201).json(submissions)
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-exports.fetchSubmissionsIndividual = async (req, res) => {
-    console.log('here')
-    const { assignmentId, userId } = req.body;
-    console.log('here')
-    try {
-        const problemIds = await Problem.findAll({
-            where: {
-                assignmentId: assignmentId
-            },
-            attributes: ['id']
-        });
-        const ids = problemIds.map(p => p.id);
-        console.log(ids);
-        const submissions = await Submission.findAll({
-            where: {
-                problemId: {
-                    [Op.in]: ids
-                },
-                userId: userId
-            },
-            include: {
-                model: User,
-                attributes: ['id', 'email', 'name']
-            }
-        });
-        console.log('fetched sumissions for user');
-        res.status(201).json(submissions)
-    } catch (err) {
-        console.log(err);
-    }
-}
 
 exports.publishResult = async (req, res) => {
     const { assignmentId } = req.body;

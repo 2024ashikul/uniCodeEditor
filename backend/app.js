@@ -21,12 +21,15 @@ const assignmentRoutes = require('./routes/assignmentRoutes');
 const meetingRoutes = require('./routes/meetingRoutes')
 const aiRoutes = require('./routes/aiRoutes')
 const lessonRoutes = require('./routes/routesLesson')
-
+const problemRoutes = require('./routes/problemRoutes')
+const submissionRoutes = require('./routes/submissionRoutes')
 
 app.use('/', submitRoutes);
 app.use('/auth/', userRoutes);
-app.use('/', roomRoutes);
+app.use('/room/', roomRoutes);
+app.use('/problem/',problemRoutes)
 app.use('/assignment/', assignmentRoutes);
+app.use('/submission/', submissionRoutes);
 app.use('/', meetingRoutes);
 app.use('/', aiRoutes)
 app.use('/lesson/',lessonRoutes)
