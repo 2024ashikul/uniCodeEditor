@@ -120,9 +120,10 @@ exports.fetchProblems = async (req, res) => {
             }
         });
         console.log('fetched prolbems')
-        res.status(201).json(problems)
+        return res.status(201).json(problems)
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: "Server error", error: err.message });
     }
 }
 
@@ -137,13 +138,13 @@ exports.createProblem = async (req, res) => {
         });
         if (newProblem) {
             console.log('New problem created')
-            
             return res.status(201).json({newProblem, message : 'New Problem created!'})
         } else {
-            console.log("error")
+            return res.status(400).json({ message : 'Could not create problem'})
         }
     } catch (err) {
         console.log(err)
+         return res.status(500).json({ message: "Server error", error: err.message });
     }
 
 }

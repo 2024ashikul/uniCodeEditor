@@ -128,7 +128,7 @@ exports.joinRoom = async (req, res) => {
             }
         });
         if (!room) {
-            return res.status(401).json({ message: 'Room not found', type: 'warning' })
+            return res.status(404).json({ message: 'Room not found', type: 'warning' })
         }
         const existingRoom = await RoomMembers.findOne({
             where: {
@@ -137,13 +137,13 @@ exports.joinRoom = async (req, res) => {
             }
         });
         if (existingRoom) {
-            return res.status(401).json({ message: 'Room already joined', type: 'warning' })
+            return res.status(409).json({ message: 'Room already joined', type: 'warning' })
         }
 
         const newRoom = await RoomMembers.create({
             userId: userId,
             roomId: roomId,
-            role: 'user'
+            role: 'member'
         });
 
         if (newRoom) {

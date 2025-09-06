@@ -7,6 +7,15 @@ app.use(express.json());
 app.use(cors());
 app.use(compression());
 
+app.use(cors({
+  origin: "*",  // allow all for now
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: false
+}));
+
+
+
+
 const submitRoutes = require('./routes/codeSubmit');
 const userRoutes = require('./routes/userRoutes');
 const roomRoutes = require('./routes/roomRoutes');
