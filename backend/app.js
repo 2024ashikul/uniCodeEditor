@@ -14,8 +14,6 @@ app.use(cors({
 }));
 
 
-
-
 const submitRoutes = require('./routes/codeSubmit');
 const userRoutes = require('./routes/userRoutes');
 const roomRoutes = require('./routes/roomRoutes');
@@ -28,7 +26,7 @@ const lessonRoutes = require('./routes/routesLesson')
 app.use('/', submitRoutes);
 app.use('/auth/', userRoutes);
 app.use('/', roomRoutes);
-app.use('/', assignmentRoutes);
+app.use('/assignment/', assignmentRoutes);
 app.use('/', meetingRoutes);
 app.use('/', aiRoutes)
 app.use('/lesson/',lessonRoutes)

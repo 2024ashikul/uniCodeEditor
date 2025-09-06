@@ -3,55 +3,54 @@ const { Assignment, Submission, User, Problem } = require("../models");
 const AiPrompt = require('../ai')
 const { Op, where } = require('sequelize');
 
-exports.addAssignment = async (req, res) => {
+exports.create = async (req, res) => {
     const { roomId, form, assignmentId } = req.body;
-    console.log({ roomId, form,assignmentId });
-    try {
 
+    try {
         if (assignmentId) {
             const existingAssignment = await Assignment.findOne({
-                where : {id: assignmentId}
+                where: { id: assignmentId }
             });
             existingAssignment.title = form.title;
             existingAssignment.description = form.description;
             await existingAssignment.save();
             const updatedAssignment = existingAssignment;
-            if(existingAssignment){
-                return res.status(201).json({updatedAssignment , message : 'Assingment updated successfully'});
+            if (existingAssignment) {
+                return res.status(201).json({ updatedAssignment, message: 'Assingment updated successfully' });
             }
-            else{
-                return res.status(404).json({ message : 'Assingment not found'});
+            else {
+                return res.status(404).json({ message: 'Assingment not found' });
             }
-
         }
         const newAssignment = await Assignment.create({
             roomId: roomId,
             title: form.title,
             description: form.description
         })
-        if(newAssignment){
-            return res.status(201).json({newAssignment , message : 'Assingment created successfully'});
+        if (newAssignment) {
+            return res.status(201).json({ newAssignment, message: 'Assingment created successfully' });
         }
-        res.status(201).json(newAssignment);
+
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
-exports.fetchAssignment = async (req, res) => {
+exports.fetchone = async (req, res) => {
     const { assignmentId } = req.body;
-    console.log('fetchingassignemnts')
     try {
-        const FindAssignment = await Assignment.findOne({
+        const assingment = await Assignment.findOne({
             where: { id: assignmentId }
         })
-        res.status(201).json(FindAssignment);
+        return res.status(200).json(assingment);
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
-exports.fetchAssignments = async (req, res) => {
+exports.fetchall = async (req, res) => {
     const { roomId } = req.body;
     try {
         const assignments = await Assignment.findAll({
@@ -59,14 +58,14 @@ exports.fetchAssignments = async (req, res) => {
                 roomId: roomId
             }
         });
-        console.log('fetchedassignments')
-        res.status(201).json(assignments)
+        return res.status(200).json(assignments);
     } catch (err) {
-        console.log(err)
+        console.log(err);
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
-exports.fetchAssignmentsUser = async (req, res) => {
+exports.fetchAllUser = async (req, res) => {
     const { roomId } = req.body;
     try {
         const assignments = await Assignment.findAll({
@@ -75,17 +74,17 @@ exports.fetchAssignmentsUser = async (req, res) => {
                 status: 'assigned'
             }
         });
-        console.log('fetchedassignments for user')
-        res.status(201).json(assignments)
+        return res.status(200).json(assignments)
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
 exports.changeSchedule = async (req, res) => {
-    const { assignmentId, form } = req.body;
-    console.log({ assignmentId, form });
+
     try {
+        const { assignmentId, form } = req.body;
         const assignment = await Assignment.findOne({
             where: {
                 id: assignmentId
@@ -104,9 +103,10 @@ exports.changeSchedule = async (req, res) => {
             assignment.duration = form.duration;
         }
         await assignment.save();
-        return res.status(201).json(assignment)
+        return res.status(200).json(assignment)
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
 
@@ -133,18 +133,18 @@ exports.createProblem = async (req, res) => {
         const newProblem = await Problem.create({
             title: form.title,
             statement: form.statement,
-            fullmarks : form.fullmarks || 10,
+            fullmarks: form.fullmarks || 10,
             assignmentId: assignmentId
         });
         if (newProblem) {
             console.log('New problem created')
-            return res.status(201).json({newProblem, message : 'New Problem created!'})
+            return res.status(201).json({ newProblem, message: 'New Problem created!' })
         } else {
-            return res.status(400).json({ message : 'Could not create problem'})
+            return res.status(400).json({ message: 'Could not create problem' })
         }
     } catch (err) {
         console.log(err)
-         return res.status(500).json({ message: "Server error", error: err.message });
+        return res.status(500).json({ message: "Server error", error: err.message });
     }
 
 }
@@ -157,7 +157,7 @@ exports.updateProblem = async (req, res) => {
         });
         problem.title = form.title;
         problem.statement = form.statement;
-        problem.fullmarks = form.fullmarks || problem.fullmarks ;
+        problem.fullmarks = form.fullmarks || problem.fullmarks;
         await problem.save();
         console.log(temp);
         if (problem) {
@@ -167,7 +167,7 @@ exports.updateProblem = async (req, res) => {
             console.log("error")
             return res.status(404).json({ message: 'Could not update Problem' })
         }
-        
+
     } catch (err) {
         console.log(err)
         return res.status(500).json({ message: 'Internal server error' })
@@ -278,7 +278,7 @@ exports.fetchSubmissionsIndividual = async (req, res) => {
     }
 }
 
-exports.publishResult = async (req, res ) => {
+exports.publishResult = async (req, res) => {
     const { assignmentId } = req.body;
     console.log('publish result')
     try {
@@ -287,15 +287,15 @@ exports.publishResult = async (req, res ) => {
         })
         findAssignment.resultpublished = true;
         await findAssignment.save();
-        return res.status(201).json({message : 'Result Published successfully', type : 'success'});
+        return res.status(201).json({ message: 'Result Published successfully', type: 'success' });
     } catch (err) {
         console.log(err)
-        return res.status(201).json({message : 'Could not return the result', type : 'error'});
+        return res.status(201).json({ message: 'Could not return the result', type: 'error' });
     }
 }
 
-exports.changeWhoCanSeeResults = async (req ,res) => {
-    const {assignmentId} = req.body;
+exports.changeWhoCanSeeResults = async (req, res) => {
+    const { assignmentId } = req.body;
     console.log('change publish result')
     try {
         const findAssignment = await Assignment.findOne({
@@ -303,10 +303,10 @@ exports.changeWhoCanSeeResults = async (req ,res) => {
         })
         findAssignment.everyoneseesresults = !findAssignment.everyoneseesresults;
         await findAssignment.save();
-        return res.status(201).json({message : 'Result Published successfully', type : 'success'});
+        return res.status(201).json({ message: 'Result Published successfully', type: 'success' });
     } catch (err) {
         console.log(err)
-        return res.status(201).json({message : 'Could not return the result', type : 'error'});
+        return res.status(201).json({ message: 'Could not return the result', type: 'error' });
     }
 
 }

@@ -17,4 +17,11 @@ router.post('/updateproblem' , assignmentController.updateProblem)
 router.post('/publishresults',assignmentController.publishResult)
 router.post('/changewhocanseeresults',assignmentController.changeWhoCanSeeResults)
 
+
+router.post('/create',assignmentController.create);
+router.post('/fetchone',assignmentController.fetchone);
+router.post('/admin/fetchall',assignmentController.fetchall);
+router.post('/user/fetclall',assignmentController.fetchAllUser);
+router.post('/changeschedule',assignmentController,assignmentController.changeSchedule)
+
 module.exports = router;
