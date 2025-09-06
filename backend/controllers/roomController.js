@@ -95,8 +95,8 @@ exports.loadRooms = async (req, res) => {
 }
 
 exports.loadRoomsJoined = async (req, res) => {
-    // const userId = req.user.userId;
-    const { type, userId } = req.body;
+    
+    const {  userId } = req.body;
     console.log(userId)
     try {
         const rooms = await RoomMembers.findAll({
@@ -108,8 +108,6 @@ exports.loadRoomsJoined = async (req, res) => {
             }
         });
 
-        
-        
 
         console.log('loaded rooms');
         return res.status(201).json({ rooms })

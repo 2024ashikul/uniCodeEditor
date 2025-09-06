@@ -8,16 +8,16 @@ const { authenticateToken } = require('../middlewares/authMiddleware');
 
 
 
-router.post('/createroom',roomController.createRoom);
-router.post('/joinroom', roomController.joinRoom)
-router.post('/loadrooms',roomController.loadRooms)
+router.post('/createroom',authenticateToken,roomController.createRoom);
+router.post('/joinroom', authenticateToken,roomController.joinRoom)
+router.post('/loadrooms',authenticateToken,roomController.loadRooms)
 router.post('/roommembers',roomController.roomMembers)
 router.post('/getadmin',roomController.getAdmin)
 router.post('/createannoucemnet',roomController.createAnnoucement)
 router.post('/fetchannouncements',roomController.fetchAnnoucements)
-router.post('/resultsforadmin',roomController.resultsForAdmin)
+router.post('/resultsforadmin',authenticateToken,roomController.resultsForAdmin)
 router.post('/resultsforuser',roomController.resultsForUser)
-router.post('/loadroomsjoined', roomController.loadRoomsJoined)
+router.post('/loadroomsjoined',authenticateToken, roomController.loadRoomsJoined)
 router.post('/getuseraccess',roomController.getUserAccess)
 router.post('/createlesson',roomController.createLesson)
 router.post('/updatelesson',roomController.updateLesson)

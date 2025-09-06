@@ -26,7 +26,7 @@ const lessonRoutes = require('./routes/lessonRoutes')
 
 
 app.use('/', submitRoutes);
-app.use('/', userRoutes);
+app.use('/auth/', userRoutes);
 app.use('/', roomRoutes);
 app.use('/', assignmentRoutes);
 app.use('/', meetingRoutes);

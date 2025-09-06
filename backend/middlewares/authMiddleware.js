@@ -1,11 +1,15 @@
 const jwt = require("jsonwebtoken");
 
-function authenticateToken(req, res, next) {
+
+const SECRET =process.env.SECRET
+const REFRESH_SECRET = process.env.REFRESH_SECRET
+
+async function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.status(401).json({ message: "Unauthorized: no token" });
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    console.log(token);
+    jwt.verify(token, process.env.SECRET, (err, user) => {
         if (err) return res.status(403).json({ message: "Forbidden: invalid token" });
         req.user = user; 
         next();
