@@ -1,14 +1,54 @@
+import { useContext } from "react";
 import PageTitle from "../src/components/SharedComponents/PageTitle";
+import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
+import { API_URL } from "../src/config";
+import { useNavigate } from "react-router-dom";
+import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
 
 
 
 export default function ProfilePage() {
+
+  const { setUserName, setEmail, setUserId, setUser, setToken, token } = useContext(AuthContext);
+  const { setMessage } = useContext(AlertContext);
+  const navigate = useNavigate();
+
+  const logOut = async () => {
+    try{
+    const res = await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.removeItem("token");
+      setUser(null);
+      setUserName("");
+      setEmail("");
+      setUserId(null);
+      setToken(null);
+      setMessage(data.message);
+      navigate("/login");
+    } else {
+      setMessage('Failed to log out!');
+    }}catch(err){
+      console.log(err);
+      setMessage('Network error, try again!');
+    }
+
+  }
+
+
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <PageTitle text="My Profile" className="self-center"/>
+      <PageTitle text="My Profile" className="self-center" />
 
       <div className="bg-white shadow-lg rounded-2xl p-6 flex flex-col md:flex-row gap-6">
-        
+
         <div className="flex justify-center md:w-1/3">
           <img
             src="/default-avatar.png"
@@ -17,7 +57,7 @@ export default function ProfilePage() {
           />
         </div>
 
-        
+
         <div className="flex-1 space-y-4">
           <h2 className="text-2xl font-semibold text-gray-800">
             John Doe
@@ -52,6 +92,10 @@ export default function ProfilePage() {
             <p className="text-gray-800">
               Passionate about coding challenges and building cool projects.
             </p>
+          </div>
+
+          <div className="px-4 py-2 bg-cyan-500 " onClick={logOut} >
+            Log Out
           </div>
 
         </div>

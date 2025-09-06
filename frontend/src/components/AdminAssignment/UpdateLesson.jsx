@@ -32,9 +32,10 @@ export default function UpdateLesson() {
     const [contents, setContents] = useState([]);
     const [editingIndex, setEditingIndex] = useState(null);
     const [title, setTitle] = useState(null);
+    const { lessonId } = useParams();
     const { setMessage, setType } = useContext(AlertContext);
-   const navigate = useNavigate();
-    
+    const navigate = useNavigate();
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -42,37 +43,32 @@ export default function UpdateLesson() {
             },
         })
     );
-    const {lessonId} = useParams();
+
 
     useEffect(() => {
-            fetch(`${API_URL}/fetchlesson`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ lessonId })
+        fetch(`${API_URL}/lesson/fetchone`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ lessonId })
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setTitle(data.lesson?.title);
+                setContents(data.lesson?.contents)
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log(data);
-                    
-                    setTitle(data.lesson?.title);
-                    
-                    setContents(data.lesson?.contents)
-                })
-                .catch((err) => console.log(err))
-        }, [lessonId])
-
-
+            .catch((err) => console.log(err))
+    }, [lessonId])
 
     const updateLesson = async () => {
         try {
-            const res = await fetch(`${API_URL}/updateLesson`, {
+            const res = await fetch(`${API_URL}/lesson/update`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ title, contents, roomId,lessonId })
+                body: JSON.stringify({ title, contents, roomId, lessonId })
             })
             const data = res.json();
             console.log(data)
@@ -95,7 +91,6 @@ export default function UpdateLesson() {
 
     const handleAdd = () => {
         if (!content.trim()) return;
-
         if (editingIndex !== null) {
             const updated = [...contents];
             updated[editingIndex] = { type: active, content };
@@ -133,12 +128,11 @@ export default function UpdateLesson() {
 
     return (
         <>
-            
             <div className="flex justify-between gap-20 mx-20 my-4">
-                <input 
-                    type="text" 
-                    value={title} 
-                    onChange={(e) => setTitle(e.target.value)} 
+                <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     className="border-1 flex-1 rounded-md px-4 py-1"
                     placeholder="Title of the lesson" />
                 <button onClick={updateLesson} className="px-4 py-1 bg-blue-500 text-white cursor-pointer rounded-md">Update lesson</button>
@@ -240,7 +234,6 @@ export default function UpdateLesson() {
         </>
     );
 }
-
 
 
 function getYouTubeVideoId(url) {

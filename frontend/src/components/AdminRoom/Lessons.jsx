@@ -1,6 +1,4 @@
 import { useState, useEffect, useContext } from "react";
-import PopUp from "../SharedComponents/PopUp"
-
 import { useNavigate } from "react-router-dom";
 import PageTitle from "../SharedComponents/PageTitle";
 import Button from "../SharedComponents/Button";
@@ -8,26 +6,35 @@ import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import { API_URL } from "../../config";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 
 export default function Lessons({ roomId }) {
     const { popUp } = useContext(UIContext);
     const { setMessage } = useContext(AlertContext);
-
     const [lessons, setLessons] = useState([]);
+    const { token } = useContext(AuthContext);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`${API_URL}/fetchlessons`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ roomId })
-        })
-            .then((res) => res.json())
-            .then((data) => { console.log(data); setLessons(data.lessons) })
-            .catch((err) => console.log(err))
-    }, [roomId])
-    const navigate = useNavigate();
+        try {
+            const res = fetch(`${API_URL}/lesson/fetchall`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ roomId })
+            })
+            const data = res.json()
+            if (res.ok) {
+                setLessons(data.lessons)
+            }
+        } catch (err) {
+            console.log(err)
+        }
+
+    }, [roomId, token])
+
 
     const deleteLesson = async (lessonId) => {
         try {
@@ -48,7 +55,6 @@ export default function Lessons({ roomId }) {
         }
     }
 
-
     return (
         <>
             <div className={`flex flex-col ${popUp && 'transition duration-500 blur pointer-events-none'} `}>
@@ -62,17 +68,13 @@ export default function Lessons({ roomId }) {
                     />
                 </div>
                 <div className="min-w-full pt-4 flex flex-col gap-2 rounded-2xl transition duration-500">
-
-                    {/* Header Row */}
                     <div className="grid grid-cols-6 bg-gray-100 rounded-xl font-semibold text-gray-700 px-4 py-3 shadow-sm">
                         <div className="px-4">ID</div>
                         <div className="col-span-2">Title</div>
                         <div className="px-4">Created</div>
-                        {/* <div>Description</div> */}
                         <div className="px-4">Status</div>
                         <div className="text-center">Actions</div>
                     </div>
-
 
                     {lessons.length === 0 ? (
                         <NullComponent text={"No lessons found!"} />
@@ -85,12 +87,7 @@ export default function Lessons({ roomId }) {
                                 <div className="px-4 py-2">{item.id}</div>
                                 <div className="px-4 py-2 col-span-2">{item.title}</div>
                                 <div className="px-4 py-2">{item.createdAt.slice(2, 10)}</div>
-                                {/* <div className="px-4 py-2 whitespace-pre-line overflow-hidden text-sm text-gray-600">
-          {item.description}
-        </div> */}
                                 <div className="px-4 py-2">{item.status}</div>
-
-
                                 <div className="flex gap-2 justify-center px-4 py-2">
                                     <button
                                         onClick={() => navigate(`/updatelesson/${item.id}`)}
@@ -105,7 +102,7 @@ export default function Lessons({ roomId }) {
                                         View
                                     </button>
                                     <button
-                                        onClick={()=> deleteLesson(item.id)}
+                                        onClick={() => deleteLesson(item.id)}
                                         className="px-3 py-1 rounded-full text-sm bg-red-500 text-white hover:bg-blue-600"
                                     >
                                         Delete

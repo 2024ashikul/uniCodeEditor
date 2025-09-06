@@ -57,7 +57,9 @@ export default function RoomSection() {
 
     const createRoom = async (e) => {
         e.preventDefault();
+
         try {
+            console.log(token);
             const res = await fetch(`${API_URL}/createroom`, {
                 method: "POST",
                 headers: {
@@ -67,15 +69,13 @@ export default function RoomSection() {
                 body: JSON.stringify({ userId, roomName: form.roomName }),
             });
             const data = await res.json();
-
             setMessage(data.message);
             setType(res.ok ? "success" : "error");
-            console.log(data);
             if (res.ok) {
                 setRooms((prev) => [...prev, data.newRoom]);
                 setCreating(false);
             }
-            console.log(rooms);
+    
         } catch (err) {
             setMessage("Failed to connect to server");
             setType("error");
@@ -90,7 +90,7 @@ export default function RoomSection() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ userId, type: "" }),
+            body: JSON.stringify({ userId }),
         })
             .then((res) => res.json())
             .then((data) => setRooms(data.rooms || []))

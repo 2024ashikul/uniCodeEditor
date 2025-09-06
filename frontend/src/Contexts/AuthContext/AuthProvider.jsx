@@ -17,12 +17,11 @@ export const AuthProvider = ({ children }) => {
         if(!storedToken) return ;
         if (storedToken) {
             try {
-                const payload = JSON.parse(atob(storedToken.split('.')[1]));
-                const decoded = jwtDecode(storedToken);
-                setUserName(decoded.name);
+                const decoded = jwtDecode(storedToken);                
+                setUserName(decoded.username);
                 setEmail(decoded.email);
                 setUserId(decoded.userId);
-                setUser(payload);
+                setUser(decoded);
                 setToken(storedToken);
             } catch (err) {
                 console.error("Invalid token", err);
@@ -30,24 +29,6 @@ export const AuthProvider = ({ children }) => {
             }
         }
     }, []);
-
-
-
-
-
-    // useEffect(()=>{
-    //     const token1 = localStorage.getItem('tokenUser');
-    //     setIsLoggedIn(token1 ? true : false);
-
-    //     const token2 = localStorage.getItem('tokenAdmin');
-    //     setIsAdmin(token2 ? true : false);
-
-    //     const username = localStorage.getItem('username');
-    //     if(username){
-    //         setUserName(username);
-    //     }
-    // },[]);
-
 
 
     return (
