@@ -64,7 +64,6 @@ export default function UserRoom() {
                         <Route path="members" element={<Members roomId={roomId} />} />
                         <Route path="lessons" element={<Lessons roomId={roomId} />} />
                         <Route path="*" element={<Announcements roomId={roomId} />} />
-
                     </Routes>
                 </div >
             </div >

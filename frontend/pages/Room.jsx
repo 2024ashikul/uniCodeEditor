@@ -8,6 +8,7 @@ import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import UserRoom from "./UserRoom";
 import AdminRoom from "./AdminRoom";
+import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
  
 
 export default function Room() {
@@ -37,11 +38,8 @@ export default function Room() {
 
     }, [checkAccess, roomId, setAuthorized, setRole,authorized,role])
 
-    
 
-
-
-    if (authorized === null) return (<p>Loading</p>)
+    if (authorized === null) return (<LoadingFullscreen />)
     if (!authorized) return (<p>Not Authorized</p>)
 
     return (

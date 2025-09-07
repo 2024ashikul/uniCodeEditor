@@ -1,24 +1,18 @@
-
 import { useContext } from "react";
-
-
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
 
-
 export default function HomePage() {
-
     const navigate = useNavigate();
     const { setMessage } = useContext(AlertContext);
     const { token } = useContext(AuthContext);
-    console.log(token);
 
     if (token) {
         setTimeout(() => {
             setMessage('Welcome!!!');
             navigate('/user');
-        }, 1000);
+        }, 2000);
 
     }
 

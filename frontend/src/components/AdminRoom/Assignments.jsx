@@ -8,9 +8,12 @@ import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import { API_URL } from "../../config";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Assignements({ roomId }) {
     const { popUp, setPopUp, setTitle } = useContext(UIContext);
+    const { token } = useContext(AuthContext);
     const [form, setForm] = useState({
         title: '',
         description: ''
@@ -18,41 +21,56 @@ export default function Assignements({ roomId }) {
 
     const { setMessage, setType } = useContext(AlertContext);
     const [assignment, setAssignment] = useState(false);
-    const [assignments, setAssignments] = useState([]);
+    const [assignments, setAssignments] = useState(null);
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
     useEffect(() => {
-        fetch(`${API_URL}/assignments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ roomId })
-        })
-            .then((res) => res.json())
-            .then((data) => { console.log(data); setAssignments(data) })
-            .catch((err) => console.log(err))
-    }, [roomId])
-    const navigate = useNavigate();
+        const fetchAssignments = async () => {
+            try {
+                const res = await fetch(`${API_URL}/assignment/admin/fetchall`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ roomId })
+                })
 
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+                setAssignments(data)
+            } catch (err) {
+                console.error("Failed to fetch lessons:", err);
+            }
+        };
+        if (roomId) {
+            fetchAssignments();
+        }
+    }, [roomId, token])
+
+    const navigate = useNavigate();
     const createAssignment = async (e) => {
         e.preventDefault();
         console.log(form);
         try {
-            const res = await fetch(`${API_URL}/updateassignment`, {
+            const res = await fetch(`${API_URL}/assignment/create`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ roomId, form })
             })
-            const data = await res.json();
-            if (res.ok) {
-                console.log(data);
-                setAssignment
-                setMessage(data.message)
-                setPopUp(false);
-                setAssignment(false);
+            
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
             }
+            const data = await res.json();
+            setAssignments((prev) => [...prev, data.newAssignment]);
+            setMessage(data.message)
+            setPopUp(false);
+            setAssignment(false);
 
         } catch (err) {
             console.log(err);
@@ -60,8 +78,6 @@ export default function Assignements({ roomId }) {
             setType('error')
         }
     }
-
-
 
     return (
         <>
@@ -85,6 +101,9 @@ export default function Assignements({ roomId }) {
                         <div className="text-center">Actions</div>
                     </div>
                     {
+                        assignments === null ?
+                        <LoadingParent />
+                        :
                         assignments.length === 0 ?
                             <NullComponent text={'No assignments found'} />
 

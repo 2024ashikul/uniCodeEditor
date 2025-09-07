@@ -8,43 +8,63 @@ import Schedule from "./Settings/Schedule";
 import UpdateAssignmentInfo from "./Settings/UpdateAssignmentInfo";
 import PopUpLayout from "../SharedComponents/PopUpLayout";
 import { API_URL } from "../../config";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 
 
 export default function Settingss({ assignmentId }) {
     const [assignment, setAssignment] = useState('');
     const { setMessage, setType } = useContext(AlertContext);
+    const { token } = useContext(AuthContext);
+
     useEffect(() => {
-        fetch(`${API_URL}/fetchassignment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId })
-        })
-            .then((res) => res.json())
-            .then((data) => { setAssignment(data); console.log(data) })
-            .catch((err) => console.log(err))
-    }, [assignmentId])
+        const fetchAssignment = async () => {
+            try {
+                const res = await fetch(`${API_URL}/assignment/fetchone`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ assignmentId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setAssignment(data);
+            } catch (err) {
+                console.log("Failed to fetch assignemnet", err);
+            }
+        }
+        if (assignmentId) {
+            fetchAssignment();
+        }
+    }, [assignmentId, token])
 
     async function changeResultAcess() {
         try {
-            const res = await fetch(`${API_URL}/changewhocanseeresults`, {
+            const res = await fetch(`${API_URL}/assignment/admin/changewhocanseeresults`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                 },
                 body: JSON.stringify({ assignmentId })
             });
-            const data = await res.json();
-            if (res.ok) {
-                setMessage('Result access updated succesfully');
-                setType('success');
-            }else{
-                setMessage('Could not  update result access succesfully');
-                setType('error');
+
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
             }
-            console.log(data);
-        } catch (err) {
+            const data = await res.json();
+
+            setMessage(data.message);
+            setType('success');
+        }
+        catch (err) {
             console.log(err);
-            setMessage('Internal server errro');
+            setMessage('Internal server error');
             setType('error');
         }
     }
@@ -52,7 +72,6 @@ export default function Settingss({ assignmentId }) {
 
     return (
         <>
-
             <div className={`flex flex-col `}>
                 <PopUpLayout>
                     <PageTitle
@@ -60,10 +79,8 @@ export default function Settingss({ assignmentId }) {
                     />
                 </PopUpLayout>
 
-
             </div>
             <div className="flex flex-col">
-
                 <Schedule
                     assignmentId={assignmentId}
                 />
@@ -72,7 +89,7 @@ export default function Settingss({ assignmentId }) {
                     description={assignment.description}
                     assignmentId={assignmentId}
                 />
-                <div  className="flex justify-between">
+                <div className="flex justify-between">
                     <p >Change who can see results</p>
                     {assignment.everyoneseesresults ? 'everyone' : 'only self'}
                     <button className="px-4 py-2 bg-cyan-500" onClick={changeResultAcess}>Change</button>

@@ -4,6 +4,8 @@ import { useContext, useEffect, useState } from "react";
 import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import UserAssignment from "./UserAssignment";
 import AdminAssignment from "./AdminAssignment";
+import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
+
 
 export default function Assignment() {
 
@@ -35,6 +37,8 @@ export default function Assignment() {
         setTitle('Assignment');
         setScrollHeight(100);
     }, [setTitle, setScrollHeight])
+
+    if(authorized === null) return <LoadingFullscreen />;
 
 
     return (

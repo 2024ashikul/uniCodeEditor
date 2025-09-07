@@ -18,14 +18,11 @@ import MDEditor from "@uiw/react-md-editor";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../../config";
-
-
-//access check is not yet done
-
-
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 
 export default function UpdateLesson() {
     const { roomId } = useParams();
+    const { token } = useContext(AuthContext);
 
     const [active, setActive] = useState("text");
     const [content, setContent] = useState("");
@@ -46,27 +43,41 @@ export default function UpdateLesson() {
 
 
     useEffect(() => {
-        fetch(`${API_URL}/lesson/fetchone`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ lessonId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
+
+        const fetchLesson = async () => {
+            try {
+                const res = await fetch(`${API_URL}/lesson/fetchone`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ lessonId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
                 setTitle(data.lesson?.title);
                 setContents(data.lesson?.contents)
-            })
-            .catch((err) => console.log(err))
-    }, [lessonId])
+            } catch (err) {
+                console.log("Failed to fetch lesson", err);
+            }
+        }
+        if (lessonId) {
+            fetchLesson();
+        }
+    }, [lessonId, token])
 
     const updateLesson = async () => {
         try {
             const res = await fetch(`${API_URL}/lesson/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ title, contents, roomId, lessonId })
             })
@@ -205,7 +216,7 @@ export default function UpdateLesson() {
             </div>
 
             <div className="mt-6 mx-20">
-                {contents.length === 0 ? (
+                {contents?.length === 0 ? (
                     <p className="text-gray-500">Nothing added yet.</p>
                 ) : (
                     <DndContext
@@ -214,10 +225,10 @@ export default function UpdateLesson() {
                         onDragEnd={handleDragEnd}
                     >
                         <SortableContext
-                            items={contents.map((_, i) => `${i}`)}
+                            items={contents?.map((_, i) => `${i}`)}
                             strategy={verticalListSortingStrategy}
                         >
-                            {contents.map((item, i) => (
+                            {contents?.map((item, i) => (
                                 <SortableItem
                                     key={i}
                                     id={`${i}`}

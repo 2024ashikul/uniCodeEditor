@@ -1,37 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import PageTitle from "../SharedComponents/PageTitle";
-import Button from "../SharedComponents/Button";
-import PopUp from "../SharedComponents/PopUp";
-import { UIContext } from "../../Contexts/UIContext/UIContext";
 import MDEditor from "@uiw/react-md-editor";
 import { API_URL } from "../../config";
 import NullComponent from "../SharedComponents/NullComponent";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 
 export default function Problems({ assignmentId }) {
     const [problems, setProblems] = useState([]);
     const [activeProblem, setActiveProblem] = useState(null);
-
     const navigate = useNavigate();
-    
-    
+    const { token } = useContext(AuthContext);
 
     useEffect(() => {
-        fetch(`${API_URL}/fetchproblems`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        const fetchProblems = async () => {
+            try {
+                const res = await fetch(`${API_URL}/problem/fetchall`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ assignmentId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
                 setProblems(data);
                 setActiveProblem(data[0]);
                 console.log(data)
-            })
-            .catch((err) => console.log(err))
-    }, [assignmentId])
+
+            } catch (err) {
+                console.error("Failed to fetch lessons:", err);
+            }
+        };
+        if (assignmentId) {
+            fetchProblems();
+        }
+    }, [assignmentId, token])
+
 
     return (
         <>
@@ -40,14 +49,11 @@ export default function Problems({ assignmentId }) {
                     <PageTitle
                         text={`Problems ${problems.length}`}
                     />
-
                 </div>
 
                 {problems?.length === 0 ?
                     <NullComponent text={'No problems found'} />
-
                     :
-
                     <div className="grid pt-8 grid-cols-16 gap-4">
                         <div className="col-span-3 flex flex-col">
                             {problems.map((item, index) => (
@@ -55,7 +61,7 @@ export default function Problems({ assignmentId }) {
                                     <div className=" bg-green-400 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
                                         Problem {index + 1}
                                     </div>
-:
+                                    :
                                     <div className="bg-cyan-100 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
                                         Problem {index + 1}
                                     </div>
@@ -78,26 +84,20 @@ export default function Problems({ assignmentId }) {
                                         </div>
 
                                         <div
-                                        className="px-4 py-2 bg-blue-400 rounded-full text-white"
-                                         onClick={()=>navigate(`/problem/${activeProblem.id}`)}>
+                                            className="px-4 py-2 bg-blue-400 rounded-full text-white"
+                                            onClick={() => navigate(`/problem/${activeProblem.id}`)}>
                                             Solve
                                         </div>
-
                                     </div>
                                     <div className="pl-8 py-2 flex-1 overflow-hidden">
                                         <MDEditor.Markdown source={activeProblem.statement} />
                                     </div>
-
-
                                 </div>
                             }
                         </div>
-
                     </div>
-
                 }
             </div>
-
         </>
     )
 }

@@ -1,33 +1,32 @@
-import { useState, useEffect } from "react";
-import PopUp from "../SharedComponents/PopUp"
-
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import PageTitle from "../SharedComponents/PageTitle";
-import Button from "../SharedComponents/Button";
-import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import { API_URL } from "../../config";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Assignements({ roomId }) {
-
-    const [assignments, setAssignments] = useState([]);
+    const [assignments, setAssignments] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const {token} = useContext(AuthContext);
 
     useEffect(() => {
-        fetch(`${API_URL}/scheduleassignmentsuser`, {
+        fetch(`${API_URL}/assignment/user/fetchall`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ roomId })
         })
             .then((res) => res.json())
             .then((data) => { console.log(data); setAssignments(data) })
             .catch((err) => console.log(err))
-    }, [roomId])
+    }, [roomId,token])
     const navigate = useNavigate();
 
-    const filteredAssignments = assignments.filter((lesson) =>
+    const filteredAssignments = assignments?.filter((lesson) =>
         lesson.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -57,9 +56,12 @@ export default function Assignements({ roomId }) {
                     </div>
                     <div className="min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
                         {
-                            filteredAssignments.length === 0 ?
+                            assignments === null ?
+                            <LoadingParent />
+                            :
+                            filteredAssignments?.length === 0 ?
                                 <NullComponent text={'No assignements assigned'} />
-                                : filteredAssignments.map((item, i) => (
+                                : filteredAssignments?.map((item, i) => (
                                     <div className="grid grid-cols-6 items-center bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer
                                     "
                                         key={i}

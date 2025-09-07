@@ -5,6 +5,7 @@ import Button from "../../SharedComponents/Button";
 import PopUpLayout from "../../SharedComponents/PopUpLayout";
 import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
 import { API_URL } from "../../../config";
+import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
 
 
 
@@ -12,44 +13,43 @@ import { API_URL } from "../../../config";
 export default function UpdateAssignmentInfo({ assignmentId, title, description }) {
     const [assignment, setAssignment] = useState(false);
     const { setMessage, setType } = useContext(AlertContext);
-    const { setPopUp,setTitle} = useContext(UIContext);
+    const { setPopUp, setTitle } = useContext(UIContext);
+    const {token} =useContext(AuthContext);
     const [form, setForm] = useState({
         title: title,
         description: description
     });
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-    
+
 
     const updateAssignment = async (e) => {
         e.preventDefault();
         console.log(form);
         try {
-            const res = await fetch(`${API_URL}/updateassignment`, {
+            const res = await fetch(`${API_URL}/assignment/create`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ assignmentId, form })
             })
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
 
             const data = await res.json();
-            if (res.ok) {
-                setAssignment(false);
-                setPopUp(false);
-                setMessage(data.message);
-                setTitle(data.updatedAssignment.title);
-                setType('success');
-            } else {
-                setMessage(data.message);
-                setType('error')
-            }
+            setAssignment(false);
+            setPopUp(false);
+            setMessage(data.message);
+            setTitle(data.updatedAssignment.title);
+            setType('success');
         } catch (err) {
             console.log(err);
             setMessage('Internal server error');
             setType('error')
         }
-
     }
 
     return (

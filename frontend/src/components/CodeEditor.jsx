@@ -1,7 +1,4 @@
-
-
 import Editor from '@monaco-editor/react';
-
 import { useState, useEffect, useContext } from 'react';
 import Loading from './CodeEditor/Loading';
 import { AuthContext } from '../Contexts/AuthContext/AuthContext';
@@ -23,14 +20,14 @@ export default function CodeEditor({ problemId }) {
     const { userId } = useContext(AuthContext);
     const [problem, setProblem] = useState({});
     const { setNavCenter, setScrollHeight } = useContext(UIContext);
-    const {setMessage} = useContext(AlertContext);
-    useEffect(()=>{
+    const { setMessage } = useContext(AlertContext);
+    useEffect(() => {
         setScrollHeight(0)
-    },[setScrollHeight]);
-
+    }, [setScrollHeight]);
+    const { token } = useContext(AuthContext);
 
     const languages = ['python', 'cpp', 'C#'];
-     const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
+    const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
     const tabsizes = [2, 3, 4, 5, 6, 7, 8];
     // const [results, setResults] = useState({
     //     stdout: '',
@@ -42,22 +39,36 @@ export default function CodeEditor({ problemId }) {
     const [font, setFont] = useState(12);
     const [tabSize, setTabSize] = useState(4);
 
+
+
+
     useEffect(() => {
-        fetch(`${API_URL}/fetchproblem`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ problemId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
+        const fetchProblem = async () => {
+            try {
+                const res = await fetch(`${API_URL}/problem/fetchone`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ problemId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
                 setProblem(data)
                 setNavCenter(data.title)
-            })
-            .catch((err) => console.log(err))
-    }, [problemId, setNavCenter])
+
+            } catch (err) {
+                console.error("Failed to fetch lessons:", err);
+            }
+        };
+        if (problemId) {
+            fetchProblem();
+        }
+    }, [problemId, token, setNavCenter])
 
 
     async function handleRun() {
@@ -90,21 +101,24 @@ export default function CodeEditor({ problemId }) {
     }
 
     async function handleSubmit() {
-        console.log(problemId);
-        console.log(language);
-        await fetch(`${API_URL}/submitcode`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ code, language, problemId, userId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
-                setMessage(data.message)
+        try {
+            const res = await fetch(`${API_URL}/submission/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ code, language, problemId, userId })
             })
-            .catch((err) => console.log(err))
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = await res.json();
+            setMessage(data.message)
+
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     function getTime() {
@@ -112,14 +126,6 @@ export default function CodeEditor({ problemId }) {
         console.log(time);
         return time;
     }
-
-
-   
-
-    console.log(font);
-    useEffect(() => {
-        console.log(code);
-    }, [code])
 
     return (
         <>

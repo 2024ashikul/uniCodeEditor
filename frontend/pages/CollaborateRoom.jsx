@@ -1,31 +1,33 @@
 import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
-import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io(`${API_URL}/collaborateRoom`);
+const socket = io(`${API_URL}/collaborateClassRoom`, {
+    reconnection: true, // Enable automatic reconnection
+    reconnectionAttempts: Infinity, // Set to infinite attempts
+    reconnectionDelay: 1000, // Wait 1 second before retrying
+    reconnectionDelayMax: 3000, // Maximum wait time before each retry
+
+});
 import { useState, useEffect, useRef, useContext } from 'react';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import { CircleUserRound, Dot, File } from 'lucide-react';
 import { AccessContext } from '../src/Contexts/AccessContext/AccessContext';
 import { AlertContext } from '../src/Contexts/AlertContext/AlertContext';
-import { useParams } from 'react-router-dom';
-import Fab from '@mui/material/Fab';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../src/Contexts/AuthContext/AuthContext';
 import NavBar from '../src/components/NavBar';
-
 import History from '../src/components/CollabAllClass/History';
 import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
 import { API_URL } from '../src/config';
 
 
 export default function CollaborateRoom() {
-    //Importing and declaring the variables
+    const navigate = useNavigate();
     const { setMessage } = useContext(AlertContext);
-    const { userId } = useContext(AuthContext);
+    const { userId, token } = useContext(AuthContext);
     const [isEditor, setIsEditor] = useState(false);
     const { roomId } = useParams();
-
     const { checkAccess } = useContext(AccessContext);
     const [terminalHeight, setTerminalHeight] = useState(0);
     const [code, setCode] = useState('// Start coding...');
@@ -46,31 +48,38 @@ export default function CollaborateRoom() {
     const { authorized, setAuthorized, setRole } = useContext(AccessContext);
 
 
-
     useEffect(() => {
-        if (!userId) return;
-        fetch(`${API_URL}/getadmin`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ roomId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        const admin = async () => {
+            try {
+                const res = await fetch(`${API_URL}/room/getadmin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ roomId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
                 setAdmin(data.admin == userId);
 
-
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    }, [userId, roomId, admin])
+            } catch (err) {
+                console.log("Failed to fetch admin", err);
+            }
+        }
+        if (roomId) {
+            admin();
+        }
+    }, [roomId, userId, token])
 
     useEffect(() => {
         if (!userId) return;
         setMember(userId);
-        checkAccess({ roomId })
+        checkAccess({ roomId  })
             .then((auth) => {
                 console.log(auth)
                 if (auth.allowed === true) {
@@ -234,7 +243,10 @@ export default function CollaborateRoom() {
 
         });
 
-
+        socket.on('leaveroom', (message) => {
+            setMessage(message);
+            navigate(`/room/${roomId}`)
+        })
         socket.on('cursorUpdate', (cursorPos) => {
             console.log('cursos updated');
             latestTeacherCursor.current = cursorPos;
@@ -244,8 +256,10 @@ export default function CollaborateRoom() {
         return () => {
             socket.off('fileUpdate');
             socket.off('cursorUpdate');
+            socket.off('leaveroom');
         };
-    }, [roomId, isEditor, member, authorized]);
+
+    }, [roomId, isEditor, member, authorized, navigate, setMessage]);
 
     useEffect(() => {
         if (!authorized) return;
@@ -304,25 +318,29 @@ export default function CollaborateRoom() {
 
     async function LeaveMeeting() {
         try {
-            fetch(`${API_URL}/leavemeeting`, {
+            socket.emit('leaveRoom', roomId);
+            const res = await fetch(`${API_URL}/meeting/leave`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ roomId })
+                body: JSON.stringify({ roomId, type: 'collaborateroom' })
             })
-                .then((res) => res.json())
-                .then((data) => {
-                    // setMeetings(data.meetings);
-                    // console.log(data)
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-        }catch(err){
-            console.log(err)
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = await res.json();
+
+            setMessage(data.message)
+            navigate(`/room/${roomId}`);
         }
-}
+        catch (err) {
+            console.log(err)
+            setMessage('Internal server error');
+        }
+    }
     //Code functionality part
 
     const [font, setFont] = useState(12);

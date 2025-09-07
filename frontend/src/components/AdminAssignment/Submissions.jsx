@@ -1,21 +1,40 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import NullComponent from "../SharedComponents/NullComponent";
 import { API_URL } from "../../config";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Submissions({ assignmentId }) {
-    const [submissions, setSubmissions] = useState([]);
+    const [submissions, setSubmissions] = useState(null);
+    const { token } = useContext(AuthContext);
+
     useEffect(() => {
-        fetch(`${API_URL}/getsubmissions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId })
-        })
-            .then((res) => res.json())
-            .then((data) => { setSubmissions(data); console.log(data); })
-            .catch((err) => console.log(err))
-    }, [assignmentId])
+        const fetchSubmissions = async () => {
+            try {
+                const res = await fetch(`${API_URL}/submission/admin/fetchall`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ assignmentId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+                setSubmissions(data);
+            } catch (err) {
+                console.error("Failed to fetch lessons:", err);
+            }
+        };
+        if (assignmentId) {
+            fetchSubmissions();
+        }
+    }, [assignmentId, token])
+
+
     return (
         <>
             <div className="flex mt-2 justify-between">
@@ -32,7 +51,9 @@ export default function Submissions({ assignmentId }) {
                     <div className="text-center">Actions</div>
                 </div>
                 <div className="min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    {submissions?.length === 0 ?
+                    {
+                    submissions === null ? <LoadingParent /> :
+                    submissions?.length === 0 ?
                         <NullComponent
                             text={'No submissions found'} />
                         :

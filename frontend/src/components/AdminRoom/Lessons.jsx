@@ -7,33 +7,41 @@ import NullComponent from "../SharedComponents/NullComponent";
 import { API_URL } from "../../config";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Lessons({ roomId }) {
     const { popUp } = useContext(UIContext);
     const { setMessage } = useContext(AlertContext);
-    const [lessons, setLessons] = useState([]);
+    const [lessons, setLessons] = useState(null);
     const { token } = useContext(AuthContext);
     const navigate = useNavigate();
 
     useEffect(() => {
-        try {
-            const res = fetch(`${API_URL}/lesson/fetchall`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ roomId })
-            })
-            const data = res.json()
-            if (res.ok) {
-                setLessons(data.lessons)
-            }
-        } catch (err) {
-            console.log(err)
-        }
+        const fetchLessons = async () => {
+            try {
+                const res = await fetch(`${API_URL}/lesson/fetchall`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ roomId })
+                });
 
-    }, [roomId, token])
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setLessons(data.lessons);
+            } catch (err) {
+                console.error("Failed to fetch lessons:", err);
+            }
+        };
+        if (roomId) {
+            fetchLessons();
+        }
+    }, [roomId, token]);
 
 
     const deleteLesson = async (lessonId) => {
@@ -76,7 +84,10 @@ export default function Lessons({ roomId }) {
                         <div className="text-center">Actions</div>
                     </div>
 
-                    {lessons.length === 0 ? (
+                    {
+                    
+                    lessons === null ? <LoadingParent /> : 
+                    lessons.length === 0 ? (
                         <NullComponent text={"No lessons found!"} />
                     ) : (
                         lessons?.map((item, i) => (

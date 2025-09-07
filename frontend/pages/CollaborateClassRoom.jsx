@@ -1,7 +1,6 @@
 import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import * as monaco from 'monaco-editor';
-
 const socket = io(`${API_URL}/collaborateClassRoom`, {
     reconnection: true, // Enable automatic reconnection
     reconnectionAttempts: Infinity, // Set to infinite attempts
@@ -15,7 +14,7 @@ import { styled } from '@mui/material/styles';
 import { CircleUserRound, Dot, File, Trash } from 'lucide-react';
 import { AccessContext } from '../src/Contexts/AccessContext/AccessContext';
 import { AlertContext } from '../src/Contexts/AlertContext/AlertContext';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Fab from '@mui/material/Fab';
 import { AuthContext } from '../src/Contexts/AuthContext/AuthContext';
 import NavBar from '../src/components/NavBar';
@@ -24,9 +23,9 @@ import { API_URL } from '../src/config';
 
 
 
-
 export default function CollaborateClassRoom() {
-    const { userId } = useContext(AuthContext);
+    const  navigate  = useNavigate();
+    const { userId, token } = useContext(AuthContext);
     const [isEditor, setIsEditor] = useState(false);
     const { roomId } = useParams();
     const { checkAccess } = useContext(AccessContext);
@@ -43,6 +42,7 @@ export default function CollaborateClassRoom() {
     const [members, setMembers] = useState([]);
     const [tabSize, setTabSize] = useState(4);
     const [connected, setConnected] = useState(false);
+    const [admin, setAdmin] = useState(false);
     const languages = ['python', 'cpp', 'C#'];
     const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
     const tabsizes = [2, 3, 4, 5, 6, 7, 8];
@@ -53,6 +53,35 @@ export default function CollaborateClassRoom() {
     const [activeFile, setActiveFile] = useState("main.cpp");
     const { setMessage } = useContext(AlertContext);
 
+
+    useEffect(() => {
+        const admin = async () => {
+            try {
+                const res = await fetch(`${API_URL}/room/getadmin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ roomId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setAdmin(data.admin == userId);
+
+            } catch (err) {
+                console.log("Failed to fetch lesson", err);
+            }
+        }
+
+        if (roomId) {
+            admin();
+        }
+    }, [roomId, userId, token])
 
     useEffect(() => {
         checkAccess({ roomId })
@@ -71,9 +100,31 @@ export default function CollaborateClassRoom() {
 
     }, [checkAccess, roomId, setAuthorized, setRole])
 
-    
+    async function LeaveMeeting() {
+        try {
+            socket.emit('leaveRoom',roomId);
+            const res = await fetch(`${API_URL}/meeting/leave`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ roomId, type: 'collaborateclassroom' })
+            })
 
-
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = await res.json();
+            
+            setMessage(data.message)
+            navigate(`/room/${roomId}`);
+        }
+        catch (err) {
+            console.log(err)
+            setMessage('Internal server error');
+        }
+    }
 
     function handleFileSelect(e) {
         const f = e.target.files[0];
@@ -131,11 +182,18 @@ export default function CollaborateClassRoom() {
                 }
             }));
         });
+
+        socket.on('leaveroom',(message)=>{
+            setMessage(message);
+            navigate(`/room/${roomId}`)
+        })
+
         return () => {
             socket.off('fileDelete');
             socket.off('fileAdd');
+            socket.off('leaveroom');
         };
-    }, [files, activeFile]);
+    }, [files, activeFile,navigate,roomId,setMessage]);
 
 
     const IOSSwitch = styled((props) => (
@@ -450,6 +508,12 @@ export default function CollaborateClassRoom() {
                         value={tabSize}
                         onChange={setTabSize}
                     />
+
+                    <div>
+                        {admin &&
+                            <button onClick={() => LeaveMeeting()}>Leave</button>
+                        }
+                    </div>
                     <p>{!connected && 'trying to connect'}</p>
                 </div>
                 <div className='flex flex-col  flex-1 overflow-hidden'>

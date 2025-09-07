@@ -7,6 +7,8 @@ import NullComponent from "../SharedComponents/NullComponent";
 import PopUp from "../SharedComponents/PopUp";
 import { API_URL } from "../../config";
 import { Star } from "lucide-react";
+import Loading from "../SharedComponents/LoadingParent";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function RoomSection() {
     const { setMessage, setType } = useContext(AlertContext);
@@ -14,7 +16,7 @@ export default function RoomSection() {
     const { userId, token } = useContext(AuthContext);
     const { setTitle } = useContext(UIContext);
 
-    const [rooms, setRooms] = useState([]);
+    const [rooms, setRooms] = useState(null);
     const [form, setForm] = useState({ roomId: "", roomName: "" });
     const [joining, setJoining] = useState(false);
     const [creating, setCreating] = useState(false);
@@ -26,28 +28,27 @@ export default function RoomSection() {
     const joinRoom = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/joinroom`, {
+            const res = await fetch(`${API_URL}/room/join`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" ,
+                headers: {
+                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                
-                body: JSON.stringify({ roomId: form.roomId, userId}),
+
+                body: JSON.stringify({ roomId: form.roomId, userId }),
             });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             const data = await res.json();
 
+            setMessage(data.message);
+            setType((res.ok ? "success" : "error"));
+            setRooms((prev) => [...prev, data.newRoom]);
+            setJoining(false);
+            navigate(`/room/${form.roomId}`);
 
-            if (res.ok) {
-                setMessage(data.message);
-                setType(data.type || (res.ok ? "success" : "error"));
-                setRooms((prev) => [...prev, data.newRoom]);
-                setJoining(false);
-                navigate(`/room/${form.roomId}`);
-            }else{
-                setMessage(data.message);
-                setType(data.type || (res.ok ? "success" : "error"));
-                setJoining(false);
-            }
         } catch (err) {
             setMessage("Could not connect to server");
             setType("error");
@@ -57,10 +58,8 @@ export default function RoomSection() {
 
     const createRoom = async (e) => {
         e.preventDefault();
-
         try {
-            console.log(token);
-            const res = await fetch(`${API_URL}/createroom`, {
+            const res = await fetch(`${API_URL}/room/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -68,6 +67,10 @@ export default function RoomSection() {
                 },
                 body: JSON.stringify({ userId, roomName: form.roomName }),
             });
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
             const data = await res.json();
             setMessage(data.message);
             setType(res.ok ? "success" : "error");
@@ -75,28 +78,41 @@ export default function RoomSection() {
                 setRooms((prev) => [...prev, data.newRoom]);
                 setCreating(false);
             }
-    
+
         } catch (err) {
             setMessage("Failed to connect to server");
-            setType("error");
             console.log(err);
         }
     };
 
+
     useEffect(() => {
-        fetch(`${API_URL}/loadroomsjoined`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ userId }),
-        })
-            .then((res) => res.json())
-            .then((data) => setRooms(data.rooms || []))
-            .catch((err) => console.log(err));
-    }, [userId, token]);
-    console.log(rooms);
+        const rooms = async () => {
+            try {
+                const res = await fetch(`${API_URL}/room/joined`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ userId }),
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setRooms(data.rooms || [])
+            } catch (err) {
+                console.log("Failed to fetch lesson", err);
+            }
+        }
+
+        if (userId) {
+            rooms();
+        }
+    }, [userId, token])
 
     const JoinRoomPopUp = (
         <form
@@ -128,7 +144,7 @@ export default function RoomSection() {
             </button>
         </form>
     );
-
+    
     const CreateRoomPopUp = (
         <form
             method="POST"
@@ -182,7 +198,13 @@ export default function RoomSection() {
             </div>
 
 
-            {rooms.length === 0 ? (
+            {
+            rooms === null ?
+            
+            <LoadingParent />
+            
+            :
+            rooms.length === 0 ? (
                 <div className="flex justify-center py-10">
                     <NullComponent text="You haven’t joined any rooms yet." />
                 </div>

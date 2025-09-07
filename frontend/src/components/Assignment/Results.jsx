@@ -14,7 +14,7 @@ export default function Results({ assignmentId, isPublished }) {
         if (!isPublished) return;
         (async () => {
             try {
-                const res = await fetch(`${API_URL}/resultsforuser`, {
+                const res = await fetch(`${API_URL}/submission/user/results`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ assignmentId, userId }),

@@ -14,6 +14,7 @@ import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import TopBanner from "../src/components/SharedComponents/TopBanner";
 import Results from "../src/components/AdminAssignment/Results";
 import { API_URL } from "../src/config";
+import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 
 
 export default function AdminAssignment({ roomId }) {
@@ -21,32 +22,32 @@ export default function AdminAssignment({ roomId }) {
     const [activeTab, setActiveTab] = useState('problem');
     const navigate = useNavigate();
     const { assignmentId } = useParams();
-    const { setTitle, setScrollHeight } = useContext(UIContext);
+    const { token } = useContext(AuthContext);
+    const { setTitle } = useContext(UIContext);
     useEffect(() => {
-
-
-        fetch(`${API_URL}/fetchassignment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data) {
-                    console.log(data)
-                    setTitle('Assignment : '+ data.title);
-                    setScrollHeight(50);
-                }})
-
-            .catch((err) => {
-                console.log(err);
-                setTitle('Assignment');
-                setScrollHeight(20);
+        const fetchAssignment = async () => {
+            const res = await fetch(`${API_URL}/assignment/fetchone`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ assignmentId })
             })
 
-    }, [setTitle, setScrollHeight, assignmentId])
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+            setTitle('Assignment : ' + data.title);
+        }
+        
+        if (roomId) {
+            fetchAssignment();
+        }
+
+    }, [assignmentId, token, roomId, setTitle])
 
     useEffect(() => {
         const lastSegment = window.location.pathname.split("/").pop();
@@ -64,7 +65,6 @@ export default function AdminAssignment({ roomId }) {
         { title: 'Settings', keyword: 'settings', icon: Settings },
         { title: 'Results', keyword: 'results', icon: MedalIcon }
     ]
-
 
     return (
         <>
@@ -84,7 +84,7 @@ export default function AdminAssignment({ roomId }) {
                     <Route path="problems" element={<Problems assignmentId={assignmentId} />} />
                     <Route path="submissions" element={<Submissions assignmentId={assignmentId} />} />
                     <Route path="settings" element={<Settingss assignmentId={assignmentId} />} />
-                    <Route path="results" element={<Results assignmentId={assignmentId} roomId={roomId}/>} />
+                    <Route path="results" element={<Results assignmentId={assignmentId} roomId={roomId} />} />
 
                 </Routes>
 

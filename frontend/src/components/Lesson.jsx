@@ -4,35 +4,47 @@ import { useParams } from "react-router-dom";
 import { UIContext } from "../Contexts/UIContext/UIContext";
 import TopBanner from "./SharedComponents/TopBanner";
 import { API_URL } from "../config";
+import { AuthContext } from "../Contexts/AuthContext/AuthContext";
 
 
 export default function Lesson() {
-
-    const [lesson, setLesson] = useState(null);
     const [contents, setContents] = useState(null);
-
     const { setTitle, setScrollHeight } = useContext(UIContext);
-
-
     const { lessonId } = useParams();
+    const {token} = useContext(AuthContext);
+
     useEffect(() => {
-        fetch(`${API_URL}/fetchlesson`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ lessonId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
-                setLesson(data.lesson);
+        const fetchLesson = async () => {
+            try {
+                const res = await fetch(`${API_URL}/lesson/fetchone`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ lessonId })
+                });
+                
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+
                 setTitle(data.lesson?.title);
                 setScrollHeight(80);
                 setContents(data.lesson?.contents)
-            })
-            .catch((err) => console.log(err))
-    }, [lessonId, setTitle, setScrollHeight])
+            }catch(err){
+                console.log("Failed to fetch lesson",err);
+            }
+        }
+
+        if(lessonId){
+            fetchLesson();
+        }
+    }, [lessonId, setTitle, setScrollHeight,token])
+
+
     function getYouTubeVideoId(url) {
         try {
             const parsed = new URL(url);
@@ -73,7 +85,6 @@ export default function Lesson() {
                         }
 
                         if (item.type === "image") {
-
                             return (
                                 <img
                                     src={item.content}

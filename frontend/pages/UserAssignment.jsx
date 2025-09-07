@@ -12,6 +12,7 @@ import Problems from "../src/components/Assignment/Problems";
 import NullComponent from "../src/components/SharedComponents/NullComponent";
 import { API_URL } from "../src/config";
 import Results from "../src/components/Assignment/Results";
+import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 
 
 export default function UserAssignment() {
@@ -19,14 +20,13 @@ export default function UserAssignment() {
     const [activeTab, setActiveTab] = useState('problems');
     const { popUp } = useContext(UIContext);
     const { setTitle, setScrollHeight } = useContext(UIContext);
-    // const [authorized, setAuthorized] = useState(false);
-    //  const {  userId } = useContext(AuthContext);
+    const { token } = useContext(AuthContext);
     const { assignmentId } = useParams();
     const [assignment, setAssignment] = useState(null);
     const [timleft, setTimeleft] = useState(null);
     const currentTime = new Date().toISOString().slice(0, 16);
 
-   useEffect(() => {
+    useEffect(() => {
         const lastSegment = window.location.pathname.split("/").pop();
         if (!lastSegment || lastSegment === assignmentId) {
             setActiveTab("announcements");
@@ -38,23 +38,37 @@ export default function UserAssignment() {
 
 
     useEffect(() => {
-        fetch(`${API_URL}/fetchassignment`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId })
-        })
-            .then((res) => res.json())
-            .then((data) => { setAssignment(data); console.log(data) })
-            .catch((err) => console.log(err))
-    }, [assignmentId])
+        const fetchAssignment = async () => {
+            try {
+                const res = await fetch(`${API_URL}/assignment/fetchone/user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ assignmentId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setAssignment(data);
+            } catch (err) {
+                console.log("Failed to fetch lesson", err);
+            }
+        }
+
+        if (assignmentId) {
+            fetchAssignment();
+        }
+    }, [assignmentId, token])
 
 
     useEffect(() => {
         setTitle('Assignment');
         setScrollHeight(100);
-
     }, [setTitle, setScrollHeight, assignment])
 
 
@@ -105,7 +119,7 @@ export default function UserAssignment() {
     const tabs = [
         { title: 'Problems', keyword: 'problems', icon: FileQuestionMark },
         { title: 'My Submissions', keyword: 'submissions', icon: Send },
-        {title :'Results', keyword : 'results',icon : Book}
+        { title: 'Results', keyword: 'results', icon: Book }
     ]
 
 
@@ -130,13 +144,13 @@ export default function UserAssignment() {
                     <NullComponent
                         text={'You can see the problems once the Time starts'}
                     />)
-                    :<>
-                    <Routes>
-                        <Route path="problems" element={<Problems assignmentId={assignmentId} />} />
-                        <Route path="submissions" element={<Submissions assignmentId={assignmentId} />} />
-                        <Route path="results" element={<Results assignmentId={assignmentId} isPublished={assignment?.resultpublished }/>} />
-                        <Route path="*" element={<Navigate to="problems" replace />} />
-                    </Routes>
+                    : <>
+                        <Routes>
+                            <Route path="problems" element={<Problems assignmentId={assignmentId} />} />
+                            <Route path="submissions" element={<Submissions assignmentId={assignmentId} />} />
+                            <Route path="results" element={<Results assignmentId={assignmentId} isPublished={assignment?.resultpublished} />} />
+                            <Route path="*" element={<Navigate to="problems" replace />} />
+                        </Routes>
                     </>
                 }
 

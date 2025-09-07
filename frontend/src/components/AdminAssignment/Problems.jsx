@@ -10,18 +10,20 @@ import InlineButton from "../SharedComponents/InlineButton";
 import { API_URL } from "../../config";
 import { sendAIRequest } from "../../AIRequest";
 import FloatingAIBox from "../SharedComponents/FloatingAIBox";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 
 export default function Problems({ assignmentId }) {
     const [isAIOpen, setIsAIOpen] = useState(false);
-    const [problems, setProblems] = useState([]);
+    const [problems, setProblems] = useState(null);
     const [problem, setProblem] = useState(false);
     const [edit, setEdit] = useState(false);           // for "Edit Problem" popup
     const [editProblemId, setEditProblemId] = useState(null);
     const [activeProblem, setActiveProblem] = useState(null);
     const { setMessage, setType } = useContext(AlertContext);
     const { popUp, setPopUp } = useContext(UIContext);
-    // const [markDownValue, setMarkDownValue] = useState("");
+    const { token } = useContext(AuthContext);
     const [form, setForm] = useState({
         title: '',
         statement: '',
@@ -29,50 +31,62 @@ export default function Problems({ assignmentId }) {
     })
 
     const handleChange = e => { setForm({ ...form, [e.target.name]: e.target.value }) };
-    console.log(form);
 
     const createProblem = async (e) => {
         e.preventDefault();
-
-        await fetch(`${API_URL}/createproblem`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId, form })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
-                setProblems(prev => [...prev, data.newProblem]);
-                setPopUp(false);
-                setProblem(false);
-                setMessage('Problem created successfully')
+        try {
+            const res = await fetch(`${API_URL}/problem/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ assignmentId, form })
             })
-            .catch((err) => console.log(err))
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+            setProblems(prev =>
+                [...prev, data.newProblem]);
+            setProblem(false);
+            setActiveProblem(data.newProblem);
+            setMessage(data.message);
+        }
+        catch (err) {
+            console.log(err)
+            setMessage('Could not  create problem')
+        }
     }
 
     const updateProblem = async (e) => {
         e.preventDefault();
         console.log(form)
         try {
-            const res = await fetch(`${API_URL}/updateproblem`, {
+            const res = await fetch(`${API_URL}/problem/update`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ editProblemId, form })
             })
-            const data = await res.json();
-            if (res.ok) {
-                console.log(data);
-                setProblems(prev =>
-                    prev.map(p => p.id === editProblemId ? data.problem : p)
-                );
-                setPopUp(false);
-                setEdit(false);
-                setMessage(data.message);
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
             }
+            const data = await res.json();
+            console.log(data);
+            setProblems(prev =>
+                prev.map(p => p.id === editProblemId ? data.problem : p)
+            );
+            setPopUp(false);
+            setEdit(false);
+            setMessage(data.message);
+            setActiveProblem(data.problem);
+
         } catch (err) {
             console.log(err)
             setMessage('Could not  create problem')
@@ -80,36 +94,35 @@ export default function Problems({ assignmentId }) {
     }
 
     const deleteProblem = async (problemId) => {
-        console.log("here")
         try {
-
-            const res = await fetch(`${API_URL}/deleteproblem`, {
+            const res = await fetch(`${API_URL}/problem/delete`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ problemId })
             });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
             const data = await res.json();
 
-            console.log(data);
-            if (res.ok) {
-                setProblems(prev => {
-                    const updated = prev.filter(problem => problem.id !== problemId);
-                    setActiveProblem(updated[0] || null);
-                    return updated;
-                });
-                setMessage(data.message)
-            }
+            setProblems(prev => {
+                const updated = prev.filter(problem => problem.id !== problemId);
+                setActiveProblem(updated[0] || null);
+                return updated;
+            });
+            setMessage(data.message)
 
         } catch (err) {
             console.log(err);
             setMessage('Failed to delete')
             setType('error')
         }
-
-
     }
+
     async function handleSend(input) {
         const res = await sendAIRequest('generate/problem', input);
         console.log(res);
@@ -119,23 +132,34 @@ export default function Problems({ assignmentId }) {
         }));
     }
 
-    useEffect(() => {
-        fetch(`${API_URL}/fetchproblems`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setProblems(data);
-                console.log(data);
-                setActiveProblem(data[0]);
-            })
-            .catch((err) => console.log(err))
-    }, [assignmentId])
 
+    useEffect(() => {
+        const fetchProblems = async () => {
+            try {
+                const res = await fetch(`${API_URL}/problem/fetchall`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ assignmentId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const data = await res.json();
+                setProblems(data);
+                setActiveProblem(data[0]);
+
+            } catch (err) {
+                console.error("Failed to fetch lessons:", err);
+            }
+        };
+        if (assignmentId) {
+            fetchProblems();
+        }
+    }, [assignmentId, token])
 
 
     const PopUpCode = (<form method="POST" onSubmit={createProblem} className="flex flex-col h-full gap-2 items-center justify-center"
@@ -271,7 +295,7 @@ export default function Problems({ assignmentId }) {
             <div className={`flex flex-col ${popUp && 'transition duration-500 blur pointer-events-none'}`}>
                 <div className="flex mt-2 justify-between">
                     <PageTitle
-                        text={`Problems ${problems.length}`}
+                        text={`Problems ${problems === null ? 0 : problems.length}`}
                     />
                     <Button
                         onClickAction={() => setProblem(true)}
@@ -325,68 +349,75 @@ export default function Problems({ assignmentId }) {
 
                 </div> */}
 
+                {problems === null ? <LoadingParent />
+                    :
 
-                <div className="grid pt-8 grid-cols-16 gap-4">
 
-                    <div className="col-span-3 flex flex-col">
-                        {problems.map((item, index) => (
-                            activeProblem === item ?
-                                <div className=" bg-green-400 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
-                                    Problem {index + 1}
+                    <div className="grid pt-8 grid-cols-16 gap-4">
+
+
+                        <div className="col-span-3 flex flex-col">
+                            {
+
+                                problems.map((item, index) => (
+                                    activeProblem === item ?
+                                        <div key={index} className=" bg-green-400 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
+                                            Problem {index + 1}
+                                        </div>
+                                        : <div key={index} className="bg-cyan-100 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
+                                            Problem {index + 1}
+                                        </div>
+                                ))}
+
+                        </div>
+                        <div className="col-span-13">
+
+                            {
+                                activeProblem &&
+                                <div className="shadow-md border-fuchsia-200 flex-col rounded-2xl transition duration-500 flex w-full "
+                                >
+                                    <div className="flex flex-1 bg-gray-200 gap-2 rounded-2xl items-center px-4">
+
+                                        <div className="flex flex-1">
+                                            <div className="px-4 py-2 flex-1 text-xl self-center">{activeProblem.title}</div>
+                                        </div>
+                                        <div className="px-4">
+                                            Full marks : {activeProblem.fullmarks}
+                                        </div>
+                                        <div className="justify-end " >
+                                            <InlineButton
+                                                buttonLabel={'Edit'}
+                                                onClickAction={() => {
+                                                    setEditProblemId(activeProblem.id);
+                                                    setForm({ title: activeProblem.title, statement: activeProblem.statement, fullmarks: activeProblem.fullmarks });
+                                                    setEdit(true);
+                                                }}
+                                            />
+                                        </div>
+
+                                        <div className="justify-end" >
+                                            <InlineButton
+                                                buttonLabel={'Delete'}
+                                                onClickAction={() => {
+                                                    if (confirm("Are you sure you want to delete this problem?")) {
+                                                        deleteProblem(activeProblem.id);
+                                                    }
+
+                                                }}
+                                            /> </div>
+                                    </div>
+
+                                    <div className="pl-8 py-2 flex-1 overflow-hidden">
+                                        <MDEditor.Markdown source={activeProblem.statement} />
+                                    </div>
+
                                 </div>
-                                :
-                                <div className="bg-cyan-100 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
-                                    Problem {index + 1}
-                                </div>
-                        ))}
+                            }
+                        </div>
 
                     </div>
-                    <div className="col-span-13">
 
-                        {
-                            activeProblem &&
-                            <div className="shadow-md border-fuchsia-200 flex-col rounded-2xl transition duration-500 flex w-full "
-                            >
-                                <div className="flex flex-1 bg-gray-200 gap-2 rounded-2xl items-center px-4">
-
-                                    <div className="flex flex-1">
-                                        <div className="px-4 py-2 flex-1 text-xl self-center">{activeProblem.title}</div>
-                                    </div>
-                                    <div className="px-4">
-                                        Full marks : {activeProblem.fullmarks}
-                                    </div>
-                                    <div className="justify-end " >
-                                        <InlineButton
-                                            buttonLabel={'Edit'}
-                                            onClickAction={() => {
-                                                setEditProblemId(activeProblem.id);
-                                                setForm({ title: activeProblem.title, statement: activeProblem.statement, fullmarks: activeProblem.fullmarks });
-                                                setEdit(true);
-                                            }}
-                                        />
-                                    </div>
-
-                                    <div className="justify-end" >
-                                        <InlineButton
-                                            buttonLabel={'Delete'}
-                                            onClickAction={() => {
-                                                if (confirm("Are you sure you want to delete this problem?")) {
-                                                    deleteProblem(activeProblem.id);
-                                                }
-
-                                            }}
-                                        /> </div>
-                                </div>
-
-                                <div className="pl-8 py-2 flex-1 overflow-hidden">
-                                    <MDEditor.Markdown source={activeProblem.statement} />
-                                </div>
-
-                            </div>
-                        }
-                    </div>
-                </div>
-
+                }
 
 
                 {problem &&

@@ -5,27 +5,37 @@ import { API_URL } from "../../config";
 import PageTitle from "../SharedComponents/PageTitle";
 
 export default function ActivitySection() {
-    const { userId } = useContext(AuthContext);
+    const { userId ,token} = useContext(AuthContext);
     const navigate = useNavigate();
     const [meetings, setMeetings] = useState([]);
 
     useEffect(() => {
-        fetch(`${API_URL}/getmeetingstatus`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ userId }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        const fetchMeetings = async () => {
+            try {
+                const res = await fetch(`${API_URL}/meeting/getstatus`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ userId })
+                })
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
                 setMeetings(data.meetings);
-                console.log(data);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    }, [userId]);
+            } catch (err) {
+                console.log("Failed to fetch lesson", err);
+            }
+        }
+
+        if (userId) {
+            fetchMeetings();
+        }
+    }, [userId,token]);
 
     return (
         <div className="flex flex-col gap-6">
@@ -55,7 +65,7 @@ export default function ActivitySection() {
                 </div>
             </div>
 
-            
+
             <div className="flex flex-col gap-6">
                 <h2 className="text-2xl border-b font-semibold text-gray-800">
                     Your Activities

@@ -6,13 +6,14 @@ import PopUp from "../../SharedComponents/PopUp";
 import PopUpLayout from "../../SharedComponents/PopUpLayout";
 import PopUpLayoutTemp from "../../SharedComponents/PopUpLayoutTemp";
 import { API_URL } from "../../../config";
+import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
 
 
 
 
 export default function Schedule({ assignmentId }) {
     const { setMessage, setType } = useContext(AlertContext);
-
+    const {token} = useContext(AuthContext);
     const [assigned, setAssigned] = useState(null);
     const [duration, setDuration] = useState('');
     const [dateTime, setDateTime] = useState('');
@@ -35,25 +36,32 @@ export default function Schedule({ assignmentId }) {
             setType('warning');
         }
     }, [dateTime, setMessage, setType])
+
     async function applyScehdule(e) {
         e.preventDefault();
         console.log(form);
-        await fetch(`${API_URL}/scheduleassignments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ assignmentId, form })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                setAssigned(data.status);
-                setDateTimeEdit(false);
-                setPopUp(false);
-                console.log(data)
-                setMessage('Changed time succesfully');
+
+        try {
+            const res = await fetch(`${API_URL}/assignment/admin/schedule`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ assignmentId, form })
             })
-            .catch((err) => console.log(err))
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const data = await res.json();
+            setAssigned(data.status);
+            setDateTimeEdit(false);
+            setPopUp(false);
+            console.log(data)
+            setMessage('Changed time succesfully');
+        } catch (err) {
+            console.log("Failed to fetch lesson", err);
+        }
     }
 
 

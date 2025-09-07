@@ -5,34 +5,43 @@ import { UIContext } from "../../Contexts/UIContext/UIContext";
 import NullComponent from "../SharedComponents/NullComponent";
 import { API_URL } from "../../config";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Lessons({ roomId }) {
     const { popUp } = useContext(UIContext);
-    const [lessons, setLessons] = useState([]);
+    const [lessons, setLessons] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const { token } = useContext(AuthContext);
     const navigate = useNavigate();
     useEffect(() => {
-        try {
-            const res = fetch(`${API_URL}/lesson/fetchall`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ roomId })
-            })
-            const data = res.json()
-            if (res.ok) {
-                setLessons(data.lessons)
-            }
-        } catch (err) {
-            console.log(err)
-        }
-    }, [roomId, token])
+        const fetchLessons = async () => {
+            try {
+                const res = await fetch(`${API_URL}/lesson/fetchall`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ roomId })
+                });
 
-    const filteredLessons = lessons.filter((lesson) =>
-        lesson.title.toLowerCase().includes(searchTerm.toLowerCase())
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                setLessons(data.lessons);
+            } catch (err) {
+                console.error("Failed to fetch lessons:", err);
+            }
+        };
+        if (roomId) {
+            fetchLessons();
+        }
+    }, [roomId, token]);
+
+    const filteredLessons = lessons?.filter((lesson) =>
+        lesson?.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -57,9 +66,12 @@ export default function Lessons({ roomId }) {
                     </div>
                     <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
                         {
-                            filteredLessons.length === 0 ?
+                            lessons === null ? 
+                            <LoadingParent />
+                            :
+                            filteredLessons?.length === 0 ?
                                 <NullComponent text={'No lessons yet'} />
-                                : filteredLessons.map((item, i) => (
+                                : filteredLessons?.map((item, i) => (
                                     <div className="grid grid-cols-5 items-center bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer
                                     "
                                         key={i}

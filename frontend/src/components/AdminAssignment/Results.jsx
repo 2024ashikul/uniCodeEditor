@@ -3,44 +3,57 @@ import { API_URL } from "../../config";
 import PageTitle from "../SharedComponents/PageTitle";
 import Button from "../SharedComponents/Button";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Results({ assignmentId }) {
-    const [members, setMembers] = useState([]);
-    const {setMessage, setType} = useContext(AlertContext);
+    const [members, setMembers] = useState(null);
+    const { setMessage, setType } = useContext(AlertContext);
+    const {token} = useContext(AuthContext);
     useEffect(() => {
         const fetchResults = async () => {
             try {
-                const res = await fetch(`${API_URL}/resultsforadmin`, {
+                const res = await fetch(`${API_URL}/submission/admin/results`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                     },
                     body: JSON.stringify({ assignmentId })
                 });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
                 const data = await res.json();
-                console.log(data);
                 setMembers(data.result);
+
             } catch (err) {
                 console.error("Failed to fetch results:", err);
             }
         };
         fetchResults();
-    }, [assignmentId]);
+    }, [assignmentId,token]);
 
     const handlePublish = async () => {
         try {
-            const res = await fetch(`${API_URL}/publishresults`, {
+            const res = await fetch(`${API_URL}/assignment/admin/publishresults`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ assignmentId })
             })
             const data = await res.json();
-            if (res.ok) {
-                setMessage(data.message)
-                setType(data.type);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
             }
+           
+                setMessage(data.message)
+                setType(data.type)
 
-        }catch(err){
+        } catch (err) {
             console.log(err)
             setMessage('Internal server error');
             setType('error');
@@ -57,7 +70,9 @@ export default function Results({ assignmentId }) {
                 />
             </div>
             <div className="w-full pt-4 flex flex-col gap-4 rounded-2xl">
-                {members.length === 0 ? (
+                {
+                members === null ? <LoadingParent /> :
+                members.length === 0 ? (
                     <p className="text-gray-500 text-center">No results to display. Check back later.</p>
                 ) : (
                     members.map((item, index) => (

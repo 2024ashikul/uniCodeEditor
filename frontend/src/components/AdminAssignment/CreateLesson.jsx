@@ -22,6 +22,7 @@ import TopBar from "../SharedComponents/TopBar";
 import PageTitle from "../SharedComponents/PageTitle";
 import FloatingAIBox from "../SharedComponents/FloatingAIBox";
 import { sendAIRequest } from "../../AIRequest";
+import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 
 export default function CreateLesson() {
     const { roomId } = useParams();
@@ -32,6 +33,7 @@ export default function CreateLesson() {
     const [editingIndex, setEditingIndex] = useState(null);
     const [title, setTitle] = useState(null);
     const { setMessage, setType } = useContext(AlertContext);
+    const { token } = useContext(AuthContext);
     const navigate = useNavigate();
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -50,10 +52,11 @@ export default function CreateLesson() {
 
     const createLesson = async () => {
         try {
-            const res = await fetch(`${API_URL}/createlesson`, {
+            const res = await fetch(`${API_URL}/lesson/create`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ title, contents, roomId })
             })
