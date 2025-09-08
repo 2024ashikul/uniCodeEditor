@@ -1,0 +1,18 @@
+class Calculate{
+    public int CalculateSum(int params[]){
+        int sum = 0;
+        forEach(int i in params){
+            sum+=i;
+        }
+        return sum;
+    }
+
+    public static void Main(){
+        int sum1 = CalculateSum(1, 2, 3);       // sum1 should be 6
+        int sum2 = CalculateSum(10, 20, 30, 40); // sum2 should be 100
+        int sum3 = CalculateSum();             // sum3 should be 0
+        Console.WriteLine(sum1);
+        Console.WriteLine(sum2);
+        Console.WriteLine(sum3);
+    }
+}

@@ -1,4 +1,5 @@
 const { RoomMembers, Meeting } = require("../models");
+const { where } = require("../models/lessons");
 
 
 exports.getMeetingStatus = async (req, res) => {
@@ -18,26 +19,107 @@ exports.getMeetingStatus = async (req, res) => {
             }
         });
         console.log('here in meeting controller')
-        return res.status(201).json({meetings: activeMeetings })
+        return res.status(201).json({ meetings: activeMeetings })
     } catch (err) {
         console.log(err)
     }
 }
 
+exports.getMeetingUser = async (req, res) => {
+    const { roomId } = req.body;
+    try {
+        
+        const activeMeetings = await Meeting.findAll({
+            where: {
+                roomId: roomId,
+                status: 'active'
+            }
+        });
+        return res.status(201).json({ meetings: activeMeetings })
+    } catch (err) {
+        console.log(err)
+    }
+}
 
-exports.leaveMeeting = async (req, res) => {
-    const { userId } = req.body;
+exports.getMeetingStatusRoom = async (req, res) => {
+    const { roomId } = req.body;
+    try {
+        const activeCollaborateClassRoom = await Meeting.findOne({
+            where: {
+                roomId: roomId,
+                status: 'active',
+                type :'collaborateclassroom'
+            }
+        });
+        const activeCollaborateRoom = await Meeting.findOne({
+            where: {
+                roomId: roomId,
+                status: 'active',
+                type :'collaborateroom'
+            }
+        });
+        console.log('here in meeting controller')
+        return res.status(200).json({ activeCollaborateClassRoom,activeCollaborateRoom })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: 'Internal Server Error!' })
+    }
+}
+
+
+exports.leave = async (req, res) => {
+    const { roomId,type } = req.body;
     try {
         const meeting = await Meeting.findOne({
             where: {
-                userId: userId
+                roomId : roomId,
+                type:type,
+                status: 'active'
             }
         });
-        
-        await meeting.destroy();
-        
+
+        if(!meeting){
+            return res.status(200).json({message : 'Meeting not found!'})
+        }
+        meeting.status = 'ended';
+        await meeting.save();
+        return res.status(200).json({message : 'Ended the meeting successfully!'})
+
     } catch (err) {
         console.log(err)
+        return res.status(500).json({ message: 'Internal Server Error!' })
     }
 }
 
+
+exports.create = async (req, res) => {
+    try {
+        const { roomId, userId ,type} = req.body;
+        const meeting = await Meeting.findOne({
+            where: {
+                roomId: roomId,
+                status: 'active',
+                type: type,
+                host: userId
+            }
+        })
+
+        if(meeting) {
+            console.log('exists');
+            return res.status(200).json({message :'Meeting already exists!'})
+        }
+
+        const newMeeting = await Meeting.create({
+            roomId: roomId,
+            status: 'active',
+            type: type,
+            host: userId
+        });
+        if (newMeeting) {
+            return res.status(201).json({ message: 'New meeting created' })
+        }
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Internal server error!' })
+    }
+}

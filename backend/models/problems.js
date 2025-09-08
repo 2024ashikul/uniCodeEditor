@@ -6,7 +6,8 @@ module.exports = (Sequelize , DataTypes) => {
         id : {type : DataTypes.INTEGER , autoIncrement : true, primaryKey : true },
         title : {type : DataTypes.STRING , allowNull : false},
         statement : {type : DataTypes.TEXT , allowNull : false},
-        fullmarks: {type : DataTypes.INTEGER, allowNull: false, defaultValue: 10}
+        fullmarks: {type : DataTypes.INTEGER, allowNull: false, defaultValue: 10},
+        topic : {type : DataTypes.STRING , allowNull : true},
     })
     return Problem;
 }

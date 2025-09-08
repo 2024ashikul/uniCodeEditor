@@ -4,26 +4,14 @@ const { RoomMembers, User, Meeting } = require("../models");
 
 const rooms = {};
 
-async function createMeeting(roomId, userId) {
-    console.log('creating meeting')
+async function findMeeting(roomId, userId) {
     const findMeeting = await Meeting.findOne({
-        where :{
+        where: {
             roomId: roomId,
-        type: 'collaborateroom',
-        host: userId
+            type: 'collaborateroom',
         }
-        
     });
-    if (findMeeting) {
-        return;
-    }
-    const newMeeting = await Meeting.create({
-        roomId: roomId,
-        status: 'active',
-        type: 'collaborateroom',
-        host: userId
-    });
-    return newMeeting.id;
+    return findMeeting;
 }
 
 async function getMembers(roomId) {
@@ -54,6 +42,13 @@ function registerCollaborateRoomHandlers(io) {
 
         socket.on('joinRoom', async ({ roomId, userId }) => {
             console.log(userId);
+
+            const isMeeting = await findMeeting(roomId, userId);
+            if(!isMeeting) {
+                socket.emit('sendMessage', `Meeting does not exist!`)
+                return ;
+            };
+
             await socket.join(roomId);
             socket.to(roomId).emit('sendMessage', `A new member ${userId} joined`)
             console.log(`${socket.id} joined room ${roomId}`);
@@ -61,7 +56,7 @@ function registerCollaborateRoomHandlers(io) {
             currentUserId = userId;
 
 
-            socket.join(roomId);
+    
             if (!rooms[roomId]) {
                 const members = await getMembers(roomId);
 
@@ -75,8 +70,8 @@ function registerCollaborateRoomHandlers(io) {
                 console.log('here');
                 socket.emit('syncFile', {file : rooms[roomId].files[userId]});
             }
-            const meetingId = createMeeting(roomId, userId);
-            const data = rooms[roomId];
+            
+            
             io.to(roomId).emit('roomData', rooms[roomId]);
             console.log(rooms[roomId]);
             io.to(roomId).emit('memberJoin', userId);
@@ -125,6 +120,11 @@ function registerCollaborateRoomHandlers(io) {
 
         socket.on('sendMessage', ({ roomId, message }) => {
             socket.to(roomId).emit('sendMessage', message);
+        })
+
+        socket.on('leaveRoom', ( roomId ) => {
+            const message = 'This meeting was Over!'
+            socket.to(roomId).emit('leaveroom',message);
         })
 
         socket.on('disconnect', () => {

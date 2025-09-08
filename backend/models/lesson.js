@@ -6,7 +6,9 @@ module.exports = (Sequelize,DataTypes) => {
     const Lesson = Sequelize.define('lessons',{
         id : { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
         title : {type : DataTypes.STRING , allowNull : false},
-        status : {type : DataTypes.STRING , allowNull : false, defaultValue: "draft"}
+        status : {type : DataTypes.STRING , allowNull : false, defaultValue: "draft"},
+        attachment: { type: DataTypes.STRING },
+        category: { type: DataTypes.STRING ,allowNull : true}
     })
     return Lesson;
 }

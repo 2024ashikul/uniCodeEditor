@@ -223,7 +223,7 @@ exports.submission = async (req, res) => {
     }
     console.log("submititng");
     const { code, language, problemId, userId } = req.body;
-    const ext = extensions[language];
+    const ext = extensions[language]||'txt';
     const time = Date.now();
     const timestamp = time.toString();
 

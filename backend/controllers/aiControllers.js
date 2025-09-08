@@ -55,3 +55,23 @@ exports.generateLesson = async (req, res) => {
         console.log(err);
     }
 }
+
+exports.generateCode = async (req, res) => {
+    const { prompt } = req.body;
+
+    try {
+        const finalPrompt =
+            `Listen and Follow the instructions carefully-
+                1. It is a promt for getting the errors in computer science learning codes
+                2. You just need to find out the errors
+                3. You will paste the exact but with errors suggestions commented on the right side of lines where needed
+                4. What ever edit you do has to be in the comment
+                5. now give me the code ${prompt}
+            `;
+        const airesponse = await AiPrompt(finalPrompt);
+        const response = airesponse.text;
+        return res.status(201).json(response)
+    } catch (err) {
+        console.log(err);
+    }
+}

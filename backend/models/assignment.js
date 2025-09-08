@@ -10,6 +10,9 @@ module.exports = (Sequelize , DataTypes) => {
         duration : {type : DataTypes.STRING , allowNull : true},
         everyoneseesresults : {type : DataTypes.BOOLEAN , allowNull : true, defaultValue : false},
         resultpublished : {type : DataTypes.BOOLEAN , allowNull : true, defaultValue : false},
+         pinned: { type: DataTypes.BOOLEAN, defaultValue: false },
+         attachment: { type: DataTypes.STRING ,allowNull : true},
+         category: { type: DataTypes.STRING ,allowNull : true}
     });
     return Assignment;
 }

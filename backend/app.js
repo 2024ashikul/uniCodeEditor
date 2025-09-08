@@ -8,9 +8,10 @@ app.use(cors());
 app.use(compression());
 
 app.use(cors({
-  origin: "*",  // allow all for now
+  origin: "*",  // allow all 
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: false
+  credentials: false,
+  maxAge: 86400 //24 hrs
 }));
 
 
@@ -30,7 +31,7 @@ app.use('/room/', roomRoutes);
 app.use('/problem/',problemRoutes)
 app.use('/assignment/', assignmentRoutes);
 app.use('/submission/', submissionRoutes);
-app.use('/', meetingRoutes);
+app.use('/meeting', meetingRoutes);
 app.use('/', aiRoutes)
 app.use('/lesson/',lessonRoutes)
 app.use('/files', express.static(path.join(__dirname, '/files')));
