@@ -5,6 +5,7 @@ import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import UserAssignment from "./UserAssignment";
 import AdminAssignment from "./AdminAssignment";
 import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
+import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 
 
 export default function Assignment() {
@@ -14,24 +15,29 @@ export default function Assignment() {
     const [authorized, setAuthorized] = useState(null);
     const [role, setRole] = useState(null);
     const { checkAccess } = useContext(AccessContext);
-
+    const {userId} = useContext(AuthContext);
     useEffect(() => {
-        console.log(assignmentId);
-        checkAccess({ assignmentId })
-            .then((auth) => {
-                console.log(auth)
-                if (auth.allowed === true) {
-                    setAuthorized(true);
-                    setRole(auth.role);
-                    console.log({ role, authorized })
-                }
-                else {
-                    setAuthorized(false)
-                    console.log({ role, authorized })
-                }
-            })
+        if(!userId){
+            return;
+        }
+        
+         const verifyAccess = async () => {
+            const auth = await checkAccess({ assignmentId });
+            if (auth && auth.allowed) {
+                setAuthorized(true);
+                setRole(auth.role);
+            } else {
+                setAuthorized(false);
+                setRole(null); 
+            }
+        };
+        verifyAccess();
+        return () => {
+            setAuthorized(null);
+            setRole(null);
+        };
 
-    }, [checkAccess, assignmentId, setAuthorized, setRole, authorized, role])
+    }, [checkAccess,userId, assignmentId])
 
     useEffect(() => {
         setTitle('Assignment');
@@ -43,7 +49,7 @@ export default function Assignment() {
 
     return (
         <>
-            {role === 'member' ? <UserAssignment /> : role === 'admin' ? <AdminAssignment /> : 'NOT AUTHORIZED'}
+            {role === 'member' ? <UserAssignment /> : role === 'admin' ? <AdminAssignment />  : <LoadingFullscreen />}
         </>
     )
 

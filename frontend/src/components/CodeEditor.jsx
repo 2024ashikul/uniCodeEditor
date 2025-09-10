@@ -12,7 +12,7 @@ import { AlertContext } from '../Contexts/AlertContext/AlertContext';
 export default function CodeEditor({ problemId }) {
     const [terminalHeight, setTerminalHeight] = useState(0);
     const [code, setCode] = useState(null);
-    const [language, setLanguage] = useState('python');
+    const [language, setLanguage] = useState('C#');
     const [stdin, setStdin] = useState('');
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
@@ -26,7 +26,7 @@ export default function CodeEditor({ problemId }) {
     }, [setScrollHeight]);
     const { token } = useContext(AuthContext);
 
-    const languages = ['python', 'cpp', 'C#'];
+    const languages = ['python', 'cpp', 'csharp'];
     const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
     const tabsizes = [2, 3, 4, 5, 6, 7, 8];
     // const [results, setResults] = useState({
@@ -39,6 +39,19 @@ export default function CodeEditor({ problemId }) {
     const [font, setFont] = useState(12);
     const [tabSize, setTabSize] = useState(4);
 
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                setStatement(false);
+            }
+            if (e.key === "F2") { 
+                setStatement(true);
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
 
 
 
@@ -208,7 +221,7 @@ export default function CodeEditor({ problemId }) {
                                 cursor-pointer hover:text-white'
                                 onClick={() => setStatement(true)}
                             >
-                                <BadgeQuestionMark /><p> Problem Statement</p>
+                                <BadgeQuestionMark /><p> Problem Statement (F2)</p>
                             </div>
                             <textarea type='text' placeholder='Input STDIN' className='border h-full w-full rounded-2xl focus:outline-0 p-4 resize-none' onChange={(e) => setStdin(e.target.value)}
                                 style={{ fontSize: `${font}` }}>

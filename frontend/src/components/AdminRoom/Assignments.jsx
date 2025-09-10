@@ -13,7 +13,7 @@ import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Assignements({ roomId }) {
     const { popUp, setPopUp, setTitle } = useContext(UIContext);
-    const { token } = useContext(AuthContext);
+    const { token,userId } = useContext(AuthContext);
     const [form, setForm] = useState({
         title: '',
         description: ''
@@ -60,7 +60,7 @@ export default function Assignements({ roomId }) {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ roomId, form })
+                body: JSON.stringify({ roomId, form ,userId})
             })
             
             if (!res.ok) {

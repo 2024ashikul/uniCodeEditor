@@ -13,7 +13,7 @@ import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
 
 export default function Schedule({ assignmentId }) {
     const { setMessage, setType } = useContext(AlertContext);
-    const {token} = useContext(AuthContext);
+    const {token, userId} = useContext(AuthContext);
     const [assigned, setAssigned] = useState(null);
     const [duration, setDuration] = useState('');
     const [dateTime, setDateTime] = useState('');
@@ -48,7 +48,7 @@ export default function Schedule({ assignmentId }) {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ assignmentId, form })
+                body: JSON.stringify({ assignmentId,userId, form })
             })
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);

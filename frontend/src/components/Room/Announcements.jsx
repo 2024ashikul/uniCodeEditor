@@ -45,7 +45,7 @@ export default function Announcements({ roomId }) {
     useEffect(() => {
         const fetchAssignment = async () => {
             try {
-                const res = await fetch(`${API_URL}/room/announcement/fetchall`, {
+                const res = await fetch(`${API_URL}/announcement/fetchall`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -59,6 +59,7 @@ export default function Announcements({ roomId }) {
                 }
 
                 const data = await res.json();
+                console.log(data);
                 setAnnouncements(data);
             } catch (err) {
                 console.log("Failed to fetch lesson", err);
@@ -70,6 +71,20 @@ export default function Announcements({ roomId }) {
         }
     }, [roomId, token])
 
+    const formatTimeAgo = (date) => {
+        const d = date instanceof Date ? date : new Date(date);
+        const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+        if (diff < 60) return `${diff}s ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
+    };
+
+    const categoryColors = {
+        Info: "bg-blue-100 text-blue-600",
+        Urgent: "bg-red-100 text-red-600",
+        Assignment: "bg-green-100 text-green-600",
+    };
 
 
     return (
@@ -80,45 +95,60 @@ export default function Announcements({ roomId }) {
                         text={'Announcements'}
                     />
                 </div>
-                <div className=" min-w-full pt-4  flex  gap-2  rounded-2xl transition duration-1000">
-<div className="flex-1 space-y-4">
-  {
-    announcements === null ? (
-      <LoadingParent />
-    ) : announcements.length === 0 ? (
-      <NullComponent text={'No Announcements found'} />
-    ) : (
-      announcements.map((item, i) => (
-        <div
-          key={i}
-          className="bg-white shadow-md rounded-2xl border border-gray-100 transition hover:shadow-lg hover:scale-[1.01] duration-300"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800">
-              {item.title}
-            </h3>
-            <span className="text-sm text-gray-500">
-              {new Date(item.createdAt).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </div>
+                <div className=" min-w-full pt-4  flex  gap-20  rounded-2xl transition duration-1000">
+                    <div className="flex-1 space-y-4">
+                        {
+                            announcements === null ? (
+                                <LoadingParent />
+                            ) : announcements.length === 0 ? (
+                                <NullComponent text={'No Announcements found'} />
+                            ) : (
 
-          {/* Body */}
-          <div className="px-6 py-4">
-            <p className="text-gray-600 text-sm leading-relaxed">
-              {item.description}
-            </p>
-          </div>
-        </div>
-      ))
-    )
-  }
-</div>
-                    <div className="min-w-[400px] flex flex-col gap-4">
+                                announcements.map((item, i) => (
+                                    <div
+                                        key={i}
+                                        className="bg-white shadow-md rounded-2xl border border-gray-100 transition hover:shadow-lg hover:scale-[1.01] duration-300 p-4"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            {
+                                                item.user.profile_pic ?
+                                                    <img
+                                                        src={item.user.profile_pic}
+                                                        alt={item.user.name}
+                                                        className="w-8 h-8 rounded-full"
+                                                    /> :
+                                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                                        {item?.user.name[0].toUpperCase()}
+                                                    </div>
+                                            }
+
+                                            <div className="flex flex-col">
+                                                <h3 className="text-gray-800 text-base font-semibold">{item.title}</h3>
+                                                <p className="text-xs text-gray-500">
+                                                    {item.user.name} • {formatTimeAgo(item.createdAt)}
+                                                </p>
+                                            </div>
+                                            <span
+                                                className={`ml-auto px-2 py-0.5 text-xs rounded-full ${categoryColors[item.category]}`}
+                                            >
+                                                {item.category}
+                                            </span>
+                                        </div>
+
+                                        <div className="mt-2">
+                                            <p className="text-gray-600 text-sm leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
+
+
+                            )
+
+                        }
+                    </div>
+                    <div className="min-w-[360px] flex flex-col gap-4">
                         {
                             meetings === null ?
                                 <LoadingParent />

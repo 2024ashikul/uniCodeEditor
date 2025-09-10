@@ -38,10 +38,11 @@ import User1 from '../pages/User1';
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AccessProvider>
-          <UIProvider>
-            <AlertProvider>
+      <UIProvider>
+        <AlertProvider>
+        <AuthProvider>
+          <AccessProvider>
+            
               <Routes>
                 <Route element={<StyleLayout />}>
                   <Route element={<Layout />}>
@@ -67,11 +68,11 @@ function App() {
                   <Route path='/sharescreen/:roomId' element={<ShareScreen />} />
                 </Route>
               </Routes>
-
-            </AlertProvider>
-          </UIProvider>
-        </AccessProvider>
-      </AuthProvider>
+            
+          </AccessProvider>
+        </AuthProvider>
+        </AlertProvider>
+      </UIProvider>
     </BrowserRouter>
 
   )

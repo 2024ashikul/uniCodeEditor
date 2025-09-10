@@ -29,6 +29,7 @@ export default function CollaborateClassRoom() {
     const [isEditor, setIsEditor] = useState(false);
     const { roomId } = useParams();
     const { checkAccess } = useContext(AccessContext);
+    
     const [terminalHeight, setTerminalHeight] = useState(0);
     const [code, setCode] = useState('// Start coding...');
     const editorRef = useRef(null);
@@ -83,22 +84,29 @@ export default function CollaborateClassRoom() {
         }
     }, [roomId, userId, token])
 
-    useEffect(() => {
-        checkAccess({ roomId })
-            .then((auth) => {
-                if (auth.allowed === true) {
-                    setAuthorized(true);
-                    setRole(auth.role);
-                    if (auth.role === 'admin') {
-                        setIsEditor(true);
-                    }
-                }
-                else {
-                    setAuthorized(false)
-                }
-            })
+        useEffect(() => {
+        if(!userId){
+            return;
+        }
+        
+         const verifyAccess = async () => {
+            const auth = await checkAccess({ roomId });
+            if (auth && auth.allowed) {
+                setAuthorized(true);
+                setRole(auth.role);
+            } else {
+                setAuthorized(false);
+                setRole(null); 
+            }
+        };
+        verifyAccess();
+        return () => {
+            setAuthorized(null);
+            setRole(null);
+        };
 
-    }, [checkAccess, roomId, setAuthorized, setRole])
+    }, [checkAccess,userId, roomId])
+
 
     async function LeaveMeeting() {
         try {

@@ -9,38 +9,44 @@ import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import UserRoom from "./UserRoom";
 import AdminRoom from "./AdminRoom";
 import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
+import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
  
 
 export default function Room() {
 
-    const { roomId } = useParams();
+    const { roomId } =  useParams();
     
     const [authorized, setAuthorized] = useState(null);
     const [role, setRole] = useState(null);
-    
+    const { userId } = useContext(AuthContext);
     const { checkAccess } = useContext(AccessContext);
 
     useEffect(() => {
+        if(!userId){
+            return;
+        }
         
-        checkAccess({ roomId })
-            .then((auth) => {
-                console.log(auth)
-                if (auth.allowed === true) {
-                    setAuthorized(true);
-                    setRole(auth.role);
-                    console.log({ role, authorized })
-                }
-                else {
-                    setAuthorized(false)
-                    console.log({ role, authorized })
-                }
-            })
+         const verifyAccess = async () => {
+            const auth = await checkAccess({ roomId });
+            if (auth && auth.allowed) {
+                setAuthorized(true);
+                setRole(auth.role);
+            } else {
+                setAuthorized(false);
+                setRole(null); 
+            }
+        };
+        verifyAccess();
+        return () => {
+            setAuthorized(null);
+            setRole(null);
+        };
 
-    }, [checkAccess, roomId, setAuthorized, setRole,authorized,role])
+    }, [checkAccess,userId, roomId])
 
 
     if (authorized === null) return (<LoadingFullscreen />)
-    if (!authorized) return (<p>Not Authorized</p>)
+    if (!authorized) return (<p>Not Authorized Go to home page</p>)
 
     return (
         <>

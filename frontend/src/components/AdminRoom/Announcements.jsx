@@ -56,10 +56,25 @@ export default function Annoucements({ roomId }) {
         }
     }, [roomId, token])
 
+    const formatTimeAgo = (date) => {
+        const d = date instanceof Date ? date : new Date(date);
+        const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+        if (diff < 60) return `${diff}s ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
+    };
+
+    const categoryColors = {
+        Info: "bg-blue-100 text-blue-600",
+        Urgent: "bg-red-100 text-red-600",
+        Assignment: "bg-green-100 text-green-600",
+    };
+
     useEffect(() => {
-        const fetchAssignment = async () => {
+        const fetchAnnouncements = async () => {
             try {
-                const res = await fetch(`${API_URL}/room/announcement/fetchall`, {
+                const res = await fetch(`${API_URL}/announcement/fetchall`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -73,6 +88,7 @@ export default function Annoucements({ roomId }) {
                 }
 
                 const data = await res.json();
+                console.log(data)
                 setAnnoucements(data);
             } catch (err) {
                 console.log("Failed to fetch lesson", err);
@@ -80,7 +96,7 @@ export default function Annoucements({ roomId }) {
         }
 
         if (roomId) {
-            fetchAssignment();
+            fetchAnnouncements();
         }
     }, [roomId, token])
 
@@ -89,13 +105,13 @@ export default function Annoucements({ roomId }) {
     const createAnnouncement = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/room/announcement/create`, {
+            const res = await fetch(`${API_URL}/announcement/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ roomId, form })
+                body: JSON.stringify({ roomId, form ,userId})
             })
 
             const data = await res.json();
@@ -169,18 +185,45 @@ export default function Annoucements({ roomId }) {
                                     :
 
                                     announcements.map((item, i) => (
-                                        <div className="shadow-lg border-amber-700 flex-col mb-4 rounded-2xl transition duration-500 flex w-full 
-                                hover:bg-slate-100  "
-                                            key={i}>
+                                    <div
+                                        key={i}
+                                        className="bg-white shadow-md rounded-2xl border border-gray-100 transition hover:shadow-lg hover:scale-[1.01] duration-300 p-4"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            {
+                                                item.user.profile_pic ?
+                                                    <img
+                                                        src={item.user.profile_pic}
+                                                        alt={item.user.name}
+                                                        className="w-8 h-8 rounded-full"
+                                                    /> :
+                                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                                        {item?.user.name[0].toUpperCase()}
+                                                    </div>
+                                            }
 
-                                            <div className="flex">
-                                                <div className="px-4 py-2 font-semibold text-lg self-center">{item.title}</div>
-                                                <div className="px-4 py-2 flex-1 self-end text-sm">{new Date(item.createdAt).toLocaleDateString()}</div>
+                                            <div className="flex flex-col">
+                                                <h3 className="text-gray-800 text-base font-semibold">{item.title}</h3>
+                                                <p className="text-xs text-gray-500">
+                                                    {item.user.name} • {formatTimeAgo(item.createdAt)}
+                                                </p>
                                             </div>
-                                            <div className="pl-8 py-2 flex-1 overflow-hidden">{item.description}</div>
-
+                                            <span
+                                                className={`ml-auto px-2 py-0.5 text-xs rounded-full ${categoryColors[item.category]}`}
+                                            >
+                                                {item.category}
+                                            </span>
                                         </div>
-                                    ))
+
+                                        <div className="mt-2">
+                                            <p className="text-gray-600 text-sm leading-relaxed">
+                                                {item.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
+
+
                         }
 
                     </div>

@@ -9,8 +9,13 @@ import { API_URL } from "../../config";
 import { Star } from "lucide-react";
 import Loading from "../SharedComponents/LoadingParent";
 import LoadingParent from "../SharedComponents/LoadingParent";
+import { APIRequest } from "../../APIRequest";
+
+
+
 
 export default function RoomSection() {
+    const { request } = APIRequest();
     const { setMessage, setType } = useContext(AlertContext);
     const navigate = useNavigate();
     const { userId, token } = useContext(AuthContext);
@@ -85,25 +90,12 @@ export default function RoomSection() {
         }
     };
 
-
     useEffect(() => {
         const rooms = async () => {
             try {
-                const res = await fetch(`${API_URL}/room/joined`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({ userId }),
-                })
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-
-                const data = await res.json();
+                const data = await request("/room/joined", { body: { userId } });
                 setRooms(data.rooms || [])
+                console.log(data)
             } catch (err) {
                 console.log("Failed to fetch lesson", err);
             }
@@ -144,7 +136,7 @@ export default function RoomSection() {
             </button>
         </form>
     );
-    
+
     const CreateRoomPopUp = (
         <form
             method="POST"
@@ -199,56 +191,59 @@ export default function RoomSection() {
 
 
             {
-            rooms === null ?
-            
-            <LoadingParent />
-            
-            :
-            rooms.length === 0 ? (
-                <div className="flex justify-center py-10">
-                    <NullComponent text="You haven’t joined any rooms yet." />
-                </div>
-            ) : (
-                <div className="grid md:grid-cols-2 gap-4">
-                    {rooms.map((item, i) => {
-                        const isAdmin = item?.role === "admin";
-                        return (
-                            <div
-                                key={i}
-                                onClick={() => {
-                                    setTitle(item.room?.name);
-                                    navigate(`/room/${item.roomId}`);
-                                }}
-                                className="relative cursor-pointer bg-white shadow-lg rounded-2xl p-5 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition duration-300"
-                            >
-                                {isAdmin && (
-                                    <div className="absolute top-3 right-3 text-yellow-500">
-                                        <Star className="w-6 h-6 fill-yellow-400" />
+                rooms === null ?
+
+                    <LoadingParent />
+
+                    :
+                    rooms.length === 0 ? (
+                        <div className="flex justify-center py-10">
+                            <NullComponent text="You haven’t joined any rooms yet." />
+                        </div>
+                    ) : (
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {rooms.map((item, i) => {
+                                const isAdmin = item?.role === "admin";
+                                return (
+                                    <div
+                                        key={i}
+                                        onClick={() => {
+                                            setTitle(item.room?.name);
+                                            navigate(`/room/${item.roomId}`);
+                                        }}
+                                        className="relative cursor-pointer bg-white shadow-lg rounded-2xl p-5 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition duration-300"
+                                    >
+                                        {isAdmin && (
+                                            <div className="absolute top-3 right-3 text-yellow-500">
+                                                <Star className="w-6 h-6 fill-yellow-400" />
+                                            </div>
+                                        )}
+                                        <h3 className="text-lg font-bold text-blue-600">
+                                            {item?.room?.name || "Untitled Lab"}
+                                        </h3>
+                                        <div className="mt-2 text-sm text-gray-600 space-y-1">
+                                            <div className="flex items-center gap-3 col-span-3">
+                                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                                    {item?.room.user.name[0].toUpperCase()}
+                                                </div>
+                                                <div>
+                                                    <p className="text-gray-800 font-medium">{item?.room.user.name}</p>
+                                                    
+                                                </div>
+                                            </div>
+                                            <p>
+                                                <span className="font-medium">Lab ID:</span> {item?.room.id}
+                                            </p>
+
+                                            {item.description && (
+                                                <p className="italic text-gray-500">{item.description}</p>
+                                            )}
+                                        </div>
                                     </div>
-                                )}
-                                <h3 className="text-lg font-bold text-blue-600">
-                                    {item?.room?.name || "Untitled Lab"}
-                                </h3>
-                                <div className="mt-2 text-sm text-gray-600 space-y-1">
-                                    <p>
-                                        <span className="font-medium">Lab ID:</span> {item?.roomId}
-                                    </p>
-                                    <p>
-                                        <span className="font-medium">Admin:</span> Admin Name
-                                    </p>
-                                    <p>
-                                        <span className="font-medium">Created At:</span>{" "}
-                                        {new Date(item.createdAt).toLocaleDateString()}
-                                    </p>
-                                    {item.description && (
-                                        <p className="italic text-gray-500">{item.description}</p>
-                                    )}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            )}
+                                );
+                            })}
+                        </div>
+                    )}
 
 
             {joining && (
