@@ -1,151 +1,155 @@
 import { useContext, useEffect, useState } from "react";
 import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
 import { UIContext } from "../../../Contexts/UIContext/UIContext";
-import Button from "../../SharedComponents/Button";
-import PopUp from "../../SharedComponents/PopUp";
-import PopUpLayout from "../../SharedComponents/PopUpLayout";
-import PopUpLayoutTemp from "../../SharedComponents/PopUpLayoutTemp";
 import { API_URL } from "../../../config";
 import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
-
-
-
+import PopUp from "../../SharedComponents/PopUp";
+import PopUpLayout from "../../SharedComponents/PopUpLayout";
 
 export default function Schedule({ assignmentId }) {
-    const { setMessage, setType } = useContext(AlertContext);
-    const {token, userId} = useContext(AuthContext);
-    const [assigned, setAssigned] = useState(null);
-    const [duration, setDuration] = useState('');
-    const [dateTime, setDateTime] = useState('');
+  const { setMessage, setType } = useContext(AlertContext);
+  const { token, userId } = useContext(AuthContext);
+  const [assigned, setAssigned] = useState(null);
+  const [dateTime, setDateTime] = useState("");
+  const [duration, setDuration] = useState("");
+  const [dateTimeEdit, setDateTimeEdit] = useState(false);
+  const [form, setForm] = useState({
+    datetime: "",
+    duration: "",
+    assigned: null,
+  });
+  const { setPopUp } = useContext(UIContext);
 
-    const [dateTimeEdit, setDateTimeEdit] = useState(false);
-    const [form, setForm] = useState({
-        datetime: '',
-        duration: '',
-        assigned: null
-    });
-    const { setPopUp } = useContext(UIContext);
-
-
-    useEffect(() => {
-        const currentTime = new Date().toISOString();
-        console.log(currentTime);
-        console.log(dateTime);
-        if (dateTime < currentTime) {
-            setMessage("Scheduled time can not be in past");
-            setType('warning');
-        }
-    }, [dateTime, setMessage, setType])
-
-    async function applyScehdule(e) {
-        e.preventDefault();
-        console.log(form);
-
-        try {
-            const res = await fetch(`${API_URL}/assignment/admin/schedule`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ assignmentId,userId, form })
-            })
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data = await res.json();
-            setAssigned(data.status);
-            setDateTimeEdit(false);
-            setPopUp(false);
-            console.log(data)
-            setMessage('Changed time succesfully');
-        } catch (err) {
-            console.log("Failed to fetch lesson", err);
-        }
+  useEffect(() => {
+    const currentTime = new Date().toISOString();
+    if (dateTime && dateTime < currentTime) {
+      setMessage("Scheduled time cannot be in the past");
+      setType("warning");
     }
+  }, [dateTime, setMessage, setType]);
 
+  async function applyScehdule(e) {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${API_URL}/Assignment/admin/schedule`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ assignmentId, userId, form }),
+      });
 
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+      const data = await res.json();
+      setAssigned(data.status);
+      setDateTimeEdit(false);
+      setPopUp(false);
+      setMessage("Schedule updated successfully");
+      setType("success");
+    } catch (err) {
+      console.error("Failed to update schedule", err);
+      setMessage("Internal server error");
+      setType("error");
+    }
+  }
 
-    const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
-    const PopUpCode = (<form method="POST" onSubmit={applyScehdule} onChange={handleChange}>
-        <div className="flex flex-col justify-center  px-30 gap-4 pt-10">
-            <div className="flex justify-between items-center">
-                <div>Set Time</div>
-                <div className="w-60 px-1 ">
-                    <input name="datetime" value={dateTime}
-                        className="focus:text-white-200 rounded-2xl px-4 py-1"
-                        onChange={(e) => { setDateTime(e.target.value) }}
-                        required
-                        placeholder="YYYY-MM-DDTHH:MM"
-                        type="datetime-local"></input>
-                </div>
-            </div>
-            <div className="flex justify-between items-center">
-                <div>Set Duration</div>
-                <div className="w-60 px-1">
-                    <input
-                        className="px-4 border border-white rounded-2xl py-1"
-                        name="duration"
-                        value={duration}
-                        onChange={(e) => setDuration(e.target.value)}
-                        required
-                        placeholder="Duration "
-                        type="text"></input>
-                </div>
-            </div>
-            <div className="flex justify-center gap-4">
-                <div className="flex gap-2 items-center">
-                    <input name="assigned" value={'true'} type="radio" id="true"></input>
-                    <label htmlFor="true">Assign</label>
-                </div>
-                <div className="flex gap-2 items-center">
-                    <input name="assigned" value={'false'} type="radio" id="false"></input>
-                    <label htmlFor="false">Not Assign</label>
-                </div>
-            </div>
-            <div className="flex justify-center">
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-                <button type="submit">Submit</button>
-            </div>
-        </div>
+  const PopUpCode = (
+    <form
+      method="POST"
+      onSubmit={applyScehdule}
+      onChange={handleChange}
+      className="flex flex-col gap-6 px-6 py-4"
+    >
+      {/* Date & Time */}
+      <div className="flex flex-col gap-2">
+        <label htmlFor="datetime" className="text-sm font-medium text-gray-700">
+          Set Time
+        </label>
+        <input
+          id="datetime"
+          name="datetime"
+          type="datetime-local"
+          value={dateTime}
+          onChange={(e) => setDateTime(e.target.value)}
+          required
+          className="px-4 py-2 border rounded-xl shadow-sm focus:ring-2 focus:ring-green-400 focus:outline-none"
+        />
+      </div>
+
+      {/* Duration */}
+      <div className="flex flex-col gap-2">
+        <label htmlFor="duration" className="text-sm font-medium text-gray-700">
+          Set Duration (minutes)
+        </label>
+        <input
+          id="duration"
+          name="duration"
+          type="number"
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          required
+          placeholder="Enter duration"
+          className="px-4 py-2 border rounded-xl shadow-sm focus:ring-2 focus:ring-green-400 focus:outline-none"
+        />
+      </div>
+
+      {/* Assignment Status */}
+      <div className="flex gap-6">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="assigned" value="true" className="w-4 h-4" />
+          <span>Assign</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="radio" name="assigned" value="false" className="w-4 h-4" />
+          <span>Not Assign</span>
+        </label>
+      </div>
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="w-full py-2 mt-2 text-white bg-green-500 rounded-xl shadow-md hover:bg-green-600 hover:scale-[1.02] transition duration-200"
+      >
+        Save Schedule
+      </button>
     </form>
-    );
+  );
 
+  return (
+    <>
+      <PopUpLayout>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-700 font-medium">Status</span>
+            <span className="px-3 py-1 rounded-lg text-sm font-semibold bg-gray-100">
+              {assigned ?? "Not set"}
+            </span>
+            <button
+              onClick={() => setDateTimeEdit(true)}
+              className="px-4 py-2 w-50 text-white bg-green-500 rounded-xl shadow-md hover:bg-green-600 hover:scale-[1.05] transition"
+            >
+              Change Schedule
+            </button>
+          </div>
+        </div>
+      </PopUpLayout>
 
-
-    return (
-        <>
-            <PopUpLayout>
-
-                <div className="flex flex-col gap-2 pt-4">
-                    <div className="flex  justify-between">
-                        <div>Status</div>
-                        <div>{assigned}</div>
-                        <div>
-                            <Button
-                                onClickAction={() => setDateTimeEdit(true)}
-                                buttonLabel={'Change the time'}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </PopUpLayout>
-
-            {dateTimeEdit &&
-                <PopUp
-                    name={dateTimeEdit}
-                    setName={setDateTimeEdit}
-                    onSubmit={applyScehdule}
-                    onChange={handleChange}
-                    extraFields={null}
-                    title={'Edit Schedule'}
-                    buttonTitle={'Change Schedule'}
-                    ManualCode={PopUpCode}
-                    ManualEdit={true}
-                />
-            }
-
-        </>
-    )
+      {dateTimeEdit && (
+        <PopUp
+          name={dateTimeEdit}
+          setName={setDateTimeEdit}
+          onSubmit={applyScehdule}
+          onChange={handleChange}
+          title="Edit Schedule"
+          buttonTitle="Change Schedule"
+          ManualCode={PopUpCode}
+          ManualEdit={true}
+        />
+      )}
+    </>
+  );
 }

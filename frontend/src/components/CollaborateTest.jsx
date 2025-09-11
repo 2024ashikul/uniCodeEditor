@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 import { API_URL } from '../config';
-const socket = io(`${API_URL}`);
+import { useSocket } from '../socket';
+// const socket = io(`${API_URL}`);
 
 function CollaborateTest({ roomId, isTeacher }) {
     const [code, setCode] = useState('// Start coding...');
@@ -11,6 +12,14 @@ function CollaborateTest({ roomId, isTeacher }) {
     const teacherCursorDecoration = useRef([]);
     const latestTeacherCursor = useRef(null);
     const pointerRef = useRef(null);
+
+     const socketOptions = {
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 3000,
+        };
+        const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
 
     useEffect(() => {
         if (!isTeacher) {

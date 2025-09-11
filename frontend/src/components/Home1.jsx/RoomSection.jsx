@@ -52,7 +52,7 @@ export default function RoomSection() {
             setType((res.ok ? "success" : "error"));
             setRooms((prev) => [...prev, data.newRoom]);
             setJoining(false);
-            navigate(`/room/${form.roomId}`);
+            
 
         } catch (err) {
             setMessage("Could not connect to server");
@@ -224,7 +224,7 @@ export default function RoomSection() {
                                         <div className="mt-2 text-sm text-gray-600 space-y-1">
                                             <div className="flex items-center gap-3 col-span-3">
                                                 <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                                                    {item?.room.user.name[0].toUpperCase()}
+                                                    {item?.room?.user?.name[0].toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <p className="text-gray-800 font-medium">{item?.room.user.name}</p>
@@ -235,9 +235,7 @@ export default function RoomSection() {
                                                 <span className="font-medium">Lab ID:</span> {item?.room.id}
                                             </p>
 
-                                            {item.description && (
-                                                <p className="italic text-gray-500">{item.description}</p>
-                                            )}
+                                            
                                         </div>
                                     </div>
                                 );

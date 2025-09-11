@@ -37,7 +37,7 @@ export default function Results({ assignmentId }) {
 
     const handlePublish = async () => {
         try {
-            const res = await fetch(`${API_URL}/assignment/admin/publishresults`, {
+            const res = await fetch(`${API_URL}/Assignment/admin/publishresults`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

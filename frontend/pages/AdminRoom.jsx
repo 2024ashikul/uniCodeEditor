@@ -23,7 +23,7 @@ export default function AdminRoom() {
     const tabs = [
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
         { title: 'Lessons', keyword: 'lessons', icon: Book },
-        { title: 'Assignments', keyword: 'assignments', icon: Notebook },
+        { title: 'Assignments', keyword: 'Assignments', icon: Notebook },
         { title: 'Members', keyword: 'members', icon: Users },
     ]
 
@@ -56,7 +56,7 @@ export default function AdminRoom() {
 
                         <Route path="announcements" element={<Annoucements roomId={roomId} />} />
                         <Route path="members" element={<Members roomId={roomId} />} />
-                        <Route path="assignments" element={<Assignements roomId={roomId} />} />
+                        <Route path="Assignments" element={<Assignements roomId={roomId} />} />
                         <Route path="lessons" element={<Lessons roomId={roomId} />} />
                         <Route path="*" element={<Annoucements roomId={roomId} />} />
                     </Routes>

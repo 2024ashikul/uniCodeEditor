@@ -11,11 +11,6 @@ export default function Login() {
     const navigate = useNavigate();
     const { token, setToken, setEmail } = useContext(AuthContext);
 
-    useEffect(() => {
-        if (token) {
-            navigate('/user')
-        }
-    }, [token, navigate])
 
     const { setMessage } = useContext(AlertContext);
     const [form, setForm] = useState({
@@ -23,16 +18,18 @@ export default function Login() {
         password: ''
     });
     useEffect(() => {
-        if (token != null) {
+    if (token) {
+        try {
             const decoded = jwtDecode(token);
             if (decoded) {
                 navigate('/user');
             }
-            else {
-                navigate('/login');
-            }
+        } catch (err) {
+            console.log(err)
+            navigate('/login');
         }
-    }, [token, navigate])
+    }
+}, [token, navigate]);
 
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -80,6 +77,7 @@ export default function Login() {
                                 type="email"
                                 placeholder="Enter email"
                                 value={form.email}
+                                autoComplete="on"
                                 onChange={handleChange}
                                 className="flex-1  px-4 py-2 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -95,6 +93,7 @@ export default function Login() {
                                 name="password"
                                 type="text"
                                 placeholder="Your Password"
+                                autoComplete="on"
                                 value={form.password}
                                 onChange={handleChange}
                                 className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"

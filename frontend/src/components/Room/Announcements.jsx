@@ -38,7 +38,7 @@ export default function Announcements({ roomId }) {
         if (roomId) {
             fetchMeetings();
         }
-    }, [roomId, token, setMeetings]);
+    }, [roomId, token]);
 
 
 
@@ -219,7 +219,7 @@ export default function Announcements({ roomId }) {
 //       id: 3,
 //       title: "New Assignment Available",
 //       description:
-//         "A new assignment on World History has been posted. Check the assignments section.",
+//         "A new Assignment on World History has been posted. Check the Assignments section.",
 //       createdAt: new Date(Date.now() - 1000 * 60 * 15), // 15 mins ago
 //       category: "Assignment",
 //       author: { name: "Dr. Lee", avatar: "https://i.pravatar.cc/40?img=8" },

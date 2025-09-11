@@ -26,7 +26,7 @@ export default function AdminAssignment({ roomId }) {
     const { setTitle } = useContext(UIContext);
     useEffect(() => {
         const fetchAssignment = async () => {
-            const res = await fetch(`${API_URL}/assignment/fetchone`, {
+            const res = await fetch(`${API_URL}/Assignment/fetchone`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ export default function AdminAssignment({ roomId }) {
         const lastSegment = window.location.pathname.split("/").pop();
         if (!lastSegment || lastSegment === assignmentId) {
             setActiveTab("problems");
-            navigate(`/assignment/${assignmentId}/problems`, { replace: true });
+            navigate(`/Assignment/${assignmentId}/problems`, { replace: true });
         } else {
             setActiveTab(lastSegment);
         }
@@ -62,8 +62,9 @@ export default function AdminAssignment({ roomId }) {
     const tabs = [
         { title: 'Problems', keyword: 'problems', icon: FileQuestionMark },
         { title: 'Submissions', keyword: 'submissions', icon: Send },
+        { title: 'Results', keyword: 'results', icon: MedalIcon },
         { title: 'Settings', keyword: 'settings', icon: Settings },
-        { title: 'Results', keyword: 'results', icon: MedalIcon }
+        
     ]
 
     return (
@@ -75,7 +76,7 @@ export default function AdminAssignment({ roomId }) {
             <TopBar
                 tabs={tabs}
                 activeTab={activeTab}
-                setActiveTab={(tab) => navigate(`/assignment/${assignmentId}/${tab}`)}
+                setActiveTab={(tab) => navigate(`/Assignment/${assignmentId}/${tab}`)}
             />
 
             <div className="flex flex-col p-8 ">

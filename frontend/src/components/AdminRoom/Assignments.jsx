@@ -20,13 +20,13 @@ export default function Assignements({ roomId }) {
     });
 
     const { setMessage, setType } = useContext(AlertContext);
-    const [assignment, setAssignment] = useState(false);
-    const [assignments, setAssignments] = useState(null);
+    const [Assignment, setAssignment] = useState(false);
+    const [Assignments, setAssignments] = useState(null);
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
     useEffect(() => {
         const fetchAssignments = async () => {
             try {
-                const res = await fetch(`${API_URL}/assignment/admin/fetchall`, {
+                const res = await fetch(`${API_URL}/Assignment/admin/fetchall`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export default function Assignements({ roomId }) {
         e.preventDefault();
         console.log(form);
         try {
-            const res = await fetch(`${API_URL}/assignment/create`, {
+            const res = await fetch(`${API_URL}/Assignment/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -101,18 +101,18 @@ export default function Assignements({ roomId }) {
                         <div className="text-center">Actions</div>
                     </div>
                     {
-                        assignments === null ?
+                        Assignments === null ?
                         <LoadingParent />
                         :
-                        assignments.length === 0 ?
-                            <NullComponent text={'No assignments found'} />
+                        Assignments.length === 0 ?
+                            <NullComponent text={'No Assignments found'} />
 
-                            : assignments.map((item, i) => (
+                            : Assignments.map((item, i) => (
                                 <div className="grid grid-cols-6 items-center bg-white
                         shadow  hover:shadow-md transition cursor-pointer
                                     "
                                     key={i}
-                                    onClick={() => { setTitle(item.title); navigate(`/assignment/${item.id}`) }}>
+                                    onClick={() => { setTitle(item.title); navigate(`/Assignment/${item.id}`) }}>
 
                                     <div className="px-4 py-2 ">{item.id}</div>
                                     <div className="px-4 py-2 col-span-2">{item.title}</div>
@@ -131,11 +131,11 @@ export default function Assignements({ roomId }) {
 
                 </div>
             </div>
-            {assignment &&
+            {Assignment &&
                 <PopUp
 
                     form={form}
-                    name={assignment}
+                    name={Assignment}
                     setName={setAssignment}
                     onChange={handleChange}
                     onSubmit={createAssignment}

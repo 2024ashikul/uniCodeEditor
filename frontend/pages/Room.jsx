@@ -1,10 +1,10 @@
 import { useContext, useEffect } from "react"
-import { Users, Notebook, Megaphone } from 'lucide-react';
+
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
 
-import { UIContext } from "../src/Contexts/UIContext/UIContext";
+
 import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import UserRoom from "./UserRoom";
 import AdminRoom from "./AdminRoom";

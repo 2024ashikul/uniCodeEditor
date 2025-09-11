@@ -1,16 +1,17 @@
 
 
 import Editor from '@monaco-editor/react';
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io(`${API_URL}/collaborate`);
+// const socket = io(`${API_URL}/collaborate`);
 import { useState, useEffect, useRef, useContext } from 'react';
 import Loading from './CodeEditor/Loading';
 import { AlertContext } from '../Contexts/AlertContext/AlertContext';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import { API_URL } from '../config';
+import { useSocket } from '../socket';
 
 export default function CodeEditorCollaborate({ roomId, isEditorProp, username }) {
     const [isEditor, setIsEditor] = useState(isEditorProp);
@@ -26,6 +27,13 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     const [history, setHistory] = useState([]);
     const [members, setMembers] = useState([]);
 
+    const socketOptions = {
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 3000,
+    };
+    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
 
     const [files, setFiles] = useState({
         "main.cpp": { language: "cpp", content: "// Start coding..." }
@@ -144,7 +152,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
 
     //Code Room Part
-    
+
 
     useEffect(() => {
         socket.on('roomData', (data) => {
@@ -165,23 +173,23 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
         console.log("here")
         //socket.emit('joinRoom', roomId);
         function renderTeacherCursor() {
-        if (!isEditor && editorRef.current && latestTeacherCursor.current) {
-            teacherCursorDecoration.current = editorRef.current.deltaDecorations(
-                teacherCursorDecoration.current,
-                [
-                    {
-                        range: new monaco.Range(
-                            latestTeacherCursor.current.lineNumber,
-                            latestTeacherCursor.current.column,
-                            latestTeacherCursor.current.lineNumber,
-                            latestTeacherCursor.current.column
-                        ),
-                        options: { className: 'teacher-cursor' }
-                    }
-                ]
-            );
+            if (!isEditor && editorRef.current && latestTeacherCursor.current) {
+                teacherCursorDecoration.current = editorRef.current.deltaDecorations(
+                    teacherCursorDecoration.current,
+                    [
+                        {
+                            range: new monaco.Range(
+                                latestTeacherCursor.current.lineNumber,
+                                latestTeacherCursor.current.column,
+                                latestTeacherCursor.current.lineNumber,
+                                latestTeacherCursor.current.column
+                            ),
+                            options: { className: 'teacher-cursor' }
+                        }
+                    ]
+                );
+            }
         }
-    }
 
         socket.on("fileUpdate", ({ fileName, content }) => {
             setFiles(prev => ({
@@ -246,7 +254,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     }, []);
 
 
-    
+
 
     useEffect(() => {
         socket.on("fileChange", ({ fileName, content }) => {
@@ -427,7 +435,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                                     formatOnType: true,
                                     renderWhitespace: "all",
                                     matchBrackets: 'always',
-                                    
+
                                 }}
                             >
 

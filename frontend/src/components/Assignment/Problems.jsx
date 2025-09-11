@@ -5,9 +5,10 @@ import { API_URL } from "../../config";
 import NullComponent from "../SharedComponents/NullComponent";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
+import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Problems({ assignmentId }) {
-    const [problems, setProblems] = useState([]);
+    const [problems, setProblems] = useState(null);
     const [activeProblem, setActiveProblem] = useState(null);
     const navigate = useNavigate();
     const { token } = useContext(AuthContext);
@@ -47,16 +48,21 @@ export default function Problems({ assignmentId }) {
             <div className={`flex flex-col `}>
                 <div className="flex mt-2 justify-between">
                     <PageTitle
-                        text={`Problems ${problems.length}`}
+                        text={`Problems ${problems?.length || 0}`}
                     />
                 </div>
 
-                {problems?.length === 0 ?
+                {
+                problems === null ? 
+                <LoadingParent />
+                :
+
+                problems?.length === 0 ?
                     <NullComponent text={'No problems found'} />
                     :
                     <div className="grid pt-8 grid-cols-16 gap-4">
                         <div className="col-span-3 flex flex-col">
-                            {problems.map((item, index) => (
+                            {problems?.map((item, index) => (
                                 activeProblem === item ?
                                     <div className=" bg-green-400 w-full text-lg px-4 py-2" onClick={() => setActiveProblem(item)}>
                                         Problem {index + 1}
@@ -84,7 +90,8 @@ export default function Problems({ assignmentId }) {
                                         </div>
 
                                         <div
-                                            className="px-4 py-2 bg-blue-400 rounded-full text-white"
+                                            className="px-4 py-2 bg-blue-400 rounded-full text-white
+                                            hover:scale-105 transition"
                                             onClick={() => navigate(`/problem/${activeProblem.id}`)}>
                                             Solve
                                         </div>

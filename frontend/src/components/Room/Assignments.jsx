@@ -7,12 +7,12 @@ import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 import LoadingParent from "../SharedComponents/LoadingParent";
 
 export default function Assignements({ roomId }) {
-    const [assignments, setAssignments] = useState(null);
+    const [Assignments, setAssignments] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const {token} = useContext(AuthContext);
 
     useEffect(() => {
-        fetch(`${API_URL}/assignment/user/fetchall`, {
+        fetch(`${API_URL}/Assignment/user/fetchall`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ export default function Assignements({ roomId }) {
     }, [roomId,token])
     const navigate = useNavigate();
 
-    const filteredAssignments = assignments?.filter((lesson) =>
+    const filteredAssignments = Assignments?.filter((lesson) =>
         lesson.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -56,7 +56,7 @@ export default function Assignements({ roomId }) {
                     </div>
                     <div className="min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
                         {
-                            assignments === null ?
+                            Assignments === null ?
                             <LoadingParent />
                             :
                             filteredAssignments?.length === 0 ?
@@ -65,7 +65,7 @@ export default function Assignements({ roomId }) {
                                     <div className="grid grid-cols-6 items-center bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer
                                     "
                                         key={i}
-                                        onClick={() => navigate(`/assignment/${item.id}`)}>
+                                        onClick={() => navigate(`/Assignment/${item.id}`)}>
 
                                         <div className="px-4 py-2 ">{i + 1}</div>
                                         <div className="px-4 py-2 col-span-2">{item.title}</div>

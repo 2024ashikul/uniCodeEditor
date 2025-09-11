@@ -191,21 +191,21 @@ export default function Annoucements({ roomId }) {
                                     >
                                         <div className="flex items-center gap-3">
                                             {
-                                                item.user.profile_pic ?
+                                                item?.user?.profile_pic === !null ?
                                                     <img
                                                         src={item.user.profile_pic}
                                                         alt={item.user.name}
                                                         className="w-8 h-8 rounded-full"
                                                     /> :
                                                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                                                        {item?.user.name[0].toUpperCase()}
+                                                        {item?.user?.name[0].toUpperCase()}
                                                     </div>
                                             }
 
                                             <div className="flex flex-col">
                                                 <h3 className="text-gray-800 text-base font-semibold">{item.title}</h3>
                                                 <p className="text-xs text-gray-500">
-                                                    {item.user.name} • {formatTimeAgo(item.createdAt)}
+                                                    {item?.user?.name} • {formatTimeAgo(item?.createdAt)}
                                                 </p>
                                             </div>
                                             <span

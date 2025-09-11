@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import MonacoEditor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
-const socket = io(`${API_URL}/collaborateClass`);
+// const socket = io(`${API_URL}/collaborateClass`);
 import { useState, useEffect, useRef, useContext } from 'react';
 import Loading from './CodeEditor/Loading';
 import { AlertContext } from '../Contexts/AlertContext/AlertContext';
@@ -12,6 +12,7 @@ import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import { CircleUserRound, File } from 'lucide-react';
 import { API_URL } from '../config';
+import { useSocket } from '../socket';
 
 export default function CodeEditorCollaborateClass({ roomId, isEditor, username }) {
 
@@ -26,6 +27,14 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
     const [members, setMembers] = useState([]);
+
+    const socketOptions = {
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 3000,
+    };
+    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
 
 
     const [files, setFiles] = useState({
@@ -68,13 +77,13 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
         delete updatedFiles[fileToDelete];
 
         setFiles(updatedFiles);
-        io.to(roomId).emit('fileDelete', {files,roomId});
+        io.to(roomId).emit('fileDelete', { files, roomId });
     }
 
     useEffect(() => {
         socket.on('fileDelete', (fileToDelete) => {
             fileToDelete
-            const updatedFiles={...files};
+            const updatedFiles = { ...files };
             delete updatedFiles[fileToDelete];
             setFiles(updatedFiles);
             if (!updatedFiles[activeFile]) {
@@ -85,7 +94,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
         return () => {
             socket.off('fileDelete');
         };
-    }, [files,activeFile]);
+    }, [files, activeFile]);
 
     const IOSSwitch = styled((props) => (
         <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
@@ -286,7 +295,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
             });
         }
     }
-    
+
 
 
 
@@ -396,7 +405,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                                 height="100%"
                                 //onChange={e => setCode(e)}
                                 onChange={(value) => {
-                                    if(!isEditor) return;
+                                    if (!isEditor) return;
                                     const updatedContent = value;
                                     setCode(value);
 
@@ -408,7 +417,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                                         }
                                     }));
 
-                                    
+
                                     socket.emit("fileChange", {
                                         roomId,
                                         fileName: activeFile,
@@ -468,7 +477,7 @@ export default function CodeEditorCollaborateClass({ roomId, isEditor, username 
                                 className='flex flex-col flex-1 overflow-scroll  h-full  w-full py-2 rounded-2xl shadow-2xl  transition-colors duration-300 '
                             >
                                 <div className='flex px-4 text-xl font-semibold gap-4'><p>Files</p></div>
-                                
+
                                 <div>{isEditor && <input type="file" className='text-sm' onChange={handleFileSelect} />}</div>
                                 <div> {isEditor && <button onClick={addNewFile}>➕ New File</button>}</div>
 

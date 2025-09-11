@@ -22,7 +22,7 @@ export default function UserAssignment() {
     const { setTitle, setScrollHeight } = useContext(UIContext);
     const { token } = useContext(AuthContext);
     const { assignmentId } = useParams();
-    const [assignment, setAssignment] = useState(null);
+    const [Assignment, setAssignment] = useState(null);
     const [timleft, setTimeleft] = useState(null);
     const currentTime = new Date().toISOString().slice(0, 16);
 
@@ -30,7 +30,7 @@ export default function UserAssignment() {
         const lastSegment = window.location.pathname.split("/").pop();
         if (!lastSegment || lastSegment === assignmentId) {
             setActiveTab("announcements");
-            navigate(`/assignment/${assignmentId}/problems`, { replace: true });
+            navigate(`/Assignment/${assignmentId}/problems`, { replace: true });
         } else {
             setActiveTab(lastSegment);
         }
@@ -40,7 +40,7 @@ export default function UserAssignment() {
     useEffect(() => {
         const fetchAssignment = async () => {
             try {
-                const res = await fetch(`${API_URL}/assignment/fetchone/user`, {
+                const res = await fetch(`${API_URL}/Assignment/fetchone`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -69,17 +69,17 @@ export default function UserAssignment() {
     useEffect(() => {
         setTitle('Assignment');
         setScrollHeight(100);
-    }, [setTitle, setScrollHeight, assignment])
+    }, [setTitle, setScrollHeight, Assignment])
 
 
     useEffect(() => {
-        if (assignment?.scheduleTime) {
-            const temp = assignment.scheduleTime.toString();
+        if (Assignment?.scheduleTime) {
+            const temp = Assignment.scheduleTime.toString();
             CalculateTimeLeft(currentTime, temp).then((result) => {
                 setTimeleft(result);
             });
         }
-    }, [assignment, currentTime, setTimeleft]);
+    }, [Assignment, currentTime, setTimeleft]);
 
 
     async function CalculateTimeLeft(current, scheduled) {
@@ -105,14 +105,14 @@ export default function UserAssignment() {
     }
 
 
-    const temp = assignment?.scheduleTime?.toString();
+    const temp = Assignment?.scheduleTime?.toString();
     console.log(CalculateTimeLeft(currentTime, temp));
 
     const extraInfo = (
         <div className="flex justify-center gap-2">
-            <div>{assignment?.status.toUpperCase()} </div>  <Dot />
+            <div>{Assignment?.status.toUpperCase()} </div>  <Dot />
             <div>{timleft} left </div> <Dot />
-            <div className="flex"> Duration : {assignment?.duration} mins</div>
+            <div className="flex"> Duration : {Assignment?.duration} mins</div>
         </div>
     );
 
@@ -135,12 +135,12 @@ export default function UserAssignment() {
             <TopBar
                 tabs={tabs}
                 activeTab={activeTab}
-                setActiveTab={(tab) => navigate(`/assignment/${assignmentId}/${tab}`)}
+                setActiveTab={(tab) => navigate(`/Assignment/${assignmentId}/${tab}`)}
             />
 
 
             <div className="flex flex-col p-8 ">
-                {currentTime < assignment?.scheduleTime ? (
+                {currentTime < Assignment?.scheduleTime ? (
                     <NullComponent
                         text={'You can see the problems once the Time starts'}
                     />)
@@ -148,7 +148,7 @@ export default function UserAssignment() {
                         <Routes>
                             <Route path="problems" element={<Problems assignmentId={assignmentId} />} />
                             <Route path="submissions" element={<Submissions assignmentId={assignmentId} />} />
-                            <Route path="results" element={<Results assignmentId={assignmentId} isPublished={assignment?.resultpublished} />} />
+                            <Route path="results" element={<Results assignmentId={assignmentId} isPublished={Assignment?.resultpublished} />} />
                             <Route path="*" element={<Navigate to="problems" replace />} />
                         </Routes>
                     </>

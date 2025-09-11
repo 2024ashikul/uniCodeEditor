@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import CodeEditor from './components/CodeEditor'
 import './App.css'
 
 import EditorPage from '../pages/EditorPage';
@@ -8,10 +7,7 @@ import Login from '../pages/Login';
 import SignUp from '../pages/SignUp';
 
 import { AuthProvider } from './Contexts/AuthContext/AuthProvider';
-
-import User from '../pages/User';
 import PrivateRoute from './components/PrivateRoute';
-
 import Layout from './components/Layout';
 import { UIProvider } from './Contexts/UIContext/UIProvider';
 import { AlertProvider } from './Contexts/AlertContext/AlertProvider';
@@ -40,9 +36,9 @@ function App() {
     <BrowserRouter>
       <UIProvider>
         <AlertProvider>
-        <AuthProvider>
-          <AccessProvider>
-            
+          <AuthProvider>
+            <AccessProvider>
+
               <Routes>
                 <Route element={<StyleLayout />}>
                   <Route element={<Layout />}>
@@ -50,7 +46,7 @@ function App() {
 
                     <Route path='/login' element={<Login />} />
                     <Route path='/signup' element={<SignUp />} />
-                    <Route path='/assignment/:assignmentId/*' element={<Assignment />} />
+                    <Route path='/Assignment/:assignmentId/*' element={<Assignment />} />
                     <Route path='/user/*' element={<PrivateRoute><User1 /></PrivateRoute>} />
                     <Route path='room/:roomId/createlesson' element={<CreateLesson />} />
                     <Route path='/lesson/:lessonId' element={<Lesson />} />
@@ -68,9 +64,9 @@ function App() {
                   <Route path='/sharescreen/:roomId' element={<ShareScreen />} />
                 </Route>
               </Routes>
-            
-          </AccessProvider>
-        </AuthProvider>
+
+            </AccessProvider>
+          </AuthProvider>
         </AlertProvider>
       </UIProvider>
     </BrowserRouter>

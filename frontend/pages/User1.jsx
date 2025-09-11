@@ -1,5 +1,5 @@
-import { useContext, useEffect } from "react"
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react"
+
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext"
 import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
@@ -10,21 +10,37 @@ import { API_URL } from "../src/config";
 import RoomSection from "../src/components/Home1.jsx/RoomSection";
 import { ActivityIcon } from "lucide-react";
 import ActivitySection from "../src/components/Home1.jsx/ActivitySection";
+import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
+import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
 
 
 export default function User1() {
-    const navigate = useNavigate();
-    const {  token, userName } = useContext(AuthContext);
-    const { setMessage, setType } = useContext(AlertContext);
-    const { setTitle } = useContext(UIContext);
+    const {   userName,userId } = useContext(AuthContext);
+    const [authorized, setAuthorized] = useState(null);
     
+    const { setTitle } = useContext(UIContext);
+    const {checkAccess} = useContext(AccessContext);
     useEffect(() => {
-        if (!token) {
-            setMessage('Log in to access this page');
-            setType('warning');
-            navigate('/login');
+        if(!userId){
+            return;
         }
-    }, [token, setMessage, setType, navigate]);
+        setAuthorized(true);
+        //  const verifyAccess = async () => {
+        //     const auth = await checkAccess({  });
+        //     if (auth && auth.allowed) {
+        //         setAuthorized(true);
+                
+        //     } else {
+        //         setAuthorized(false);
+                
+        //     }
+        // };
+        // verifyAccess();
+        // return () => {
+        //     setAuthorized(null);
+        // };
+
+    }, [checkAccess,userId])
 
 
     
@@ -32,6 +48,9 @@ export default function User1() {
     useEffect(() => {
         setTitle('Hi ' + (userName || '') + '!   Welcome to Uni Code Lab');
     }, [setTitle, userName]);
+
+    if(authorized===null) return (<LoadingFullscreen />)
+    if(!authorized) return (<p>You are not allowed</p>)
 
     return (
         <div className="flex mx-10 flex-col">

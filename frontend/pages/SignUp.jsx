@@ -64,6 +64,7 @@ export default function SignUp() {
                                 type="text"
                                 placeholder="Your Name"
                                 value={form.name}
+                                autoComplete="on"
                                 onChange={handleChange}
                                 className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -80,6 +81,7 @@ export default function SignUp() {
                                 type="email"
                                 placeholder="Enter email"
                                 value={form.email}
+                                autoComplete="on"
                                 onChange={handleChange}
                                 className="flex-1  px-4 py-2 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />

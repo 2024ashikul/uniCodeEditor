@@ -11,7 +11,7 @@ import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
 
 
 export default function UpdateAssignmentInfo({ assignmentId, title, description }) {
-    const [assignment, setAssignment] = useState(false);
+    const [Assignment, setAssignment] = useState(false);
     const { setMessage, setType } = useContext(AlertContext);
     const { setPopUp, setTitle } = useContext(UIContext);
     const {token} =useContext(AuthContext);
@@ -27,7 +27,7 @@ export default function UpdateAssignmentInfo({ assignmentId, title, description 
         e.preventDefault();
         console.log(form);
         try {
-            const res = await fetch(`${API_URL}/assignment/create`, {
+            const res = await fetch(`${API_URL}/Assignment/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,17 +56,19 @@ export default function UpdateAssignmentInfo({ assignmentId, title, description 
         <>
             <PopUpLayout>
                 <div className="flex items-center justify-between">
-                    <p>Change assingment name and description</p>
-                    <Button
-                        onClickAction={() => setAssignment(true)}
-                        buttonLabel={'Update assignment info'}
-                    />
+                    <p>Change Assignment Info</p>
+                    <button
+                        onClick={() => setAssignment(true)}
+                        className="px-4 py-2 w-50 text-white bg-green-500 rounded-xl shadow-md hover:bg-green-600 hover:scale-[1.05] transition"
+                    >
+                    Update 
+                        </button>
                 </div>
 
             </PopUpLayout>
-            {assignment &&
+            {Assignment &&
                 <PopUp
-                    name={assignment}
+                    name={Assignment}
                     setName={setAssignment}
                     onChange={handleChange}
                     onSubmit={updateAssignment}

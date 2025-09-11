@@ -7,7 +7,6 @@ import TopBar from "../src/components/SharedComponents/TopBar";
 import Assignements from "../src/components/Room/Assignments";
 import Members from "../src/components/Room/Members";
 import Announcements from "../src/components/Room/Announcements";
-import Chat from "../src/components/Room/Chat";
 import Lessons from "../src/components/Room/Lessons";
 
 
@@ -22,7 +21,7 @@ export default function UserRoom() {
 
     const tabs = useMemo(() => [
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
-        { title: 'Assignments', keyword: 'assignments', icon: Notebook },
+        { title: 'Assignments', keyword: 'Assignments', icon: Notebook },
         { title: 'Members', keyword: 'members', icon: Users },
         { title: 'Chats', keyword: 'chats', icon: Users },
         { title: 'Lessons', keyword: 'lessons', icon: Book }
@@ -60,7 +59,7 @@ export default function UserRoom() {
                     <Routes>
 
                         <Route path="announcements" element={<Announcements roomId={roomId} />} />
-                        <Route path="assignments" element={<Assignements roomId={roomId} />} />
+                        <Route path="Assignments" element={<Assignements roomId={roomId} />} />
                         <Route path="members" element={<Members roomId={roomId} />} />
                         <Route path="lessons" element={<Lessons roomId={roomId} />} />
                         <Route path="*" element={<Announcements roomId={roomId} />} />

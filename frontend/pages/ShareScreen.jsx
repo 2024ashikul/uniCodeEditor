@@ -1,24 +1,26 @@
 
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { io } from 'socket.io-client';
+
 import { API_URL } from '../src/config';
 import { useParams } from 'react-router-dom';
 import { AuthContext } from '../src/Contexts/AuthContext/AuthContext';
 import { AccessContext } from '../src/Contexts/AccessContext/AccessContext';
+import { useSocket } from '../src/socket';
 
-const socket = io(`${API_URL}/screenshare`, {
-    reconnection: true, // Enable automatic reconnection
-    reconnectionAttempts: Infinity, // Set to infinite attempts
-    reconnectionDelay: 1000, // Wait 1 second before retrying
-    reconnectionDelayMax: 3000, // Maximum wait time before each retry
-
-});
 
 // The main App component containing all logic and UI
 export default function ShareScreen() {
 
     // --- State Management ---
 
+     const socketOptions = {
+            reconnection: true,
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 3000,
+        };
+        const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
+        
     const { roomId } = useParams();
     const { userId } = useContext(AuthContext);
     const [statusMessage, setStatusMessage] = useState('Enter a Room ID and Join.');
