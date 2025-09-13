@@ -84,20 +84,39 @@ exports.login = async (req, res) => {
 }
 
 
-exports.refreshToken = (req, res) => {
+
+
+
+exports.refreshToken = async (req, res) => { 
     const token = req.cookies.refreshToken;
-    if (!token) return res.sendStatus(401);
+    if (!token) return res.status(401).json({ message: "No refresh token provided." });
 
     try {
+        
         const payload = jwt.verify(token, REFRESH_SECRET);
+
+        const user = await User.findByPk(payload.userId);
+        if (!user) {
+            return res.status(403).json({ message: "User not found." });
+        }
+
         const newAccessToken = jwt.sign(
-            { userId: payload.userId },
+            { 
+                email: user.email, 
+                userId: user.id, 
+                name: user.name, 
+                username: user.username 
+            },
             SECRET,
             { expiresIn: '1d' }
         );
+        
+        
         res.json({ token: newAccessToken });
+
     } catch (err) {
-        return res.sendStatus(403);
+        console.log(err);
+        return res.status(403).json({ message: "Invalid refresh token." });
     }
 };
 

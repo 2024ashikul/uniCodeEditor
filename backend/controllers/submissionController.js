@@ -1,18 +1,49 @@
 const problems = require("../models/problems");
 const fs = require('fs').promises;
 const path = require('path')
-const { Rooms, RoomMembers, User, Announcement, Assignment, Submission, Problem, Lesson, LessonM, sequelize } = require("../models");
+const { Rooms, RoomMembers, User, Announcement, Assessment, Submission, Problem, Lesson, LessonM, sequelize } = require("../models");
 const { Op } = require("sequelize");
 const axios = require('axios');
 const { timeStamp } = require('console');
 const { GoogleGenAI } = require("@google/genai");
 
 
+exports.createBulkSubmissions = async (req, res) => {
+
+    const t = await sequelize.transaction();
+
+    try {
+        const { assessmentId, answers } = req.body;
+
+        const userId = req.user.userId;
+        const submissionsData = [];
+        for (const problemId in answers) {
+            submissionsData.push({
+                problemId: problemId,
+                userId: userId,
+                assessmentId: assessmentId,
+                submittedoption: answers[problemId].type === 'MCQ' ? answers[problemId].answer : null,
+                submittedanswer: answers[problemId].type === 'ShortQuestion' ? answers[problemId].answer : null,
+            });
+        }
+        console.log(submissionsData);
+        await Submission.bulkCreate(submissionsData, { transaction: t });
+        await t.commit();
+        res.status(201).json({ message: "Answers submitted successfully!" });
+
+    } catch (error) {
+
+        await t.rollback();
+        console.error("Failed to submit answers:", error);
+        res.status(500).json({ message: "An error occurred while submitting answers." });
+    }
+};
+
 exports.resultsForAdmin = async (req, res) => {
     const { assignmentId } = req.body;
 
     try {
-        const assignment = await Assignment.findOne({
+        const assignment = await Assessment.findOne({
             where: {
                 id: assignmentId
             }
@@ -79,7 +110,7 @@ exports.resultsForUser = async (req, res) => {
 
     try {
 
-        const assignment = await Assignment.findOne({
+        const assignment = await Assessment.findOne({
             where: {
                 id: assignmentId
             }
@@ -223,7 +254,7 @@ exports.submission = async (req, res) => {
     }
     console.log("submititng");
     const { code, language, problemId, userId } = req.body;
-    const ext = extensions[language]||'txt';
+    const ext = extensions[language] || 'txt';
     const time = Date.now();
     const timestamp = time.toString();
 
@@ -303,5 +334,147 @@ exports.submission = async (req, res) => {
     catch (err) {
         console.log(err);
         return res.status(500).json({ message: 'Internal server error' })
+    }
+}
+
+
+exports.resultsForAdminQuiz = async (req, res) => {
+
+    const { assessmentId } = req.body;
+
+    try {
+        const userId = req.user.userId;
+        const assessment = await Assessment.findOne({
+            where: {
+                id: assessmentId
+            }
+        });
+
+        const membersfull = await RoomMembers.findAll({
+            where: {
+                roomId: assessment.roomId
+            },
+            include: [{ model: User, attributes: ['name', 'email', 'id'] }]
+        });
+
+        const members = membersfull.map(item => ({
+            name: item.user.name,
+            email: item.user.email,
+            id: item.user.id
+        }))
+
+        const problems = await Problem.findAll({
+            where: {
+                assessmentId: assessmentId
+            }
+        });
+
+        let results = await Promise.all(
+            members.map(async (member) => {
+                let totalscore = 0;
+                problems.map(async (problem) => {
+                    const submission = await Submission.findOne({
+                        where: {
+                            userId: member.id,
+                            problemId: problem.id
+                        }
+                    });
+                    if (problem.type === "MCQ" && submission) {
+                        if (submission.submittedoption == problem.correctAnswer)
+                            totalscore += problem.fullmarks;
+                    }
+                    if (problem.type === "ShortQuestion" && submission) {
+                        if (submission.submittedanswer == problem.correctAnswer)
+                            totalscore += problem.fullmarks;
+                    }
+
+                })
+
+                return { member, totalscore };
+            })
+        );
+        results = results.sort((a, b) => b.totalscore - a.totalscore);
+        return res.status(200).json({ results: results });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Interval Server Error' });
+    }
+}
+
+exports.resultsForUserQuiz = async (req, res) => {
+
+    const { assessmentId } = req.body;
+
+    try {
+        const userId = req.user.userId;
+        const assessment = await Assessment.findOne({
+            where: {
+                id: assessmentId
+            }
+        });
+
+        const membersfull = await RoomMembers.findAll({
+            where: {
+                roomId: assessment.roomId
+            },
+            include: [{ model: User, attributes: ['name', 'email', 'id'] }]
+        });
+
+        const members = membersfull.map(item => ({
+            name: item.user.name,
+            email: item.user.email,
+            id: item.user.id
+        }))
+
+        const problems = await Problem.findAll({
+            where: {
+                assessmentId: assessmentId
+            }
+        });
+
+
+
+        const ids = problems.map(p => p.id);
+        const submissions = await Submission.findAll({
+            where: {
+                userId: req.user.userId,
+                problemId: {
+                    [Op.in]: ids
+                }
+            }
+        })
+
+
+        let results = await Promise.all(
+            members.map(async (member) => {
+                let totalscore = 0;
+                for (const problem of problems) {
+                    const submission = await Submission.findOne({
+                        where: {
+                            userId: member.id,
+                            problemId: problem.id,
+                        },
+                    });
+
+                    if (problem.type === "MCQ" && submission) {
+                        if (submission.submittedoption === problem.correctAnswer) {
+                            totalscore += problem.fullmarks;
+                        }
+                    }
+
+                    if (problem.type === "ShortQuestion" && submission) {
+                        if (submission.submittedanswer === problem.correctAnswer) {
+                            totalscore += problem.fullmarks;
+                        }
+                    }
+                }
+                return { member, totalscore };
+            })
+        );
+        results = results.sort((a, b) => b.totalscore - a.totalscore);
+        return res.status(200).json({ results: results, problems, submissions });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Interval Server Error' });
     }
 }

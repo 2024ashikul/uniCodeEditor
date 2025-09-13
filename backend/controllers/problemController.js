@@ -1,33 +1,89 @@
 
-const { Assignment, Submission, User, Problem } = require("../models");
+const { Assessment, Submission, User, Problem } = require("../models");
 const AiPrompt = require('../ai')
 const { Op, where } = require('sequelize');
 
 
 exports.fetchAll = async (req, res) => {
-    const { assignmentId } = req.body;
+    const { assessmentId } = req.body;
     try {
         const problems = await Problem.findAll({
             where: {
-                assignmentId: assignmentId
+                assessmentId: assessmentId
             }
-        });        
+        });
         return res.status(200).json(problems)
     } catch (err) {
         console.log(err)
-        return res.status(500).json({ message: "Server error"});
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
+exports.fetchAllQuiz = async (req, res) => {
+    const { assessmentId } = req.body;
+    try {
+        
+        const problems = await Problem.findAll({
+            where: {
+                assessmentId: assessmentId
+            }
+        });
+        let submitted = false;
+        
+        const ids = problems.map(p => p.id);
+        const submissions = await Submission.findAll({
+            where :{
+                userId: req.user.userId,
+                problemId :{
+                    [Op.in] : ids
+                }
+            }
+        })
+        if(submissions.length>0){
+            submitted = true;
+        }
+
+        return res.status(200).json({problems,submissions,submitted})
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: "Server error" });
     }
 }
 
 exports.create = async (req, res) => {
-    const { assignmentId, form } = req.body;
+    const { assessmentId, form, type } = req.body;
     try {
-        const newProblem = await Problem.create({
-            title: form.title,
-            statement: form.statement,
-            fullmarks: form.fullmarks || 10,
-            assignmentId: assignmentId
-        });
+        let newProblem;
+        if (type === "MCQ") {
+            newProblem = await Problem.create({
+                title: form.title,
+                type : "MCQ",
+                options : form.options,
+                fullmarks: form.fullmarks || 1,
+                assessmentId: assessmentId,
+                correctAnswer : form.correctAnswer
+            });
+        }else
+
+        if (type == 'ShortQuestion') {
+            newProblem = await Problem.create({
+                title: form.title,
+                type : "ShortQuestion",
+                fullmarks: form.fullmarks || 5,
+                assessmentId: assessmentId,
+                correctAnswer : form.correctAnswer
+            });
+        }
+
+        else {
+            newProblem = await Problem.create({
+                title: form.title,
+                statement: form.statement,
+                fullmarks: form.fullmarks || 10,
+                assessmentId: assessmentId
+            });
+        }
+
         console.log(newProblem);
         if (newProblem) {
             return res.status(201).json({ newProblem, message: 'New Problem created!' })
@@ -47,12 +103,12 @@ exports.update = async (req, res) => {
         const problem = await Problem.findOne({
             where: { id: editProblemId }
         });
-        
+
         problem.title = form.title;
         problem.statement = form.statement;
         problem.fullmarks = form.fullmarks || problem.fullmarks;
         await problem.save();
-    
+
         if (problem) {
             return res.status(201).json({ problem, message: 'Problem updated' })
         } else {
@@ -92,7 +148,7 @@ exports.fetchone = async (req, res) => {
             }
         });
         if (problem) {
-            return res.status(201).json(problem)
+            return res.status(200).json(problem)
         } else {
             console.log("error")
             return res.status(404).json({ message: 'Problem not found!' });

@@ -1,11 +1,11 @@
 const { Sequelize, DataTypes } = require('sequelize');
-const assignment = require('./assignment.js');
-const lessons = require('./lessons.js');
 require('dotenv').config();
+
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: './database.sqlite'
+  storage: './database.sqlite',
+  logging : false
 });
 
 // const sequelize = new Sequelize(
@@ -38,7 +38,7 @@ const User = require('./users.js')(sequelize, DataTypes);
 const Admin = require('./admin.js')(sequelize, DataTypes);
 const Rooms = require('./rooms.js')(sequelize, DataTypes);
 const RoomMembers = require('./roomMember.js')(sequelize, DataTypes)
-const Assignment = require('./assignment.js')(sequelize, DataTypes);
+const Assessment = require('./assessment.js')(sequelize, DataTypes);
 const Submission = require('./submissions.js')(sequelize, DataTypes);
 const Problem = require('./problems.js')(sequelize, DataTypes)
 const Announcement = require('./announcements.js')(sequelize, DataTypes)
@@ -46,10 +46,8 @@ const Lesson = require('./lesson.js')(sequelize, DataTypes);
 const LessonM = require('../models/lessons');
 const Meeting = require('./meetings.js')(sequelize, DataTypes);
 
-User.hasMany(Rooms, { foreignKey: 'userId' })
-Rooms.belongsTo(User, { foreignKey: 'userId' })
-
-
+User.hasMany(Rooms, { foreignKey: 'admin' })
+Rooms.belongsTo(User, { foreignKey: 'admin' })
 
 User.belongsToMany(Rooms, {
   through: RoomMembers,
@@ -66,14 +64,14 @@ Rooms.belongsToMany(User, {
 Rooms.hasMany(Announcement, { foreignKey: 'roomId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 Announcement.belongsTo(Rooms, { foreignKey: 'roomId' })
 
-Assignment.belongsTo(Rooms, { foreignKey: 'roomId' });
-Rooms.hasMany(Assignment, { foreignKey: 'roomId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+Assessment.belongsTo(Rooms, { foreignKey: 'roomId' });
+Rooms.hasMany(Assessment, { foreignKey: 'roomId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
 Lesson.belongsTo(Rooms, { foreignKey: 'roomId' });
 Rooms.hasMany(Lesson, { foreignKey: 'roomId', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
-RoomMembers.belongsTo(User, { foreignKey: 'userId' });
-RoomMembers.belongsTo(Rooms, { foreignKey: 'roomId' });
+RoomMembers.belongsTo(User, { foreignKey: 'userId' ,onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+RoomMembers.belongsTo(Rooms, { foreignKey: 'roomId' ,onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
 Submission.belongsTo(Problem, { foreignKey: 'problemId' })
 Problem.hasMany(Submission, { foreignKey: 'problemId' })
@@ -81,17 +79,25 @@ Problem.hasMany(Submission, { foreignKey: 'problemId' })
 Submission.belongsTo(User, { foreignKey: 'userId' })
 User.hasMany(Submission, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 
-Assignment.hasMany(Problem, { foreignKey: 'assignmentId' })
-Problem.belongsTo(Assignment, { foreignKey: 'assignmentId' })
+Announcement.belongsTo(User, { foreignKey: 'userId' })
+User.hasMany(Announcement, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 
-module.exports = { sequelize, User, Admin, Rooms, RoomMembers, Assignment, Submission, Problem, Announcement, Lesson, LessonM, Meeting };
 
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connected!');
-  } catch (error) {
-    console.error('Unable to connect:', error);
-  }
-})();
+Assessment.hasMany(Problem, { foreignKey: 'assessmentId' })
+Problem.belongsTo(Assessment, { foreignKey: 'assessmentId' })
+
+User.hasMany(Assessment, { foreignKey: 'userId' })
+Assessment.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+
+module.exports = { sequelize, User, Admin, Rooms, RoomMembers, Assessment, Submission, Problem, Announcement, Lesson, LessonM, Meeting };
+
+// (async () => {
+//   try {
+//     await sequelize.authenticate();
+//     console.log('Database connected!');
+
+//   } catch (error) {
+//     console.error('Unable to connect:', error);
+//   }
+// })();
 

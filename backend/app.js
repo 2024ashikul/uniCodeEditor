@@ -4,7 +4,6 @@ const app = express();
 const path = require('path')
 const compression = require('compression');
 app.use(express.json());
-app.use(cors());
 app.use(compression());
 
 app.use(cors({
@@ -18,22 +17,24 @@ app.use(cors({
 const submitRoutes = require('./routes/codeSubmit');
 const userRoutes = require('./routes/userRoutes');
 const roomRoutes = require('./routes/roomRoutes');
-const assignmentRoutes = require('./routes/assignmentRoutes');
+const assessmentRoutes = require('./routes/assessmentRoutes');
 const meetingRoutes = require('./routes/meetingRoutes')
 const aiRoutes = require('./routes/aiRoutes')
 const lessonRoutes = require('./routes/routesLesson')
 const problemRoutes = require('./routes/problemRoutes')
 const submissionRoutes = require('./routes/submissionRoutes')
+const announcementRoutes = require('./routes/announcementRoutes')
 
 app.use('/', submitRoutes);
 app.use('/auth/', userRoutes);
 app.use('/room/', roomRoutes);
 app.use('/problem/',problemRoutes)
-app.use('/assignment/', assignmentRoutes);
+app.use('/assessment/', assessmentRoutes);
 app.use('/submission/', submissionRoutes);
 app.use('/meeting', meetingRoutes);
 app.use('/', aiRoutes)
 app.use('/lesson/',lessonRoutes)
+app.use('/announcement/',announcementRoutes)
 app.use('/files', express.static(path.join(__dirname, '/files')));
 
 

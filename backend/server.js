@@ -39,8 +39,18 @@ mongoose.connect('mongodb://localhost:27017/mongo')
 .then(() => console.log("Connected to DB"))
 .catch(err => console.error("DB connection error:", err));
 
-sequelize.sync().then(() => {
-  httpServer.listen(PORT,"0.0.0.0", () => {
-    console.log(`Server running on ${PORT}`);
-  });
-});
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Database connected!');
+
+    await sequelize.sync(); // tables will be created
+    console.log('All tables synced!');
+
+    httpServer.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on ${PORT}`);
+    });
+  } catch (err) {
+    console.error('Database connection or sync failed:', err);
+  }
+})();

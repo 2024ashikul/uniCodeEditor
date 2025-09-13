@@ -1,11 +1,13 @@
 const express = require('express')
 const router = express.Router();
-const problemController = require('../controllers/problemController')
+const problemController = require('../controllers/problemController');
+const { authenticateToken } = require('../middlewares/authMiddleware');
 
-router.post('/fetchall',problemController.fetchAll)
-router.post('/fetchone',problemController.fetchone)
-router.post('/create',problemController.create)
-router.post('/delete' , problemController.delete)
-router.post('/update' , problemController.update)
+router.post('/fetchall',authenticateToken,problemController.fetchAll)
+router.post('/fetchall/quiz',authenticateToken,problemController.fetchAllQuiz)
+router.post('/fetchone',authenticateToken,problemController.fetchone)
+router.post('/create',authenticateToken,problemController.create)
+router.post('/delete' ,authenticateToken, problemController.delete)
+router.post('/update' ,authenticateToken, problemController.update)
 
 module.exports = router;

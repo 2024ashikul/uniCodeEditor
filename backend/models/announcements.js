@@ -6,7 +6,7 @@ module.exports = (Sequelize, DataTypes) => {
         id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
         title: { type: DataTypes.STRING, allowNull: false },
         description: { type: DataTypes.STRING, allowNull: false },
-        category: { type: DataTypes.ENUM("Info", "Urgent", "Assignment", "Lesson"), defaultValue: "Info" },
+        category: { type: DataTypes.ENUM("Info", "Urgent","TEST", "Assessment", "Lesson"), defaultValue: "Info" },
         pinned: { type: DataTypes.BOOLEAN, defaultValue: false },
         attachment: { type: DataTypes.STRING, allowNull: true },
     });

@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const assignmentController = require('../controllers/assignmentController');
+const assignmentController = require('../controllers/assessmentController');
 const { authenticateToken } = require('../middlewares/authMiddleware');
 
 router.post('/admin/schedule',authenticateToken,assignmentController.changeSchedule);
