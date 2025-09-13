@@ -9,5 +9,7 @@ router.post('/fetchone',authenticateToken,problemController.fetchone)
 router.post('/create',authenticateToken,problemController.create)
 router.post('/delete' ,authenticateToken, problemController.delete)
 router.post('/update' ,authenticateToken, problemController.update)
+router.post('/fetchone/project' ,authenticateToken, problemController.fetchOneProject)
+
 
 module.exports = router;

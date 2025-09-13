@@ -2,10 +2,13 @@ const express = require('express')
 const cors = require('cors')
 const app = express();
 const path = require('path')
+const fs = require('fs')
 const compression = require('compression');
 app.use(express.json());
 app.use(compression());
+const archiver = require("archiver");
 
+const serveIndex = require('serve-index');
 app.use(cors({
   origin: "*",  // allow all 
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -24,6 +27,7 @@ const lessonRoutes = require('./routes/routesLesson')
 const problemRoutes = require('./routes/problemRoutes')
 const submissionRoutes = require('./routes/submissionRoutes')
 const announcementRoutes = require('./routes/announcementRoutes')
+const fileRoutes =require('./routes/fileRoutes')
 
 app.use('/', submitRoutes);
 app.use('/auth/', userRoutes);
@@ -35,8 +39,24 @@ app.use('/meeting', meetingRoutes);
 app.use('/', aiRoutes)
 app.use('/lesson/',lessonRoutes)
 app.use('/announcement/',announcementRoutes)
-app.use('/files', express.static(path.join(__dirname, '/files')));
+app.use('/',fileRoutes)
 
+
+// app.get("/download/:folder/:filename", (req, res) => {
+//   const { folder, filename } = req.params;
+//   const filePath = path.join(process.cwd(), "uploads", "submissions", folder, filename);
+
+//   if (fs.existsSync(filePath)) {
+//     res.download(filePath, filename, (err) => {
+//       if (err) {
+//         console.error("Download error:", err);
+//         res.status(500).send("Error downloading file.");
+//       }
+//     });
+//   } else {
+//     res.status(404).send("File not found.");
+//   }
+// });
 
 app.post("/sensor", (req, res) => {
   console.log("Data received from ESP32:", req.body);

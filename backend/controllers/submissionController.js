@@ -1,11 +1,15 @@
 const problems = require("../models/problems");
 const fs = require('fs').promises;
-const path = require('path')
 const { Rooms, RoomMembers, User, Announcement, Assessment, Submission, Problem, Lesson, LessonM, sequelize } = require("../models");
 const { Op } = require("sequelize");
 const axios = require('axios');
 const { timeStamp } = require('console');
 const { GoogleGenAI } = require("@google/genai");
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const { createReadStream } = require('fs');
+const unzipper = require('unzipper');
 
 
 exports.createBulkSubmissions = async (req, res) => {
@@ -473,6 +477,162 @@ exports.resultsForUserQuiz = async (req, res) => {
         );
         results = results.sort((a, b) => b.totalscore - a.totalscore);
         return res.status(200).json({ results: results, problems, submissions });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Interval Server Error' });
+    }
+}
+exports.uploadProject = async (req, res) => {
+    // Check if multer processed a file
+    // console.log(req);
+    console.log(req);
+    if (!req.file) {
+        console.log("here")
+        return res.status(400).json({ message: "No file was uploaded." });
+    }
+
+    const tempFilePath = req.file.path;
+
+    try {
+        const { problemId, assessmentId } = req.body;
+        // Assuming auth middleware adds the user object to the request
+        const userId = req.user.userId;
+
+        if (!problemId || !userId) {
+            // If validation fails, we must delete the uploaded temp file
+            console.log("If validation fails, we must delete the uploaded temp file");
+            await fs.unlink(tempFilePath);
+            return res.status(400).json({ message: "Missing assessment or student information." });
+        }
+
+        // 1. Define final destination folder
+        console.log("Step 1");
+        const foldername = `${problemId}-${userId}-${Date.now()}`;
+        const destinationPath = path.join(process.cwd(), 'uploads', 'submissions', `assessment-${assessmentId}`, foldername);
+
+        // 2. Create the destination directory
+        console.log("Step 2");
+        await fs.mkdir(destinationPath, { recursive: true });
+
+        // 3. Unzip the file using a stream
+        // createReadStream is the most memory-efficient way to handle this
+        console.log("Step 3");
+        await createReadStream(tempFilePath)
+            .pipe(unzipper.Extract({ path: destinationPath }))
+            .promise();
+
+        // 4. Delete the temporary .zip file after successful extraction
+        console.log("Step 4");
+        await fs.unlink(tempFilePath);
+
+        console.log(`Project unzipped to ${destinationPath}`);
+
+        const newSubmission = await Submission.create({
+            problemId: problemId,
+            userId: userId,
+            file: foldername
+        })
+        // You can now save the `destinationPath` to your database
+
+        res.status(200).json({
+            message: 'Project uploaded and extracted successfully!',
+            newSubmission
+        });
+
+    } catch (err) {
+        console.error("Error processing project submission:", err);
+        try {
+            await fs.unlink(tempFilePath);
+        } catch (cleanupErr) {
+
+            console.error('Failed to clean up temporary file:', cleanupErr);
+        }
+
+        res.status(500).json({ message: 'Failed to process the uploaded project.' });
+    }
+};
+
+
+exports.adminProjectSubmissions = async (req, res) => {
+    try {
+        const {assessmentId} = req.body;
+        const problem = await Problem.findOne({
+            where: {
+                assessmentId: assessmentId
+            }
+        })
+        let submissions;
+        if (problem) {
+            const problemId = problem.id;
+            submissions = await Submission.findAll({
+                where: {
+                    problemId: problemId
+                },
+                attributes: ["createdAt", "id", "time"] ,
+                include:{
+                    model : User,
+                    attributes: ["id", "name", "email"] 
+                },
+                
+            })
+        }
+
+        return res.status(200).json(submissions)
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Internal Server Error' })
+    }
+}
+
+exports.adminProjectResults = async (req , res) => {
+    const { assessmentId } = req.body;
+
+    try {
+        const userId = req.user.userId;
+        const assessment = await Assessment.findOne({
+            where: {
+                id: assessmentId
+            }
+        });
+
+        const membersfull = await RoomMembers.findAll({
+            where: {
+                roomId: assessment.roomId
+            },
+            include: [{ model: User, attributes: ['name', 'email', 'id'] }]
+        });
+
+        const members = membersfull.map(item => ({
+            name: item.user.name,
+            email: item.user.email,
+            id: item.user.id
+        }))
+
+        const problem = await Problem.findOne({
+            where: {
+                assessmentId: assessmentId
+            }
+        });
+
+        let results = await Promise.all(
+            members.map(async (member) => {
+                let totalscore = 0;
+                
+                    const submission = await Submission.findOne({
+                        where: {
+                            userId: member.id,
+                            problemId: problem.id
+                        }
+                    });
+                    if(submission){
+                    submission.totalscore+=submission.FinalScore;
+                    }
+                return { member, submission };
+            })
+        );
+        results = results.sort((a, b) => b.totalscore - a.totalscore);
+        return res.status(200).json({ results: results });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: 'Interval Server Error' });

@@ -4,6 +4,7 @@ const AiPrompt = require('../ai')
 const { Op, where } = require('sequelize');
 
 
+
 exports.fetchAll = async (req, res) => {
     const { assessmentId } = req.body;
     try {
@@ -18,6 +19,40 @@ exports.fetchAll = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 }
+
+exports.fetchOneProject = async (req, res) => {
+    const { assessmentId } = req.body;
+    try {
+        let problem = null;
+        problem = await Problem.findOne({
+            where: {
+                assessmentId: assessmentId
+            }
+        });
+        
+        const submission = await Submission.findOne({
+            where :{
+                problemId : problem.id,
+                userId: req.user.userId
+            }
+        })
+
+         
+
+        if(problem && submission){
+            const submitted = true;
+            return res.status(200).json({problem, submission,submitted})
+            
+        }else{
+            return res.status(200).json({problem,submitted: false})
+        }
+        
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({ message: "Server error" });
+    }
+}
+
 
 exports.fetchAllQuiz = async (req, res) => {
     const { assessmentId } = req.body;
