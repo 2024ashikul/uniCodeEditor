@@ -47,7 +47,13 @@ export default function Login() {
             if (res.ok && data.token) {
                 localStorage.setItem("token", data.token);
                 setToken(data.token);
-                setEmail(data.email);
+                setEmail(data.user.email);
+                if(data.user.profile_pic){
+                    localStorage.setItem("profile_pic",data.user.profile_pic);
+                }
+                if(data.user.name){
+                    localStorage.setItem("name",data.user.name);
+                }
                 setMessage('Logged in successfully');
                 navigate('/user');
             } else {

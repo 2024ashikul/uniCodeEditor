@@ -32,6 +32,10 @@ export function APIRequest() {
         }
 
         if (!res.ok) {
+            const errData = await res.json();
+            if(errData){
+                setMessage(errData.message);
+            }
             throw new Error(`HTTP error! status: ${res.status}`);
         }
         return res.json();

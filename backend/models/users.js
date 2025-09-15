@@ -12,7 +12,11 @@ module.exports = (Sequelize, DataTypes) => {
         address : {type : DataTypes.STRING , allowNull : true},
         profile_pic : {type : DataTypes.STRING , allowNull : true},
         bio : {type : DataTypes.STRING, allowNull : true},
-        student_id : {type : DataTypes.STRING , allowNull : true}
+        student_id : {type : DataTypes.STRING , allowNull : true},
+        twitter : {type : DataTypes.STRING , allowNull : true},
+        linkedin : {type : DataTypes.STRING , allowNull : true},
+        github : {type : DataTypes.STRING , allowNull : true},
+        institution : {type : DataTypes.STRING, allowNull:true}
     });
     return User;
 

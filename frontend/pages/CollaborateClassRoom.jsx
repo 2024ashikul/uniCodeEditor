@@ -94,12 +94,12 @@ export default function CollaborateClassRoom() {
     }, [roomId, userId, token])
 
         useEffect(() => {
-        if(!userId){
+        if(!userId || !token){
             return;
         }
         
          const verifyAccess = async () => {
-            const auth = await checkAccess({ roomId });
+            const auth = await checkAccess({userId, token, roomId });
             if (auth && auth.allowed) {
                 setAuthorized(true);
                 setRole(auth.role);
@@ -108,13 +108,14 @@ export default function CollaborateClassRoom() {
                 setRole(null); 
             }
         };
-        verifyAccess();
+        if(userId && token){
+        verifyAccess();}
         return () => {
             setAuthorized(null);
             setRole(null);
         };
 
-    }, [checkAccess,userId, roomId])
+    }, [checkAccess,userId, roomId,token])
 
 
     async function LeaveMeeting() {

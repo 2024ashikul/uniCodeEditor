@@ -11,14 +11,14 @@ import { AlertContext } from "../AlertContext/AlertContext";
 export const AccessProvider = ({ children }) => {
     const [authorized, setAuthorized] = useState(false);
     const [role, setRole] = useState(null);
-    const { userId, token } = useContext(AuthContext);
+    // const { userId, token } = useContext(AuthContext);
     const accessCache = useRef({});
     const { setMessage } = useContext(AlertContext);
     const navigate = useNavigate();
-    const checkAccess = useCallback(async ({ assignmentId, roomId, problemId }) => {
+    const checkAccess = useCallback(async ({ assessmentId, roomId,userId, token, problemId }) => {
         try {
 
-            const key = `${assignmentId}-${roomId}-${problemId}`;
+            const key = `${assessmentId}-${roomId}-${problemId}`;
             console.log(key);
             if (accessCache.current[key] !== undefined) {
                 return accessCache.current[key]; // return cached result
@@ -29,7 +29,7 @@ export const AccessProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ assignmentId, roomId, userId, problemId })
+                body: JSON.stringify({ assessmentId, roomId, userId, problemId })
             });
 
 
@@ -53,7 +53,7 @@ export const AccessProvider = ({ children }) => {
             setAuthorized(false);
             return false;
         }
-    }, [userId, token,setMessage]);
+    }, [setMessage]);
 
 
     return (

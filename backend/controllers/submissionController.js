@@ -44,18 +44,18 @@ exports.createBulkSubmissions = async (req, res) => {
 };
 
 exports.resultsForAdmin = async (req, res) => {
-    const { assignmentId } = req.body;
+    const { assessmentId } = req.body;
 
     try {
-        const assignment = await Assessment.findOne({
+        const assessment = await Assessment.findOne({
             where: {
-                id: assignmentId
+                id: assessmentId
             }
         });
 
         const membersfull = await RoomMembers.findAll({
             where: {
-                roomId: assignment.roomId
+                roomId: assessment.roomId
             },
             include: [{ model: User, attributes: ['name', 'email', 'id'] }]
         });
@@ -70,7 +70,7 @@ exports.resultsForAdmin = async (req, res) => {
 
         const problemIds = await Problem.findAll({
             where: {
-                assignmentId: assignmentId
+                assessmentId: assessmentId
             },
             attributes: ['id']
         });
@@ -110,19 +110,22 @@ exports.resultsForAdmin = async (req, res) => {
 
 
 exports.resultsForUser = async (req, res) => {
-    const { assignmentId, userId } = req.body;
+    const { assessmentId } = req.body;
 
     try {
-
-        const assignment = await Assessment.findOne({
+        const userId = req.user.userId;
+        const assessment = await Assessment.findOne({
             where: {
-                id: assignmentId
+                id: assessmentId
             }
         });
+        if(!assessment.resultpublished){
+            return res.status(200).json({results : null, result : null , published : false})
+        }
 
         const membersfull = await RoomMembers.findAll({
             where: {
-                roomId: assignment.roomId
+                roomId: assessment.roomId
             },
             include: [{ model: User, attributes: ['name', 'email', 'id'] }]
         });
@@ -136,7 +139,7 @@ exports.resultsForUser = async (req, res) => {
 
         const problemIds = await Problem.findAll({
             where: {
-                assignmentId: assignmentId
+                assessmentId: assessmentId
             },
             attributes: ['id']
         });
@@ -181,7 +184,7 @@ exports.resultsForUser = async (req, res) => {
             })
         );
         results = results.sort((a, b) => b.totalscore - a.totalscore);
-        return res.status(200).json({ results: results, result: result, problemids: ids });
+        return res.status(200).json({ results: results, result: result, problemids: ids, published : true });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: 'Interval Server Error' });
@@ -189,11 +192,11 @@ exports.resultsForUser = async (req, res) => {
 }
 
 exports.fetchSubmissionsAdmin = async (req, res) => {
-    const { assignmentId } = req.body;
+    const { assessmentId } = req.body;
     try {
         const problemIds = await Problem.findAll({
             where: {
-                assignmentId: assignmentId
+                assessmentId: assessmentId
             },
             attributes: ['id']
         });
@@ -219,11 +222,11 @@ exports.fetchSubmissionsAdmin = async (req, res) => {
 }
 
 exports.fetchSubmissionsIndividual = async (req, res) => {
-    const { assignmentId, userId } = req.body;
+    const { assessmentId, userId } = req.body;
     try {
         const problemIds = await Problem.findAll({
             where: {
-                assignmentId: assignmentId
+                assessmentId: assessmentId
             },
             attributes: ['id']
         });
@@ -561,14 +564,14 @@ exports.adminProjectSubmissions = async (req, res) => {
                 assessmentId: assessmentId
             }
         })
-        let submissions;
+        let submissions=[];
         if (problem) {
             const problemId = problem.id;
             submissions = await Submission.findAll({
                 where: {
                     problemId: problemId
                 },
-                attributes: ["createdAt", "id", "time"] ,
+                attributes: ["createdAt", "id", "time","file"] ,
                 include:{
                     model : User,
                     attributes: ["id", "name", "email"] 
@@ -598,7 +601,8 @@ exports.adminProjectResults = async (req , res) => {
 
         const membersfull = await RoomMembers.findAll({
             where: {
-                roomId: assessment.roomId
+                roomId: assessment.roomId,
+                role: { [Op.ne]: "admin" } 
             },
             include: [{ model: User, attributes: ['name', 'email', 'id'] }]
         });
@@ -615,9 +619,12 @@ exports.adminProjectResults = async (req , res) => {
             }
         });
 
+        if(!problem){
+            return res.status(200).json({message : 'No problem found!'})
+        }
+        
         let results = await Promise.all(
             members.map(async (member) => {
-                let totalscore = 0;
                 
                     const submission = await Submission.findOne({
                         where: {
@@ -625,9 +632,97 @@ exports.adminProjectResults = async (req , res) => {
                             problemId: problem.id
                         }
                     });
-                    if(submission){
-                    submission.totalscore+=submission.FinalScore;
-                    }
+                return { member, submission };
+            })
+        );
+        results = results.sort((a, b) => b.totalscore - a.totalscore);
+        return res.status(200).json({ results: results });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Interval Server Error' });
+    }
+}
+
+exports.ProjectSaveScore = async (req ,res) => {
+    const {assessmentId,userId,finalScore} = req.body;
+    try{
+        const problem = await Problem.findOne({
+            where: {
+                assessmentId: assessmentId
+            },
+            attributes:['id']
+        });
+        const submission = await Submission.findOne({
+            where:{
+                problemId : problem.id,
+                userId : userId
+            },
+            attributes:['FinalScore','id']
+        });
+
+        if(!submission){
+            return res.status(200).json({message : 'No submission found, not updated'})
+        }
+        submission.FinalScore = finalScore;
+        await submission.save();
+        return res.status(200).json({message : 'Score Updated Successfully'})
+
+
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({message:'Internal Server Error'})
+    }
+}
+
+
+exports.userResultProject = async (req , res) => {
+    const { assessmentId } = req.body;
+
+    try {
+        const userId = req.user.userId;
+        const assessment = await Assessment.findOne({
+            where: {
+                id: assessmentId
+            }
+        });
+
+        if(!assessment.resultpublished){
+            return res.status(200).json({results : [], result : [], published : false})
+        }
+
+        const membersfull = await RoomMembers.findAll({
+            where: {
+                roomId: assessment.roomId,
+                role: { [Op.ne]: "admin" } 
+            },
+            include: [{ model: User, attributes: ['name', 'email', 'id'] }]
+        });
+
+        const members = membersfull.map(item => ({
+            name: item.user.name,
+            email: item.user.email,
+            id: item.user.id
+        }))
+
+        const problem = await Problem.findOne({
+            where: {
+                assessmentId: assessmentId
+            }
+        });
+
+        if(!problem){
+            return res.status(200).json({message : 'No problem found!'})
+        }
+        
+        let results = await Promise.all(
+            members.map(async (member) => {
+                
+                    const submission = await Submission.findOne({
+                        where: {
+                            userId: member.id,
+                            problemId: problem.id
+                        }
+                    });
                 return { member, submission };
             })
         );

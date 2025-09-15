@@ -1,7 +1,7 @@
 import { API_URL } from "../src/config";
 
 
-export default function CreateAssignment({ assignmentId }) {
+export default function CreateAssessment({ assessmentId }) {
 
 
     const [form, setForm] = useState({
@@ -19,7 +19,7 @@ export default function CreateAssignment({ assignmentId }) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ assignmentId, form })
+            body: JSON.stringify({ assessmentId, form })
         })
             .then((res) => res.json())
             .then((data) => console.log(data))

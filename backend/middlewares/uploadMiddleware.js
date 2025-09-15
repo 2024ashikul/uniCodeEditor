@@ -37,6 +37,26 @@ const uploadProjectZip = multer({
 }).single('projectZip'); // This expects a single file with the field name 'projectZip'
 
 // 3. Export the configured middleware
+
+
+const uploadProfilePhoto = multer({
+    storage: projectStorage,
+    limits: {
+        fileSize: 1024 * 1024 * 5 // Optional: Set a file size limit (e.g., 50MB)
+    },
+    fileFilter: (req, file, cb) => {
+        // Optional: Ensure only .zip files are accepted
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            // FIX 2: Corrected the error message
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    }
+}).single('profilePhoto'); // This expects a single file with the field name 'projectZip'
+
+// 3. Export the configured middleware
 module.exports = {
-    uploadProjectZip
+    uploadProjectZip,
+     uploadProfilePhoto
 };

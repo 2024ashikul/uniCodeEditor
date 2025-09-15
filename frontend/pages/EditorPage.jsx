@@ -7,19 +7,19 @@ import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 
 
 export default function EditorPage() {
-    const { userId } = useContext(AuthContext);
+    const { userId,token } = useContext(AuthContext);
     const {problemId} = useParams();
     const {checkAccess} = useContext(AccessContext);
     const [authorized,setAuthorized] = useState(null);
     useEffect(()=>{
-        if(!userId) return;
-        checkAccess({problemId})
+        if(!userId || !token) return;
+        checkAccess({problemId ,token , userId})
         .then((isAuthorized)=> {
             if(isAuthorized){ setAuthorized(true)}else{
                 setAuthorized(false)
             }
         })
-    },[checkAccess, problemId,userId])
+    },[checkAccess, problemId,userId,token])
     if(authorized===null) return (<p>Loading</p>);
     if(!authorized) return (<p>Not authorized</p>);
 

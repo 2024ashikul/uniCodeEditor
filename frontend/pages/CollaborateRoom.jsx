@@ -85,12 +85,12 @@ export default function CollaborateRoom() {
     }, [roomId, userId, token])
 
     useEffect(() => {
-        if (!userId) {
+        if (!userId || !token) {
             return;
         }
 
         const verifyAccess = async () => {
-            const auth = await checkAccess({ roomId });
+            const auth = await checkAccess({ userId, token, roomId });
             if (auth && auth.allowed) {
                 setAuthorized(true);
                 setRole(auth.role);
@@ -99,13 +99,14 @@ export default function CollaborateRoom() {
                 setRole(null);
             }
         };
-        verifyAccess();
+        if(userId && token){
+        verifyAccess();}
         return () => {
             setAuthorized(null);
             setRole(null);
         };
 
-    }, [checkAccess, userId, roomId])
+    }, [checkAccess, userId,token, roomId])
 
     const [myFiles, setMyFiles] = useState({
         "main.cpp": { language: "cpp", content: "// Start coding..." }

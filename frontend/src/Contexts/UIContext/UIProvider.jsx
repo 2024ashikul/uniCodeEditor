@@ -6,7 +6,7 @@ export const UIProvider = ({ children }) => {
     const [popUp, setPopUp] = useState(false);
     const [navCenter, setNavCenter] = useState('Hi');
     const [title, setTitle] = useState(()=> localStorage.getItem('title'));
-    const [scrollHeight, setScrollHeight] = useState(null);
+    const [scrollHeight, setScrollHeight] = useState(50);
     const [extraInfo, setExtraInfo] = useState(null);
     
     useEffect(() => {
@@ -22,7 +22,7 @@ export const UIProvider = ({ children }) => {
         return () => {
             window.removeEventListener("scroll", handleScroll);
         };
-    }, [setNavCenter,title,scrollHeight]);
+    }, [title,scrollHeight]);
 
     useEffect(()=>{
         localStorage.setItem('title',title);

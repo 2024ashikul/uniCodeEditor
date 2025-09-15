@@ -43,7 +43,7 @@ export default function Announcements({ roomId }) {
 
 
     useEffect(() => {
-        const fetchAssignment = async () => {
+        const fetchAssessment = async () => {
             try {
                 const res = await fetch(`${API_URL}/announcement/fetchall`, {
                     method: 'POST',
@@ -67,7 +67,7 @@ export default function Announcements({ roomId }) {
         }
 
         if (roomId) {
-            fetchAssignment();
+            fetchAssessment();
         }
     }, [roomId, token])
 
@@ -81,9 +81,13 @@ export default function Announcements({ roomId }) {
     };
 
     const categoryColors = {
-        Info: "bg-blue-100 text-blue-600",
-        Urgent: "bg-red-100 text-red-600",
-        Assignment: "bg-green-100 text-green-600",
+        Info: "bg-sky-50 border-sky-400 text-sky-800",
+        CodeAssignment: "bg-purple-50 border-purple-400 text-purple-800",
+        ProjectAssignment: "bg-indigo-50 border-indigo-400 text-indigo-800",
+        Quiz: "bg-amber-50 border-amber-400 text-amber-800",
+        Material: "bg-slate-50 border-slate-400 text-slate-800",
+        Lesson: "bg-teal-50 border-teal-400 text-teal-800",
+        Extra: "bg-pink-50 border-pink-400 text-pink-800",
     };
 
 
@@ -95,57 +99,54 @@ export default function Announcements({ roomId }) {
                         text={'Announcements'}
                     />
                 </div>
-                <div className=" min-w-full pt-4  flex  gap-20  rounded-2xl transition duration-1000">
-                    <div className="flex-1 space-y-4">
+                <div className=" min-w-full pt-4  gap-4 flex rounded-2xl transition duration-1000">
+                    <div className="flex-1 space-y-4 ">
                         {
                             announcements === null ? (
                                 <LoadingParent />
-                            ) : announcements.length === 0 ? (
+                            ) : announcements?.length === 0 ? (
                                 <NullComponent text={'No Announcements found'} />
                             ) : (
 
-                                announcements.map((item, i) => (
+                                announcements?.map((item, i) => (
                                     <div
                                         key={i}
-                                        className="bg-white shadow-md rounded-2xl border border-gray-100 transition hover:shadow-lg hover:scale-[1.01] duration-300 p-4"
+                                        className={`bg-white shadow-md mt-4 rounded-2xl border-l-2 ${categoryColors[item.category]}   transition hover:shadow-lg hover:scale-[1.01] duration-300 p-4`}
                                     >
                                         <div className="flex items-center gap-3">
                                             {
-                                                item.user.profile_pic ?
+                                                item?.user?.profile_pic ?
                                                     <img
-                                                        src={item.user.profile_pic}
+                                                        src={`${API_URL}/profilephotos/${item.user.profile_pic}`}
                                                         alt={item.user.name}
                                                         className="w-8 h-8 rounded-full"
                                                     /> :
                                                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                                                        {item?.user.name[0].toUpperCase()}
+                                                        {item?.user?.name[0].toUpperCase()}
                                                     </div>
                                             }
 
                                             <div className="flex flex-col">
-                                                <h3 className="text-gray-800 text-base font-semibold">{item.title}</h3>
+                                                <h2 className="text-black text-base font-semibold">{item.title}</h2>
                                                 <p className="text-xs text-gray-500">
-                                                    {item.user.name} • {formatTimeAgo(item.createdAt)}
+                                                    {item?.user?.name} • {formatTimeAgo(item?.createdAt)}
                                                 </p>
                                             </div>
                                             <span
-                                                className={`ml-auto px-2 py-0.5 text-xs rounded-full ${categoryColors[item.category]}`}
+                                                className={`ml-auto px-4 py-0.5 text-sm rounded-full ${categoryColors[item.category]}`}
                                             >
                                                 {item.category}
                                             </span>
                                         </div>
 
-                                        <div className="mt-2">
+                                        <div className="mt-4 border-t-[1px] border-gray-100">
                                             <p className="text-gray-600 text-sm leading-relaxed">
                                                 {item.description}
                                             </p>
                                         </div>
                                     </div>
                                 ))
-
-
                             )
-
                         }
                     </div>
                     <div className="min-w-[360px] flex flex-col gap-4">
@@ -217,11 +218,11 @@ export default function Announcements({ roomId }) {
 //     },
 //     {
 //       id: 3,
-//       title: "New Assignment Available",
+//       title: "New Assessment Available",
 //       description:
-//         "A new Assignment on World History has been posted. Check the Assignments section.",
+//         "A new Assessment on World History has been posted. Check the Assessments section.",
 //       createdAt: new Date(Date.now() - 1000 * 60 * 15), // 15 mins ago
-//       category: "Assignment",
+//       category: "Assessment",
 //       author: { name: "Dr. Lee", avatar: "https://i.pravatar.cc/40?img=8" },
 //     },
 //   ]);
@@ -237,7 +238,7 @@ export default function Announcements({ roomId }) {
 //   const categoryColors = {
 //     Info: "bg-blue-100 text-blue-600",
 //     Urgent: "bg-red-100 text-red-600",
-//     Assignment: "bg-green-100 text-green-600",
+//     Assessment: "bg-green-100 text-green-600",
 //   };
 
 //   return (

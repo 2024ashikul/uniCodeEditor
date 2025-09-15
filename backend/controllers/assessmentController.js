@@ -23,7 +23,7 @@ exports.create = async (req, res) => {
             roomId: roomId,
             title: form.title,
             description: form.description,
-            category:form.category,
+            category: form.category,
             userId: userId
         });
 
@@ -89,26 +89,24 @@ exports.changeSchedule = async (req, res) => {
             }
         });
 
-        if (form.assigned == 'false') {
-            assessment.scheduleTime = null;
-            assessment.status = 'not assigned';
-            assessment.duration = null;
-        } else {
-            let datetime = form.datetime;
-            datetime = datetime.slice(0, 16);
-            assessment.scheduleTime = datetime;
-            assessment.status = 'assigned';
-            assessment.duration = form.duration;
-        }
+
+        assessment.scheduleTime = new Date(form.datetime);
+        assessment.status = 'assigned';
+        assessment.duration = parseInt(form.duration, 10);
+        assessment.assigned = form.assigned;
         await assessment.save();
-        const title = `New Assessment ${assessment.title} created!!!`;
-        await Announcement.create({
-            roomId: assessment.roomId,
-            title: title,
-            userId: userId,
-            description: '',
-            category: 'Assessment'
-        });
+
+        if (assessment.assigned) {
+            const title = `New ${assessment.category} ${assessment.title} assigned!`;
+            await Announcement.create({
+                roomId: assessment.roomId,
+                title: title,
+                userId: userId,
+                description: `The ${assessment.category} is scheduled for ${assessment.scheduleTime} and its duration is ${assessment.duration} mins`,
+                category: assessment.category
+            });
+        }
+
 
         return res.status(200).json(assessment);
     } catch (err) {
@@ -137,7 +135,7 @@ exports.changeWhoCanSeeResults = async (req, res) => {
     try {
         const findAssessment = await Assessment.findOne({
             where: { id: assessmentId }
-        });
+    });
         findAssessment.everyoneseesresults = !findAssessment.everyoneseesresults;
         await findAssessment.save();
         return res.status(201).json({ message: 'Result Published successfully', type: 'success' });

@@ -5,7 +5,6 @@ import EditorPage from '../pages/EditorPage';
 import HomePage from '../pages/HomePage';
 import Login from '../pages/Login';
 import SignUp from '../pages/SignUp';
-
 import { AuthProvider } from './Contexts/AuthContext/AuthProvider';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
@@ -13,8 +12,8 @@ import { UIProvider } from './Contexts/UIContext/UIProvider';
 import { AlertProvider } from './Contexts/AlertContext/AlertProvider';
 import { AccessProvider } from './Contexts/AccessContext/AccessProvider';
 import Room from '../pages/Room';
-import Assignment from '../pages/Assignment';
-import CreateLesson from './components/AdminAssignment/CreateLesson';
+import CreateLesson from './components/CreateLesson'
+import UpdateLesson from './components/UpdateLesson'
 import Lesson from './components/Lesson';
 import EditorPageGuest from '../pages/EditorPageGuest';
 import StyleLayout from './components/StyleLayout';
@@ -23,11 +22,11 @@ import CollaborateClassRoom from '../pages/CollaborateClassRoom';
 import CollaborateRoom from '../pages/CollaborateRoom';
 import CollaborateTest from './components/CollaborateTest';
 import Collaborate from '../pages/Collaborate';
-import UpdateLesson from './components/AdminAssignment/UpdateLesson';
+
 import ProfilePage from '../pages/ProfilePage';
 import ShareScreen from '../pages/ShareScreen';
-import User1 from '../pages/User1';
-
+import User from '../pages/User';
+import Assessment from '../pages/Assessment';
 
 
 
@@ -46,8 +45,8 @@ function App() {
 
                     <Route path='/login' element={<Login />} />
                     <Route path='/signup' element={<SignUp />} />
-                    <Route path='/Assignment/:assignmentId/*' element={<Assignment />} />
-                    <Route path='/user/*' element={<PrivateRoute><User1 /></PrivateRoute>} />
+                    <Route path='/assessment/:assessmentId/*' element={<Assessment />} />
+                    <Route path='/user/*' element={<PrivateRoute><User /></PrivateRoute>} />
                     <Route path='room/:roomId/createlesson' element={<CreateLesson />} />
                     <Route path='/lesson/:lessonId' element={<Lesson />} />
                     <Route path='/updatelesson/:lessonId' element={<UpdateLesson />} />

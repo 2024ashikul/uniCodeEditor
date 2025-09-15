@@ -1,83 +1,62 @@
-import { useContext } from "react"
-import { AuthContext } from "../src/Contexts/AuthContext/AuthContext"
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react"
+import ActivitySection from "../src/components/Home/ActivitySection"
+import RoomSection from "../src/components/Home/RoomSection"
 
-import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
+import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
+import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import TopBanner from "../src/components/SharedComponents/TopBanner";
-import { UIProvider } from "../src/Contexts/UIContext/UIProvider";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
-import TopBar from "../src/components/SharedComponents/TopBar";
-import JoinedRoom from "../src/components/Home/JoinedRoom";
-import CreatedRoom from "../src/components/Home/CreatedRoom";
-import AccountSettings from "../src/components/Home/AccountSettings";
-import Home from "../src/components/Home";
+import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 
-export default function User() {
 
-    const navigate = useNavigate();
-    const { email, userId, token, userName } = useContext(AuthContext);
-    const { setMessage, setType } = useContext(AlertContext);
 
-    const [activeTab, setActiveTab] = useState('home');
-    console.log({ email, userId, token });
+
+export default function User1() {
+    const { userName, token,userId } = useContext(AuthContext);
+    const {authorized, setAuthorized} = useContext(AccessContext);
     const { setTitle } = useContext(UIContext);
-
-
+    const { checkAccess } = useContext(AccessContext);
     useEffect(() => {
-        if (!token) {
-            setMessage('Log in to access this page');
-            setType('warning');
-            navigate('/login');
+        if (!userId || !token) {
+            return;
         }
+        
+        const verifyAccess = async () => {
+            const auth = await checkAccess({ userId ,token});
+            if (auth && auth.allowed) {
+                setAuthorized(true);
 
+            } else {
+                setAuthorized(false);
 
-    }, [token, setMessage, setType, navigate])
+            }
+        };
+        verifyAccess();
+        return () => {
+            setAuthorized(null);
+        };
+
+    }, [checkAccess, userId,token])
 
     useEffect(() => {
-        setTitle('Hi ' + (userName || ''));
-    }, [setTitle, userName])
+        setTitle('Hi ' + (userName || '') + '!   Welcome to Uni Code Lab');
+    }, [setTitle, userName]);
 
-
-
-
-    const tabs = [
-        { title: 'Home', keyword: 'home', icon: '' },
-        { title: 'Your Joined Rooms', keyword: 'joinedrooms', icon: '' },
-        { title: 'Your Created Rooms', keyword: 'createdrooms', icon: '' },
-        { title: 'Account Settings', keyword: 'accountsettings', icon: '' },
-    ]
+    if (authorized === null) return (<LoadingFullscreen />)
+    if (!authorized) return (<p>You are not allowed</p>)
 
     return (
-        <>
+        <div className="flex mx-10 flex-col">
+            <TopBanner />
+            <div className="grid pt-10 gap-8 grid-cols-3">
 
-            <div className="flex flex-col">
-                <TopBanner />
-                <TopBar
-                    tabs={tabs}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                />
-                <div className="flex flex-col p-8 ">
-                    <div>
-                        {activeTab === 'joinedrooms' ?
-                            <JoinedRoom
-                            />
-                            : activeTab === 'createdrooms' ?
-                                <CreatedRoom />
-                                : activeTab === 'accountsettings' ?
-                                    <AccountSettings />
-                                    : 
-                                        <Home />
-                                    }
-                    </div>
+                <div className="col-span-2">
+                    <RoomSection />
                 </div>
-
-
-
-
+                <div className="">
+                    <ActivitySection />
+                </div>
             </div>
-        </>
+        </div>
     )
 }

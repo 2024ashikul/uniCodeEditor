@@ -16,18 +16,18 @@ export default function Room() {
 
     const { roomId } =  useParams();
     
-    const [authorized, setAuthorized] = useState(null);
+    const {authorized, setAuthorized } = useContext(AccessContext);
     const [role, setRole] = useState(null);
-    const { userId } = useContext(AuthContext);
+    const { userId ,token} = useContext(AuthContext);
     const { checkAccess } = useContext(AccessContext);
 
     useEffect(() => {
-        if(!userId){
+        if(!userId || !token){
             return;
         }
         
          const verifyAccess = async () => {
-            const auth = await checkAccess({ roomId });
+            const auth = await checkAccess({ roomId,token,userId });
             if (auth && auth.allowed) {
                 setAuthorized(true);
                 setRole(auth.role);
@@ -42,7 +42,7 @@ export default function Room() {
             setRole(null);
         };
 
-    }, [checkAccess,userId, roomId])
+    }, [checkAccess,userId,token, roomId])
 
 
     if (authorized === null) return (<LoadingFullscreen />)

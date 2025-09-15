@@ -127,7 +127,7 @@ export default function SignUp() {
                             Sign Up
                         </button>
                         <div
-                            onClick={() => navigate('/signup')}
+                            onClick={() => navigate('/login')}
                             className="w-80 py-2 rounded-2xl bg-green-400 text-white font-semibold text-center
                shadow-md cursor-pointer hover:bg-green-500 hover:scale-105 transition duration-300"
                         >

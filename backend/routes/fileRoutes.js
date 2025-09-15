@@ -2,27 +2,25 @@
 const express = require('express')
 
 const path = require('path')
-const fs = require('fs')
-
-;
+const fs = require('fs');
 
 const archiver = require("archiver");
 const router = express.Router();
 
 const serveIndex = require('serve-index');
 
-router.get('/files', express.static(path.join(__dirname, '/files')));
+router.use('/files', express.static(path.join(__dirname, '/files')));
 
-router.get(
+router.use(
   "/uploadedfiles",
-  express.static(path.join(process.cwd(), "uploads","submissions"))
+  express.static(path.join(process.cwd(), "uploads", "submissions"))
   ,
   serveIndex(path.join(process.cwd(), "uploads", "submissions"), { icons: true })
 );
 
 router.get("/download/:folder/:filename", (req, res) => {
-  const {folder,filename} = req.params; // e.g. "123-45-1694638291023"
-  const folderPath = path.join(process.cwd(), "uploads", "submissions", folder,filename);
+  const { folder, filename } = req.params; 
+  const folderPath = path.join(process.cwd(), "uploads", "submissions", folder, filename);
 
   if (!fs.existsSync(folderPath)) {
     return res.status(404).json({ message: "Folder not found" });
@@ -45,7 +43,7 @@ router.get("/download/:folder/:filename", (req, res) => {
 });
 
 router.get("/download/:folder", (req, res) => {
-  const {folder} = req.params; // e.g. "123-45-1694638291023"
+  const { folder } = req.params; // e.g. "123-45-1694638291023"
   const folderPath = path.join(process.cwd(), "uploads", "submissions", folder);
 
   if (!fs.existsSync(folderPath)) {
@@ -67,5 +65,15 @@ router.get("/download/:folder", (req, res) => {
   archive.directory(folderPath, false); // Add folder contents
   archive.finalize(); // Complete the zip
 });
+
+
+router.use(
+  "/profilephotos",
+  express.static(path.join(process.cwd(), "uploads", "profile_photos"))
+);
+
+router.use('/files', express.static(path.join(__dirname, '/files')));
+
+
 
 module.exports = router;

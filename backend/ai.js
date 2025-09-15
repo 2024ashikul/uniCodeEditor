@@ -16,6 +16,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     model: "gemini-1.5-flash",
     contents: [{ parts: [{ text: prompt }] }]
   });
+  
   console.log(`response is ${response.text}`);
   return response;
 }

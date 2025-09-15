@@ -147,7 +147,7 @@ exports.getUserAccess = async (req, res) => {
     try {
         if (!userId) {
             console.log('not allowed as of userId')
-            return res.status(403).json({ allowed: false })
+            return res.status(401).json({ allowed: false })
         }
         if (roomId) {
             const room = await RoomMembers.findOne({
@@ -180,7 +180,8 @@ exports.getUserAccess = async (req, res) => {
                     type : assessment.category,
                     scheduleTime : assessment.scheduleTime,
                     duration : assessment.duration,
-                    status : assessment.status
+                    status : assessment.status,
+                    title : assessment.title
                 })
             } else {
                 console.log('not allowed')
@@ -205,6 +206,7 @@ exports.getUserAccess = async (req, res) => {
                 return res.status(403).json({ allowed: false })
             }
         }
+        return res.status(200).json({allowed : true})
     } catch (err) {
         console.log(err)
         return res.status(500).json(false)
@@ -238,7 +240,7 @@ exports.changeAdmin = async (req, res) => {
 
 exports.kickmember = async (req, res) => {
     try {
-        console.log("chainging admin");
+        console.log("kicking member");
         const { roomId, memberToKick } = req.body;
         console.log({ roomId, memberToKick });
         await RoomMembers.destroy({

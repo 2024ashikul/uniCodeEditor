@@ -26,6 +26,7 @@ exports.generateProblem = async (req, res) => {
                 now lets generate the markdown for ${prompt}
             `;
         const airesponse = await AiPrompt(finalPrompt);
+        
         const response = airesponse.text;
 
         return res.status(201).json(response)

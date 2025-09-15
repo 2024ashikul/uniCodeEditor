@@ -1,25 +1,53 @@
-import { useContext } from "react"
-import { UIContext } from "../../Contexts/UIContext/UIContext"
-import Breadcrumb from "../BreadCumb";
+import { useContext } from "react";
+import { UIContext } from "../../Contexts/UIContext/UIContext";
 
 
 
-export default function TopBanner({ extraInfo }) {
+export default function TopBanner({ extraInfo, title }) {
     
-    
-    const { title } = useContext(UIContext);
+    const { title: contextTitle } = useContext(UIContext);
+
+    const displayTitle = contextTitle || title || "Welcome";
+
     return (
-        <>
-            <div className="flex flex-col">
+        <header className="relative  text-white  overflow-hidden">
+            
+            <div
+                className="absolute inset-0 -z-10 ]"
+                aria-hidden="true"
+            />
+            
+            <div className="container mx-auto px-6 py-10 text-center relative animate-fade-in-down">
                 
-                <div className="text-4xl text-indigo-400 text-center px-4 pt-4 pb-1 m-0">
-                    {title}
-                </div>
+                {displayTitle && (
+                    <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500 pb-2">
+                        {displayTitle}
+                    </h1>
+                )}
 
-                <div className="flex justify-center text-center mb-3">
-                    {extraInfo}
-                </div>
+              
+                {extraInfo && (
+                    <div className="mt-4  mx-auto text-base sm:text-lg text-gray-400">
+                        {extraInfo}
+                    </div>
+                )}
             </div>
-        </>
-    )
+            <style jsx>{`
+                @keyframes fade-in-down {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .animate-fade-in-down {
+                    animation: fade-in-down 0.6s ease-out forwards;
+                }
+            `}</style>
+        </header>
+    );
 }
+

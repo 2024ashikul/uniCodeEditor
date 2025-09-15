@@ -39,6 +39,7 @@ export default function ShareScreen() {
 
 
     useEffect(() => {
+        
         checkAccess({ roomId })
             .then((auth) => {
                 if (auth.allowed === true) {
