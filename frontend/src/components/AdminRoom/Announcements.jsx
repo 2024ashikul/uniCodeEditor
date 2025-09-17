@@ -10,6 +10,8 @@ import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 import LoadingParent from "../SharedComponents/LoadingParent";
 import { APIRequest } from "../../APIRequest";
 import { API_URL } from "../../config";
+import { Paperclip } from "lucide-react";
+
 
 
 
@@ -44,24 +46,6 @@ export default function Annoucements({ roomId }) {
         }
     }, [roomId, token])
 
-    const formatTimeAgo = (date) => {
-        const d = date instanceof Date ? date : new Date(date);
-        const diff = Math.floor((Date.now() - d.getTime()) / 1000);
-        if (diff < 60) return `${diff}s ago`;
-        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-        return `${Math.floor(diff / 86400)}d ago`;
-    };
-
-   const categoryColors = {
-        Info: "bg-sky-50 border-sky-400 text-sky-800",
-        CodeAssignment: "bg-purple-50 border-purple-400 text-purple-800",
-        ProjectAssignment: "bg-indigo-50 border-indigo-400 text-indigo-800",
-        Quiz: "bg-amber-50 border-amber-400 text-amber-800",
-        Material: "bg-slate-50 border-slate-400 text-slate-800",
-        Lesson: "bg-teal-50 border-teal-400 text-teal-800",
-        Extra: "bg-pink-50 border-pink-400 text-pink-800",
-    };
 
     useEffect(() => {
         const fetchAnnouncements = async () => {
@@ -133,45 +117,9 @@ export default function Annoucements({ roomId }) {
                                         text={'No announcments found!'}
                                     />
                                     :
-
                                     announcements?.map((item, i) => (
-                                    <div
-                                        key={i}
-                                        className={`bg-white shadow-md mt-4 rounded-2xl border-l-2 ${categoryColors[item.category]}   transition hover:shadow-lg hover:scale-[1.01] duration-300 p-4`}
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            {
-                                                item?.user?.profile_pic ?
-                                                    <img
-                                                        src={`${API_URL}/profilephotos/${item.user.profile_pic}`}
-                                                        alt={item.user.name}
-                                                        className="w-8 h-8 rounded-full"
-                                                    /> :
-                                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                                                        {item?.user?.name[0].toUpperCase()}
-                                                    </div>
-                                            }
-
-                                            <div className="flex flex-col">
-                                                <h2 className="text-black text-base font-semibold">{item.title}</h2>
-                                                <p className="text-xs text-gray-500">
-                                                    {item?.user?.name} • {formatTimeAgo(item?.createdAt)}
-                                                </p>
-                                            </div>
-                                            <span
-                                                className={`ml-auto px-4 py-0.5 text-sm rounded-full ${categoryColors[item.category]}`}
-                                            >
-                                                {item.category}
-                                            </span>
-                                        </div>
-
-                                        <div className="mt-4 border-t-[1px] border-gray-100">
-                                            <p className="text-gray-600 text-sm leading-relaxed">
-                                                {item.description}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))
+                                        <AnnoucementCard item={item} i={i} />
+                                    ))
 
                         }
 
@@ -239,5 +187,73 @@ export default function Annoucements({ roomId }) {
                 />
             }
         </>
+    )
+}
+
+
+function AnnoucementCard({ item, i }) {
+    const formatTimeAgo = (date) => {
+        const d = date instanceof Date ? date : new Date(date);
+        const diff = Math.floor((Date.now() - d.getTime()) / 1000);
+        if (diff < 60) return `${diff}s ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+        return `${Math.floor(diff / 86400)}d ago`;
+    };
+
+    const categoryColors = {
+        Info: "bg-sky-300 border-sky-400 text-sky-800",
+        CodeAssignment: "bg-purple-300 border-purple-400 text-purple-800",
+        ProjectAssignment: "bg-indigo-300 border-indigo-400 text-indigo-800",
+        Quiz: "bg-amber-300 border-amber-400 text-amber-800",
+        Material: "bg-slate-300 border-slate-400 text-slate-800",
+        Lesson: "bg-teal-300 border-teal-400 text-teal-800",
+        Extra: "bg-pink-300 border-pink-400 text-pink-800",
+    };
+    return (
+        <div
+            key={i}
+            className={`bg-white shadow-md mt-4 rounded-2xl border-l-2 ${categoryColors[item.category]}   transition hover:shadow-lg hover:scale-[1.01] duration-300 p-4`}
+        >
+            <div className="flex items-center gap-3">
+                {
+                    item?.user?.profile_pic ?
+                        <img
+                            src={`${API_URL}/profilephotos/${item.user.profile_pic}`}
+                            alt={item.user.name}
+                            className="w-8 h-8 rounded-full"
+                        /> :
+                        <div className="avatar-announcements">
+                            {item?.user?.name[0].toUpperCase()}
+                        </div>
+                }
+
+                <div className="flex flex-col">
+                    <h2 className="text-black text-base font-semibold">{item.title}</h2>
+                    <p className="text-xs text-gray-500">
+                        {item?.user?.name} • {formatTimeAgo(item?.createdAt)}
+                    </p>
+                </div>
+                <span
+                    className={`ml-auto px-4 py-0.5 text-sm rounded-full ${categoryColors[item.category]}`}
+                >
+                    {item.category}
+                </span>
+            </div>
+            {item.description &&
+                <div className="mt-4 border-t-[1px] border-gray-100">
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                        {item.description}
+                    </p>
+                </div>
+            }
+            {item.attachment &&
+                <div className="mt-4 underline border-t-[1px] border-gray-100">
+                    <a className=" text-blue-600 gap-4 flex text-sm leading-relaxed" href={`${API_URL}/uploadedfiles/assessment/${item.file}`}> <Paperclip className="w-4 h-6" />
+  <span>View Attachment</span></a>
+                </div>
+            }
+
+        </div>
     )
 }

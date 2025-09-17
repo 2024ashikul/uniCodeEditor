@@ -13,11 +13,11 @@ import { APIRequest } from "../../APIRequest";
 
 
 export default function RoomSection() {
-    const { request } = APIRequest(); 
+    const { request } = APIRequest();
     const { setMessage, setType } = useContext(AlertContext);
     const navigate = useNavigate();
     const { userId, token } = useContext(AuthContext);
-    const { setTitle } = useContext(UIContext);
+    
 
     const [rooms, setRooms] = useState(null);
     const [form, setForm] = useState({ roomId: "", roomName: "" });
@@ -48,9 +48,12 @@ export default function RoomSection() {
 
             setMessage(data.message);
             setType((res.ok ? "success" : "error"));
-            setRooms((prev) => [...prev, data.newRoom]);
+            if (data.Room) {
+                setRooms((prev) => [...prev, data.Room]);
+            }
+
             setJoining(false);
-            
+
 
         } catch (err) {
             setMessage("Could not connect to server");
@@ -206,7 +209,6 @@ export default function RoomSection() {
                                     <div
                                         key={i}
                                         onClick={() => {
-                                            setTitle(item.room?.name);
                                             navigate(`/room/${item.roomId}`);
                                         }}
                                         className="relative cursor-pointer bg-white shadow-lg rounded-2xl p-5 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition duration-300"
@@ -221,19 +223,30 @@ export default function RoomSection() {
                                         </h3>
                                         <div className="mt-2 text-sm text-gray-600 space-y-1">
                                             <div className="flex items-center gap-3 col-span-3">
-                                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                                                    {item?.room?.user?.name[0].toUpperCase()}
-                                                </div>
+
+                                                {
+                                                    item?.room?.user?.profile_pic ?
+                                                        <img
+                                                            src={`${API_URL}/profilephotos/${item.room.user.profile_pic}`}
+                                                            alt={item.room.user.name}
+                                                            className="w-8 h-8 rounded-full"
+                                                        />
+                                                        :
+
+                                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                                            {item?.room?.user?.name[0].toUpperCase()}
+                                                        </div>
+                                                }
                                                 <div>
                                                     <p className="text-gray-800 font-medium">{item?.room?.user?.name}</p>
-                                                    
+
                                                 </div>
                                             </div>
                                             <p>
                                                 <span className="font-medium">Lab ID:</span> {item?.room.id}
                                             </p>
 
-                                            
+
                                         </div>
                                     </div>
                                 );

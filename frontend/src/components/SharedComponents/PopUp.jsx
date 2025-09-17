@@ -18,7 +18,7 @@ export default function PopUp({ form, name, setName, onSubmit, onChange, extraFi
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setName(false) }}></div>
 
             <div className={`
-                relative px-8 py-6 my-12 flex flex-col w-[90%] max-w-2xl 
+                relative px-8 py-6 my-12 flex flex-col w-[90%] max-w-3xl 
                 bg-white border border-gray-200 rounded-3xl shadow-2xl 
                 z-50 transform transition-all duration-500
             `}>
@@ -40,7 +40,7 @@ export default function PopUp({ form, name, setName, onSubmit, onChange, extraFi
                     }}
                     className="flex flex-col gap-6"  >
                 <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
                         <label className="w-full sm:w-28 text-gray-700 font-medium" htmlFor="title">
                             Title
                         </label>

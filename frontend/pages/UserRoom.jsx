@@ -8,6 +8,7 @@ import Assignements from "../src/components/Room/Assessments";
 import Members from "../src/components/Room/Members";
 import Announcements from "../src/components/Room/Announcements";
 import Lessons from "../src/components/Room/Lessons";
+import Materials from '../src/components/Room/Materials';
 
 
 
@@ -22,9 +23,10 @@ export default function UserRoom() {
     const tabs = useMemo(() => [
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
         { title: 'Assessments', keyword: 'Assessments', icon: Notebook },
+        
+        { title: 'Materials', keyword: 'materials', icon: Users },
+        { title: 'Lessons', keyword: 'lessons', icon: Book },
         { title: 'Members', keyword: 'members', icon: Users },
-        { title: 'Chats', keyword: 'chats', icon: Users },
-        { title: 'Lessons', keyword: 'lessons', icon: Book }
     ], []);
 
     useEffect(() => {
@@ -60,8 +62,10 @@ export default function UserRoom() {
 
                         <Route path="announcements" element={<Announcements roomId={roomId} />} />
                         <Route path="assessments" element={<Assignements roomId={roomId} />} />
-                        <Route path="members" element={<Members roomId={roomId} />} />
+                       
                         <Route path="lessons" element={<Lessons roomId={roomId} />} />
+                        <Route path="materials" element={<Materials roomId={roomId} />} />
+                         <Route path="members" element={<Members roomId={roomId} />} />
                         <Route path="*" element={<Announcements roomId={roomId} />} />
                     </Routes>
                 </div >

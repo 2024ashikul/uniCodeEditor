@@ -22,13 +22,14 @@ export default function Assessment() {
     const { userId ,token} = useContext(AuthContext);
     const [authorized, setAuthorized] = useState(null);
     const [role, setRole] = useState(null);
+    const {setTitle} = useContext(UIContext);
 
     
     const [assessmentType, setAssessmentType] = useState(null);
     const [scheduledTime, setScheduledTime] = useState(null);
     const [duration, setDuration] = useState(null);
     const [assessmentStatus, setAssessmentStatus] = useState(null); 
-    const [assessmentTitle, setAssessmentTitle] = useState('');
+    
 
 
     const [phase, setPhase] = useState("loading"); // "loading", "Not Scheduled", "Scheduled", "Ongoing", "Finished"
@@ -50,7 +51,8 @@ export default function Assessment() {
                     setScheduledTime(auth.scheduleTime ? new Date(auth.scheduleTime) : null);
                     setDuration(auth.duration);
                     setAssessmentStatus(auth.status);
-                    setAssessmentTitle(auth.title);
+                    setTitle(auth.title);
+                    localStorage.setItem('title',auth.title);
                 } else {
                     setAuthorized(false);
                     setRole(null);
@@ -194,8 +196,7 @@ export default function Assessment() {
     return (
         <>
             <div>
-                <TopBanner
-                title={`${assessmentType} : ${assessmentTitle}`}
+                <TopBanner                
                 extraInfo={extraInfo} />
             </div>
             {renderContent()}

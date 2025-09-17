@@ -47,13 +47,13 @@ export default function Assessments({ roomId }) {
                     />
                 </div>
                 <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    <div className="grid grid-cols-7 bg-gray-100 rounded-xl font-semibold text-gray-700 px-4 py-3 shadow-sm">
-                        <div className="px-4">ID</div>
-                        <div className="col-span-2">Title</div>
-                        <div className="px-4">Type</div>
-                        <div className="px-4">Created</div>
-                        <div className="px-4">Status</div>
-                        <div className="text-center">Actions</div>
+                    <div className="grid grid-cols-12 bg-gray-100 rounded-xl font-semibold text-gray-700  py-3 shadow-sm">
+                        <div className="px-2">ID</div>
+                        <div className="px-2 col-span-4">Title</div>
+                        <div className="px-2 col-span-2">Type</div>
+                        <div className="px-2 col-span-2">Created</div>
+                        <div className="px-2 col-span-2">Status</div>
+                        <div className="px-2 text-center">Actions</div>
                     </div>
                     <div className="min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
                         {
@@ -63,17 +63,17 @@ export default function Assessments({ roomId }) {
                                 filteredAssessments?.length === 0 ?
                                     <NullComponent text={'No assignements assigned'} />
                                     : filteredAssessments?.map((item, i) => (
-                                        <div className="grid grid-cols-7 items-center bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer
+                                        <div className="grid grid-cols-12 py-2 items-center bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer
                                     "
                                             key={i}
                                             onClick={() => navigate(`/assessment/${item.id}`)}>
 
-                                            <div className="px-4 py-2 ">{i + 1}</div>
-                                            <div className="px-4 py-2 col-span-2">{item.title}</div>
-                                            <div className="px-4 py-2 ">{item.category}</div>
-                                            <div className="px-4 py-2 ">{item.scheduleTime.slice(2, 10) + " " + item.scheduleTime.slice(11, 18)}</div>
-                                            <div className="px-4">{item.status}</div>
-                                            <div className="flex gap-2 justify-center px-4 py-2">
+                                            <div className="px-2  ">{i + 1}</div>
+                                            <div className="px-2  col-span-4 text-blue-700">{item.title}</div>
+                                            <div className="px-2  col-span-2 ">{item.category}</div>
+                                            <div className="px-2  col-span-2">{item.scheduleTime.slice(2, 10) + " " + item.scheduleTime.slice(11, 18)}</div>
+                                            <div className="px-2  col-span-2">{item.status}</div>
+                                            <div className="flex gap-2 justify-center px-2 ">
 
                                                 <button
                                                     onClick={() => navigate(`/assessment/${item.id}`)}
@@ -83,7 +83,11 @@ export default function Assessments({ roomId }) {
                                                 </button>
                                             </div>
                                         </div>
-                                    ))}
+                                    ))
+
+
+
+                        }
                     </div>
 
                 </div>

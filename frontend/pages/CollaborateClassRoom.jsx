@@ -37,7 +37,7 @@ export default function CollaborateClassRoom() {
         reconnectionDelay: 1000,
         reconnectionDelayMax: 3000,
     };
-    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
+    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions) ;
     
     const [terminalHeight, setTerminalHeight] = useState(0);
     const [code, setCode] = useState('// Start coding...');
@@ -180,8 +180,8 @@ export default function CollaborateClassRoom() {
     }
 
     useEffect(() => {
+        if(!socket ) return;
         socket.on('fileDelete', (fileToDelete) => {
-
             const updatedFiles = { ...files };
             delete updatedFiles[fileToDelete];
             setFiles(updatedFiles);

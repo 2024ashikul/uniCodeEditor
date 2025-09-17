@@ -11,8 +11,8 @@ export default function Problems({ assessmentId }) {
   const [submitted, setSubmitted] = useState(null);
   const [submission, setSubmission] = useState(null);
   const { token } = useContext(AuthContext);
-  const [selectedFiles, setSelectedFiles] = useState(null);
-  const [uploadStatus, setUploadStatus] = useState('');
+ const [selectedFiles, setSelectedFiles] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(''); 
   const [zipProgress, setZipProgress] = useState(0);
   const { setMessage } = useContext(AlertContext);
 

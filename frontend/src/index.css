@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 .fade-in {
   animation: fadeIn 0.7s ease-in-out forwards;
 }
@@ -27,3 +28,29 @@
 }
 
 
+
+@layer components {
+  .avatar-announcements {
+    @apply w-8 h-8 rounded-full  bg-gray-200 flex items-center justify-center text-gray-600 font-semibold
+  }
+
+  .avatar {
+    @apply flex flex-col items-center gap-2
+           bg-gray-50 rounded-xl shadow p-4
+           hover:bg-gray-100 transition;
+  }
+
+  .chat-bubble {
+    @apply px-4 py-2 rounded-lg max-w-xs
+           bg-blue-500 text-white
+           shadow-md;
+  }
+
+  .chat-bubble.incoming {
+    @apply bg-gray-200 text-gray-900 self-start;
+  }
+
+  .chat-bubble.outgoing {
+    @apply bg-blue-500 text-white self-end;
+  }
+}

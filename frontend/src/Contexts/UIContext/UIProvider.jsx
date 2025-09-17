@@ -4,7 +4,7 @@ import { UIContext } from "./UIContext";
 export const UIProvider = ({ children }) => {
 
     const [popUp, setPopUp] = useState(false);
-    const [navCenter, setNavCenter] = useState('Hi');
+    const [navCenter, setNavCenter] = useState();
     const [title, setTitle] = useState(()=> localStorage.getItem('title'));
     const [scrollHeight, setScrollHeight] = useState(50);
     const [extraInfo, setExtraInfo] = useState(null);
@@ -24,9 +24,7 @@ export const UIProvider = ({ children }) => {
         };
     }, [title,scrollHeight]);
 
-    useEffect(()=>{
-        localStorage.setItem('title',title);
-    },[title])
+    
     
     return (
         <UIContext.Provider value={{title,extraInfo, setExtraInfo,setTitle,scrollHeight, setScrollHeight, popUp, setPopUp, navCenter, setNavCenter }}>

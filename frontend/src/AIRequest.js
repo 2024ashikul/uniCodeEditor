@@ -18,6 +18,7 @@ export async function sendAIRequest(route, prompt) {
     return data; 
   } catch (error) {
     console.error("Request failed:", error);
+    
     return { error: true, message: error.message };
   }
-}
+} 

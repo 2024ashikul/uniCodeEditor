@@ -100,6 +100,31 @@ export default function Results({ assessmentId }) {
     }
   };
 
+  const handlePublish = async () => {
+        try {
+            const res = await fetch(`${API_URL}/assessment/admin/publishresults`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ assessmentId })
+            })
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+           
+                setMessage(data.message)
+                setType(data.type)
+
+        } catch (err) {
+            console.log(err)
+            setMessage('Internal server error');
+            setType('error');
+        }
+    }
+
   const handleEditScore = (userId) => {
     setLockedUserIds((prev) => prev.filter((id) => id !== userId));
   };
@@ -109,7 +134,7 @@ export default function Results({ assessmentId }) {
       <div className="flex justify-between items-center">
         <PageTitle text="Assignment Results" />
 
-        <button className="inline-flex items-center justify-center px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-200">Publish Result</button>
+        <button onClick={handlePublish} className="inline-flex items-center justify-center px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-200">Publish Result</button>
       </div>
 
       {members === null ? (

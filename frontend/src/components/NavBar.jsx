@@ -27,7 +27,7 @@ export default function NavBar() {
                             <img
                                 src={`${API_URL}/profilephotos/${profile_pic}`}
                                 alt={
-                                    'profile-photo'
+                                    'A'
                                 }
                                 className="h-8 w-8 rounded-full" />
                             :

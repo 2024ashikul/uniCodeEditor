@@ -10,12 +10,13 @@ import UserRoom from "./UserRoom";
 import AdminRoom from "./AdminRoom";
 import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
+import { UIContext } from "../src/Contexts/UIContext/UIContext";
  
 
 export default function Room() {
 
     const { roomId } =  useParams();
-    
+    const {setTitle} = useContext(UIContext);
     const {authorized, setAuthorized } = useContext(AccessContext);
     const [role, setRole] = useState(null);
     const { userId ,token} = useContext(AuthContext);
@@ -29,8 +30,11 @@ export default function Room() {
          const verifyAccess = async () => {
             const auth = await checkAccess({ roomId,token,userId });
             if (auth && auth.allowed) {
+                console.log(auth);
                 setAuthorized(true);
                 setRole(auth.role);
+                setTitle(auth.name);
+                localStorage.setItem('title',auth.name);
             } else {
                 setAuthorized(false);
                 setRole(null); 
@@ -43,6 +47,7 @@ export default function Room() {
         };
 
     }, [checkAccess,userId,token, roomId])
+
 
 
     if (authorized === null) return (<LoadingFullscreen />)

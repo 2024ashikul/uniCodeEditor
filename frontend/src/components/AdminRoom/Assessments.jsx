@@ -164,13 +164,13 @@ export default function Assessments({ roomId }) {
                     />
                 </div>
                 <div className=" min-w-full pt-4  flex flex-col gap-2  rounded-2xl transition duration-1000">
-                    <div className="grid grid-cols-12 bg-gray-100 rounded-xl font-semibold text-gray-700 px-4 py-3 shadow-sm">
-                        <div className="px-4">ID</div>
-                        <div className="px-4 col-span-4">Title</div>
-                        <div className="px-4 col-span-2">Created</div>
-                        <div className="px-4 col-span-2">Category</div>
-                        <div className="px-4 col-span-2">Status</div>
-                        <div className="text-center">Actions</div>
+                    <div className="grid grid-cols-12 bg-gray-100 rounded-xl font-semibold text-gray-700  py-3 shadow-sm">
+                        <div className="px-2">ID</div>
+                        <div className="px-2 col-span-4">Title</div>
+                        <div className="px-2 col-span-2">Type</div>
+                        <div className="px-2 col-span-2">Created</div>
+                        <div className="px-2 col-span-2">Status</div>
+                        <div className="px-2 text-center">Actions</div>
                     </div>
                     {
                         Assessments === null ?
@@ -179,29 +179,28 @@ export default function Assessments({ roomId }) {
                             Assessments.length === 0 ?
                                 <NullComponent text={'No Assessments found'} />
 
-                                : Assessments.map((item, i) => (
-                                    <div className="grid grid-cols-12 items-center bg-white
-                        shadow  hover:shadow-md transition cursor-pointer
+                                : Assessments?.map((item, i) => (
+                                        <div className="grid grid-cols-12 py-2 items-center bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer
                                     "
-                                        key={i}
-                                        onClick={() => { setTitle(item.title); navigate(`/assessment/${item.id}`) }}>
+                                            key={i}
+                                            onClick={() => navigate(`/assessment/${item.id}`)}>
 
-                                        <div className="px-4 py-2 ">{item.id}</div>
-                                        <div className="px-4 py-2 col-span-4">{item.title}</div>
-                                        <div className="px-4 py-2 col-span-2 ">
-                                        <div className="ml-auto px-2 py-0.5 text-sm rounded-full">{item.category}</div></div>
-                                        <div className="px-4 py-2 col-span-2">{item.createdAt.slice(2, 10)}</div>
-                                        <div className="px-4 py-2 col-span-2">{item.status.toUpperCase()}</div>
-                                        <div className="flex justify-between items-center m-auto">
-                                            <button
-                                                onClick={() => navigate(`/assessment/${item.id}`)}
-                                                className="px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600"
-                                            >
-                                                View
-                                            </button>
+                                            <div className="px-2  ">{i + 1}</div>
+                                            <div className="px-2  col-span-4 text-blue-700">{item.title}</div>
+                                            <div className="px-2  col-span-2 ">{item.category}</div>
+                                            <div className="px-2  col-span-2">{item?.scheduleTime?.slice(2, 10) + " " + item?.scheduleTime?.slice(11, 18) || 'NOT SPECIFIED'}</div>
+                                            <div className="px-2  col-span-2">{item.status}</div>
+                                            <div className="flex gap-2 justify-center px-2 ">
+
+                                                <button
+                                                    onClick={() => navigate(`/assessment/${item.id}`)}
+                                                    className="px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600"
+                                                >
+                                                    View
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
 
                 </div>
             </div>

@@ -5,6 +5,7 @@ import { API_URL } from "../../config";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 import LoadingParent from "../SharedComponents/LoadingParent";
 import { useNavigate } from "react-router-dom";
+import { Paperclip } from "lucide-react";
 
 export default function Announcements({ roomId }) {
     const [announcements, setAnnouncements] = useState(null);
@@ -139,11 +140,19 @@ export default function Announcements({ roomId }) {
                                             </span>
                                         </div>
 
-                                        <div className="mt-4 border-t-[1px] border-gray-100">
-                                            <p className="text-gray-600 text-sm leading-relaxed">
-                                                {item.description}
-                                            </p>
-                                        </div>
+                                        {item.description &&
+                                            <div className="mt-4 border-t-[1px] border-gray-100">
+                                                <p className="text-gray-600 text-sm leading-relaxed">
+                                                    {item.description}
+                                                </p>
+                                            </div>
+                                        }
+                                        {item.attachment &&
+                                            <div className="mt-4 underline border-t-[1px] border-gray-100">
+                                                <a className=" text-blue-600 gap-4 flex text-sm leading-relaxed" href={`${API_URL}/uploadedfiles/assessment/${item.file}`}> <Paperclip className="w-4 h-6" />
+                                                    <span>View Attachment</span></a>
+                                            </div>
+                                        }
                                     </div>
                                 ))
                             )
