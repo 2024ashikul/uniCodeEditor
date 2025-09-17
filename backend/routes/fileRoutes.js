@@ -74,6 +74,35 @@ router.use(
 
 router.use('/files', express.static(path.join(__dirname, '/files')));
 
+router.get("/material/download/:folder", (req, res) => {
+  const { folder } = req.params; // e.g. "123-45-1694638291023"
+  const folderPath = path.join(process.cwd(), "uploads", "materials", folder);
 
+  if (!fs.existsSync(folderPath)) {
+    return res.status(404).json({ message: "Folder not found" });
+  }
+
+  // Set headers so browser downloads instead of displaying
+  res.setHeader("Content-Disposition", `attachment; filename=${folder}.zip`);
+  res.setHeader("Content-Type", "application/zip");
+
+  const archive = archiver("zip", { zlib: { level: 9 } });
+
+  archive.on("error", (err) => {
+    console.error("Archive error:", err);
+    res.status(500).send({ message: "Error creating zip" });
+  });
+
+  archive.pipe(res); // Stream zip to response
+  archive.directory(folderPath, false); // Add folder contents
+  archive.finalize(); // Complete the zip
+});
+
+router.use(
+  "/materials",
+  express.static(path.join(process.cwd(), "uploads", "materials"))
+  ,
+  serveIndex(path.join(process.cwd(), "uploads", "materials"), { icons: true })
+);
 
 module.exports = router;

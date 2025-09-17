@@ -45,6 +45,7 @@ const Announcement = require('./announcements.js')(sequelize, DataTypes)
 const Lesson = require('./lesson.js')(sequelize, DataTypes);
 const LessonM = require('../models/lessons');
 const Meeting = require('./meetings.js')(sequelize, DataTypes);
+const Material = require('./material.js')(sequelize,DataTypes);
 
 User.hasMany(Rooms, { foreignKey: 'admin' })
 Rooms.belongsTo(User, { foreignKey: 'admin' })
@@ -89,7 +90,13 @@ Problem.belongsTo(Assessment, { foreignKey: 'assessmentId' })
 User.hasMany(Assessment, { foreignKey: 'userId' })
 Assessment.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
 
-module.exports = { sequelize, User, Admin, Rooms, RoomMembers, Assessment, Submission, Problem, Announcement, Lesson, LessonM, Meeting };
+User.hasMany(Material, { foreignKey: 'userId' })
+Material.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+
+Rooms.hasMany(Material, { foreignKey: 'roomId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+Material.belongsTo(Rooms, { foreignKey: 'roomId' })
+
+module.exports = { sequelize, User, Admin, Rooms, RoomMembers, Assessment, Submission, Problem, Announcement, Lesson, LessonM, Meeting ,Material};
 
 // (async () => {
 //   try {

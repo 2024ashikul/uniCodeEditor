@@ -87,9 +87,22 @@ exports.join = async (req, res) => {
             roomId: roomId,
             role: 'member'
         });
+        const Room = await RoomMembers.findOne({
+            where: {
+                userId: userId,
+                roomId: roomId
+            },
+            include: [
+                {
+                    model: Rooms,
+                    include: [
+                        { model: User, attributes: ['id', 'name', 'profile_pic'] }
+                    ]
+                }]
+        });
 
         if (newRoom) {
-            return res.status(201).json({ message: 'Joined to the room', newRoom })
+            return res.status(201).json({ message: 'Joined to the room', Room })
         }
         return res.status(400).json({ message: 'Failed to join the room' })
     } catch (err) {
@@ -154,11 +167,20 @@ exports.getUserAccess = async (req, res) => {
                 where: {
                     roomId: roomId,
                     userId: userId
-                }
-            })
+                },
+                include: [
+                    {
+                        model: Rooms,
+                        attributes: ['name']
+                    }
+                ]
+            });
+            console.log(room)
+
+            
             if (room) {
                 console.log('allowing in room');
-                return res.status(200).json({ allowed: true, role: room.role })
+                return res.status(200).json({ allowed: true, role: room.role, name: room.room.name })
             } else {
                 console.log('not allowed in room')
                 return res.status(403).json({ allowed: false })
@@ -175,13 +197,14 @@ exports.getUserAccess = async (req, res) => {
             })
             if (room) {
                 console.log('allowed');
-                return res.status(200).json({ allowed: true, 
+                return res.status(200).json({
+                    allowed: true,
                     role: room.role,
-                    type : assessment.category,
-                    scheduleTime : assessment.scheduleTime,
-                    duration : assessment.duration,
-                    status : assessment.status,
-                    title : assessment.title
+                    type: assessment.category,
+                    scheduleTime: assessment.scheduleTime,
+                    duration: assessment.duration,
+                    status: assessment.status,
+                    title: assessment.title
                 })
             } else {
                 console.log('not allowed')
@@ -206,7 +229,7 @@ exports.getUserAccess = async (req, res) => {
                 return res.status(403).json({ allowed: false })
             }
         }
-        return res.status(200).json({allowed : true})
+        return res.status(200).json({ allowed: true })
     } catch (err) {
         console.log(err)
         return res.status(500).json(false)

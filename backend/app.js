@@ -1,10 +1,10 @@
 const express = require('express')
 const cors = require('cors')
 const app = express();
-const path = require('path')
 const fs = require('fs')
 const compression = require('compression');
 app.use(express.json());
+const path = require('path')
 app.use(compression());
 const archiver = require("archiver");
 
@@ -28,6 +28,7 @@ const problemRoutes = require('./routes/problemRoutes')
 const submissionRoutes = require('./routes/submissionRoutes')
 const announcementRoutes = require('./routes/announcementRoutes')
 const fileRoutes =require('./routes/fileRoutes')
+const materialRoutes =require('./routes/materialRoutes')
 
 app.use('/', submitRoutes);
 app.use('/auth/', userRoutes);
@@ -40,6 +41,7 @@ app.use('/', aiRoutes)
 app.use('/lesson/',lessonRoutes)
 app.use('/announcement/',announcementRoutes)
 app.use('/',fileRoutes)
+app.use('/material',materialRoutes)
 
 
 // app.get("/download/:folder/:filename", (req, res) => {

@@ -486,8 +486,7 @@ exports.resultsForUserQuiz = async (req, res) => {
     }
 }
 exports.uploadProject = async (req, res) => {
-    // Check if multer processed a file
-    // console.log(req);
+
     console.log(req);
     if (!req.file) {
         console.log("here")
@@ -726,8 +725,19 @@ exports.userResultProject = async (req , res) => {
                 return { member, submission };
             })
         );
+
+        const result =  await Submission.findOne({
+                        where: {
+                            userId:userId,
+                            problemId: problem.id
+                        },
+                        include:{
+                            model : User,
+                            attributes : ['name','email','id']
+                        }
+                    });
         results = results.sort((a, b) => b.totalscore - a.totalscore);
-        return res.status(200).json({ results: results });
+        return res.status(200).json({ results: results, published:true, result : result });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: 'Interval Server Error' });
