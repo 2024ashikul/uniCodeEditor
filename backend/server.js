@@ -19,8 +19,6 @@ const io = new Server(httpServer, {
 });
 
 
-
-
 const collaborate = io.of('/collaborate');
 const collaborateClass = io.of('/collaborateClass');
 const collaborateClassRoom = io.of('/collaborateClassRoom')

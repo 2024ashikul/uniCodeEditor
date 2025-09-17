@@ -44,9 +44,9 @@ function registerCollaborateRoomHandlers(io) {
             console.log(userId);
 
             const isMeeting = await findMeeting(roomId, userId);
-            if(!isMeeting) {
+            if (!isMeeting) {
                 socket.emit('sendMessage', `Meeting does not exist!`)
-                return ;
+                return;
             };
 
             await socket.join(roomId);
@@ -56,22 +56,22 @@ function registerCollaborateRoomHandlers(io) {
             currentUserId = userId;
 
 
-    
+
             if (!rooms[roomId]) {
                 const members = await getMembers(roomId);
 
-                rooms[roomId] = { members, history: [], files :{initial : 'noting'} };
+                rooms[roomId] = { members, history: [], files: {  } };
             }
             const member = rooms[roomId].members.find(m => m.id === userId);
             if (member) {
                 member.active = true;
             }
-            if(rooms[roomId].files[userId]){
+            if (rooms[roomId].files[userId]) {
                 console.log('here');
-                socket.emit('syncFile', {file : rooms[roomId].files[userId]});
+                socket.emit('syncFile', { file: rooms[roomId].files[userId] });
             }
-            
-            
+
+
             io.to(roomId).emit('roomData', rooms[roomId]);
             console.log(rooms[roomId]);
             io.to(roomId).emit('memberJoin', userId);
@@ -91,24 +91,28 @@ function registerCollaborateRoomHandlers(io) {
         console.log(rooms);
 
         socket.on("fileChange", ({ roomId, files, userId }) => {
+            if (!roomId || !userId) {
+                return console.error('fileChange event received with missing roomId or userId');
+            }
+
             if (!rooms[roomId]) return;
-             rooms[roomId].files[userId] = files;
-            
-            
-            socket.to(roomId).emit("fileUpdate", { files : files, userId });
+            rooms[roomId].files[userId] = files;
+
+            socket.to(roomId).emit("fileUpdate", { files: files, userId });
         });
 
-        socket.on("showFile", ({ roomId,  userId }) => {
+        socket.on("showFile", ({ roomId, userId }) => {
             if (rooms[roomId]) {
-                if (!rooms[roomId].files[userId]) {
-                    rooms[roomId].files[userId] = {};
+                if (!rooms[roomId].files[userId] || Object.keys(rooms[roomId].files[userId]).length === 0) {
+                    rooms[roomId].files[userId] = {
+                        "main.js": { language: "javascript", content: `// ${userId}'s file` }
+                    };
                 }
-                
+
             }
             console.log(rooms[roomId].files);
-            const temp = rooms[roomId].files;
-            
-            socket.emit("seeFile", { files : temp[userId], userId });
+            const userFiles = rooms[roomId]?.files?.[userId] || {};
+            socket.emit("seeFile", { files: userFiles, userId });
         });
 
         // socket.on('cursorChange', ({ roomId, cursor }) => {
@@ -122,9 +126,9 @@ function registerCollaborateRoomHandlers(io) {
             socket.to(roomId).emit('sendMessage', message);
         })
 
-        socket.on('leaveRoom', ( roomId ) => {
+        socket.on('leaveRoom', (roomId) => {
             const message = 'This meeting was Over!'
-            socket.to(roomId).emit('leaveroom',message);
+            socket.to(roomId).emit('leaveroom', message);
         })
 
         socket.on('disconnect', () => {
@@ -137,11 +141,9 @@ function registerCollaborateRoomHandlers(io) {
                     io.to(currentRoomId).emit('roomData', rooms[currentRoomId]);
                 }
             }
-            
+
         });
     });
-
-
 }
 
 module.exports = { registerCollaborateRoomHandlers };

@@ -33,7 +33,7 @@ async function getMembers(roomId) {
 
 function registerCollaborateClassRoomHandlers(io) {
     io.on('connection', (socket) => {
-        console.log('User connected:', socket.id);
+        console.log('User connected in collaborate classroom:', socket.id);
 
         let currentRoomId = null;
         let currentUserId = null;
