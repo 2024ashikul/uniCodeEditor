@@ -2,15 +2,15 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import * as monaco from 'monaco-editor';
 const socket = io(`${API_URL}/collaborateRoom`, {
-    reconnection: true, 
-    reconnectionAttempts: Infinity, 
-    reconnectionDelay: 1000, 
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
     reconnectionDelayMax: 3000,
 
 });
 import { useState, useEffect, useRef, useContext } from 'react';
 
-import { CircleUserRound, Dot, File } from 'lucide-react';
+import { CircleUserRound, Dot, File, Trash } from 'lucide-react';
 import { AccessContext } from '../src/Contexts/AccessContext/AccessContext';
 import { AlertContext } from '../src/Contexts/AlertContext/AlertContext';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -76,9 +76,9 @@ export default function CollaborateRoom() {
     }, [roomId, userId, token])
 
     useEffect(() => {
-        if (!userId || !roomId ) return;
+        if (!userId || !roomId) return;
         setMember(userId);
-        checkAccess({ roomId,userId,token  })
+        checkAccess({ roomId, userId, token })
             .then((auth) => {
                 console.log(auth)
                 if (auth.allowed === true) {
@@ -95,7 +95,7 @@ export default function CollaborateRoom() {
 
     }, [checkAccess, roomId, userId])
 
-    
+
 
     const [myFiles, setMyFiles] = useState({
         "main.cpp": { language: "cpp", content: "// Start coding..." }
@@ -113,6 +113,35 @@ export default function CollaborateRoom() {
             setMessage(message);
         })
     }, [setMessage, authorized])
+
+    async function importFromGitHub() {
+        if (!socket) return;
+        const url = prompt("Paste GitHub file link:");
+        if (!url) return;
+
+        const rawUrl = url
+            .replace("github.com", "raw.githubusercontent.com")
+            .replace("/blob/", "/");
+
+        await fetch(rawUrl)
+            .then(res => res.text())
+            .then(content => {
+                const filename = rawUrl.split("/").pop();
+                const newFile = {
+                    [filename]: {
+                        language: 'cpp',
+                        content
+                    }
+                };
+                setMyFiles(prev => ({ ...prev, ...newFile }));
+                setFiles(prev => ({ ...prev, ...newFile }));
+                setActiveFile(filename);
+                socket.emit("fileChange", { roomId, userId, files: { ...files, ...newFile } });
+
+
+            })
+            .catch(err => alert("Failed to fetch file: " + err.message));
+    }
 
 
 
@@ -234,9 +263,54 @@ export default function CollaborateRoom() {
             ...prev,
             [newFileName]: { language: "javascript", content: "hi" }
         }));
+
+        setMyFiles(prev => ({
+            ...prev,
+            [newFileName]: { language: "javascript", content: "hi" }
+        }));
+
         setActiveFile(newFileName);
+        socket.emit("fileChange", { roomId, userId, files: { ...files, ...newFileName } });
     };
     console.log(files);
+
+    const deleteFile = (fileName) => {
+        if (!fileName) return;
+        if (!files[fileName]) {
+            alert("File does not exist!");
+            return;
+        }
+
+        const confirmDelete = window.confirm(`Are you sure you want to delete "${fileName}"?`);
+        if (!confirmDelete) return;
+
+
+        setFiles(prev => {
+            const updated = { ...prev };
+            delete updated[fileName];
+            return updated;
+        });
+
+
+        setMyFiles(prev => {
+            const updated = { ...prev };
+            delete updated[fileName];
+            return updated;
+        });
+
+
+        if (activeFile === fileName) {
+            const remainingFiles = Object.keys(files).filter(f => f !== fileName);
+            setActiveFile(remainingFiles[0] || null);
+        }
+
+
+        const updatedFiles = { ...files };
+        delete updatedFiles[fileName];
+
+        socket.emit("fileChange", { roomId, userId, files: updatedFiles });
+    };
+
 
     function handleEditorMount(editor) {
         editorRef.current = editor;
@@ -328,6 +402,34 @@ export default function CollaborateRoom() {
         }
     }, [member, userId])
 
+    function handleFileSelect(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const content = event.target.result;
+            const fileName = f.name;
+            setFiles((prev) => ({
+                ...prev,
+                [fileName]: { language: 'javascript', content },
+            }));
+
+            setMyFiles((prev) => ({
+                ...prev,
+                [fileName]: { language: 'javascript', content },
+            }));
+
+            setActiveFile(fileName);
+
+            const updatedFiles = {
+                ...files,
+                [fileName]: { language: 'javascript', content }
+            };
+            socket.emit('fileChange', { roomId, userId, files: updatedFiles });
+        };
+        reader.readAsText(f);
+    }
 
 
     useEffect(() => {
@@ -416,6 +518,9 @@ export default function CollaborateRoom() {
                             <button onClick={() => LeaveMeeting()}>Leave</button>
                         }
                     </div>
+                    <div>
+                        <button onClick={importFromGitHub} type='button' >github </button>
+                    </div>
                 </div>
                 <div className='flex flex-col  flex-1 overflow-hidden'>
                     <div className={`flex flex-1  mb-2  gap-2 transition-all ease-in-out duration-300`}
@@ -428,7 +533,7 @@ export default function CollaborateRoom() {
                                 //onChange={e => setCode(e)}
                                 onChange={(value) => {
 
-                                    if (!isEditor || !activeFile ) {
+                                    if (!isEditor || !activeFile) {
                                         return;
                                     }
 
@@ -559,17 +664,30 @@ export default function CollaborateRoom() {
                                 <div className='flex px-4 text-xl font-semibold gap-4 transition-transform duration-500'><p>Files</p></div>
 
                                 {isEditor && <button onClick={addNewFile}>➕ New File</button>}
-
+                                <div className='flex justify-center'>{isEditor && <input type="file" className='text-[14px] border-' onChange={handleFileSelect} />}</div>
                                 <ul className='px-2'>
                                     {Object.keys(files).map(fileName => {
                                         return (
                                             <li
                                                 key={fileName}
+                                                className='flex'
                                                 onClick={() => setActiveFile(fileName)}
                                                 style={{ cursor: 'pointer', background: activeFile === fileName ? '#ddd' : 'transparent' }}
                                             >
                                                 <div className='flex gap-2'>  <File className='py-0.75' /> {fileName}</div>
+                                                {isEditor &&
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            deleteFile(fileName);
+                                                        }}
+                                                        className='ml-auto px-1'
+                                                    >
+                                                        <Trash className='py-0.75' />
+                                                    </button>
+                                                }
                                             </li>
+
                                         )
                                     })}
                                 </ul>

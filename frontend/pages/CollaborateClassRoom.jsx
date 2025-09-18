@@ -186,13 +186,10 @@ export default function CollaborateClassRoom() {
         });
 
         return () => {
-            socket.off(); // ✅ removes all listeners safely
+            socket.off(); 
         };
     }, [socket, authorized, activeFile]);
 
-    /** =========================
-     * FILE HANDLERS
-     * ========================= */
     function handleFileSelect(e) {
         const f = e.target.files[0];
         if (!f) return;
@@ -238,9 +235,7 @@ export default function CollaborateClassRoom() {
         socket.emit('fileAdd', { roomId, newFileName, content: '' });
     };
 
-    /** =========================
-     * CURSOR HANDLER
-     * ========================= */
+ 
     function handleEditorMount(editor) {
         editorRef.current = editor;
         if (isEditor) {

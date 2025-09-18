@@ -119,8 +119,6 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
         const url = prompt("Paste GitHub file link:");
         if (!url) return;
         
-
-        // transform GitHub link → raw content link
         const rawUrl = url
             .replace("github.com", "raw.githubusercontent.com")
             .replace("/blob/", "/");
@@ -136,10 +134,9 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                     }
                 };
 
-                // update local + sync with server
                 setFiles(prev => ({ ...prev, ...newFile }));
                 setActiveFile(filename);
-                //socket.emit("fileChange", { roomId, userId, files: { ...files, ...newFile } });
+               // socket.emit("fileChange", { roomId, userId, files: { ...files, ...newFile } });
             })
             .catch(err => alert("Failed to fetch file: " + err.message));
     }
@@ -424,6 +421,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                             }
                         </select>
                     </div>
+                    <button onClick={importFromGitHub} type='button' >Import</button>
 
                 </div>
                 <div className='flex flex-col  flex-1 overflow-hidden'>
