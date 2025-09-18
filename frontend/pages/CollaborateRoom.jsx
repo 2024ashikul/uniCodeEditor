@@ -2,15 +2,14 @@ import Editor from '@monaco-editor/react';
 import io from 'socket.io-client';
 import * as monaco from 'monaco-editor';
 const socket = io(`${API_URL}/collaborateRoom`, {
-    reconnection: true, // Enable automatic reconnection
-    reconnectionAttempts: Infinity, // Set to infinite attempts
-    reconnectionDelay: 1000, // Wait 1 second before retrying
-    reconnectionDelayMax: 3000, // Maximum wait time before each retry
+    reconnection: true, 
+    reconnectionAttempts: Infinity, 
+    reconnectionDelay: 1000, 
+    reconnectionDelayMax: 3000,
 
 });
 import { useState, useEffect, useRef, useContext } from 'react';
-import Switch from '@mui/material/Switch';
-import { styled } from '@mui/material/styles';
+
 import { CircleUserRound, Dot, File } from 'lucide-react';
 import { AccessContext } from '../src/Contexts/AccessContext/AccessContext';
 import { AlertContext } from '../src/Contexts/AlertContext/AlertContext';
@@ -77,9 +76,9 @@ export default function CollaborateRoom() {
     }, [roomId, userId, token])
 
     useEffect(() => {
-        if (!userId) return;
+        if (!userId || !roomId ) return;
         setMember(userId);
-        checkAccess({ roomId  })
+        checkAccess({ roomId,userId,token  })
             .then((auth) => {
                 console.log(auth)
                 if (auth.allowed === true) {
@@ -94,7 +93,9 @@ export default function CollaborateRoom() {
                 }
             })
 
-    }, [checkAccess, roomId, setAuthorized, setRole, setMember, userId])
+    }, [checkAccess, roomId, userId])
+
+    
 
     const [myFiles, setMyFiles] = useState({
         "main.cpp": { language: "cpp", content: "// Start coding..." }
@@ -105,72 +106,8 @@ export default function CollaborateRoom() {
     console.log(`active file is : ${activeFile}`);
 
 
-
-    //IOS switch
-    const IOSSwitch = styled((props) => (
-        <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
-    ))(({ theme }) => ({
-        width: 42,
-        height: 26,
-        padding: 0,
-        '& .MuiSwitch-switchBase': {
-            padding: 0,
-            margin: 2,
-            transitionDuration: '300ms',
-            '&.Mui-checked': {
-                transform: 'translateX(16px)',
-                color: '#fff',
-                '& + .MuiSwitch-track': {
-                    backgroundColor: '#65C466',
-                    opacity: 1,
-                    border: 0,
-                    ...theme.applyStyles('dark', {
-                        backgroundColor: '#2ECA45',
-                    }),
-                },
-                '&.Mui-disabled + .MuiSwitch-track': {
-                    opacity: 0.5,
-                },
-            },
-            '&.Mui-focusVisible .MuiSwitch-thumb': {
-                color: '#33cf4d',
-                border: '6px solid #fff',
-            },
-            '&.Mui-disabled .MuiSwitch-thumb': {
-                color: theme.palette.grey[100],
-                ...theme.applyStyles('dark', {
-                    color: theme.palette.grey[600],
-                }),
-            },
-            '&.Mui-disabled + .MuiSwitch-track': {
-                opacity: 0.7,
-                ...theme.applyStyles('dark', {
-                    opacity: 0.3,
-                }),
-            },
-        },
-        '& .MuiSwitch-thumb': {
-            boxSizing: 'border-box',
-            width: 22,
-            height: 22,
-        },
-        '& .MuiSwitch-track': {
-            borderRadius: 26 / 2,
-            backgroundColor: '#E9E9EA',
-            opacity: 1,
-            transition: theme.transitions.create(['background-color'], {
-                duration: 500,
-            }),
-            ...theme.applyStyles('dark', {
-                backgroundColor: '#39393D',
-            }),
-        },
-    }));
-
-
-
     useEffect(() => {
-        if (!authorized) return;
+        if (!authorized || !socket) return;
         console.log('here')
         socket.on('sendMessage', (message) => {
             setMessage(message);
@@ -180,7 +117,7 @@ export default function CollaborateRoom() {
 
 
     useEffect(() => {
-        if (!authorized) return;
+        if (!authorized || !socket) return;
         socket.on('roomData', (data) => {
             setMembers(data.members);
 
@@ -202,7 +139,7 @@ export default function CollaborateRoom() {
     }, [setIsEditor, userId, authorized])
 
     useEffect(() => {
-        if (!authorized) return;
+        if (!authorized || !socket) return;
         console.log(userId);
         socket.emit('joinRoom', ({ roomId, userId }));
         return () => {
@@ -211,7 +148,7 @@ export default function CollaborateRoom() {
     }, [roomId, userId, authorized])
 
     useEffect(() => {
-        if (!authorized) return;
+        if (!authorized || !socket) return;
         console.log("here")
         //socket.emit('joinRoom', roomId);
         function renderTeacherCursor() {
@@ -262,7 +199,7 @@ export default function CollaborateRoom() {
     }, [roomId, isEditor, member, authorized, navigate, setMessage]);
 
     useEffect(() => {
-        if (!authorized) return;
+        if (!authorized || !socket) return;
         console.log('cahngeing who can be editor');
         if (member === userId) {
             setIsEditor(true);
@@ -491,7 +428,7 @@ export default function CollaborateRoom() {
                                 //onChange={e => setCode(e)}
                                 onChange={(value) => {
 
-                                    if (!isEditor || !activeFile) {
+                                    if (!isEditor || !activeFile ) {
                                         return;
                                     }
 

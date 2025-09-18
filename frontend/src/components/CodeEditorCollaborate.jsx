@@ -12,6 +12,12 @@ import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
 import { API_URL } from '../config';
 import { useSocket } from '../socket';
+const socketOptions = {
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 3000,
+};
 
 export default function CodeEditorCollaborate({ roomId, isEditorProp, username }) {
     const [isEditor, setIsEditor] = useState(isEditorProp);
@@ -27,13 +33,8 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     const [history, setHistory] = useState([]);
     const [members, setMembers] = useState([]);
 
-    const socketOptions = {
-        reconnection: true,
-        reconnectionAttempts: Infinity,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 3000,
-    };
-    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
+
+    const socket = useSocket(`${API_URL}/collaborateClass`, socketOptions);
 
     const [files, setFiles] = useState({
         "main.cpp": { language: "cpp", content: "// Start coding..." }
@@ -107,16 +108,47 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
 
     useEffect(() => {
+        if (!socket) return;
         console.log('here')
         socket.on('sendMessage', (message) => {
             setMessage(message);
         })
     }, [setMessage])
 
+    function importFromGitHub() {
+        const url = prompt("Paste GitHub file link:");
+        if (!url) return;
+        
 
+        // transform GitHub link → raw content link
+        const rawUrl = url
+            .replace("github.com", "raw.githubusercontent.com")
+            .replace("/blob/", "/");
+
+        fetch(rawUrl)
+            .then(res => res.text())
+            .then(content => {
+                const filename = rawUrl.split("/").pop();
+                const newFile = {
+                    [filename]: {
+                        language: 'cpp',
+                        content
+                    }
+                };
+
+                // update local + sync with server
+                setFiles(prev => ({ ...prev, ...newFile }));
+                setActiveFile(filename);
+                //socket.emit("fileChange", { roomId, userId, files: { ...files, ...newFile } });
+            })
+            .catch(err => alert("Failed to fetch file: " + err.message));
+    }
+
+    
 
 
     useEffect(() => {
+        if (!socket) return;
         function handleChangeAccess({ data, member }) {
             console.log('changing access');
 
@@ -138,6 +170,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     }, [username]);
 
     useEffect(() => {
+        if (!socket) return;
         if (!isEditor) {
             socket.on('pointerUpdate', ({ x, y }) => {
                 if (pointerRef.current) {
@@ -155,6 +188,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
 
     useEffect(() => {
+        if (!socket) return;
         socket.on('roomData', (data) => {
             setMembers(Object.entries(data.members).map(([username, info]) => ({
                 username,
@@ -165,11 +199,13 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     }, [members])
 
     useEffect(() => {
+        if (!socket) return;
         console.log(username);
         socket.emit('joinRoom', ({ roomId, username }));
     }, [roomId, username])
 
     useEffect(() => {
+        if (!socket) return;
         console.log("here")
         //socket.emit('joinRoom', roomId);
         function renderTeacherCursor() {
@@ -212,6 +248,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     }, [roomId, isEditor]);
 
     useEffect(() => {
+        if (!socket) return;
         if (!isEditor) return;
 
         function handleMouseMove(e) {
@@ -240,6 +277,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     };
 
     useEffect(() => {
+        if (!socket) return;
         socket.on("fileChange", ({ fileName, content }) => {
             setFiles(prev => ({
                 ...prev,
@@ -257,6 +295,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
 
     useEffect(() => {
+        if (!socket) return;
         socket.on("fileChange", ({ fileName, content }) => {
             setFiles(prev => ({
                 ...prev,
@@ -270,6 +309,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     }, []);
 
     function handleEditorMount(editor) {
+        if (!socket) return;
         editorRef.current = editor;
 
         if (isEditor) {
@@ -283,6 +323,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
     }
 
     function changeAccess(member) {
+        if (!socket) return;
         console.log(member)
         socket.emit('changeAccess', { roomId, member });
     }
@@ -395,6 +436,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
                                 height="100%"
                                 //onChange={e => setCode(e)}
                                 onChange={(value) => {
+                                    if (!socket) return;
                                     const updatedContent = value;
 
                                     setCode(value);
@@ -536,7 +578,7 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
                         <div
                             className={` w-full  flex flex-col `}
-                       
+
                         >
                             {history.map(item => (
                                 <div className='flex flex-col py-1 px-8'>
