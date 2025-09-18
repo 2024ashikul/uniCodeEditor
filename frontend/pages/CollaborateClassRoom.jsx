@@ -1,487 +1,298 @@
 import Editor from '@monaco-editor/react';
-//import io from 'socket.io-client';
 import * as monaco from 'monaco-editor';
-// const socket = io(`${API_URL}/collaborateClassRoom`, {
-//     reconnection: true, // Enable automatic reconnection
-//     reconnectionAttempts: Infinity, // Set to infinite attempts
-//     reconnectionDelay: 1000, // Wait 1 second before retrying
-//     reconnectionDelayMax: 3000, // Maximum wait time before each retry
-
-// });
-import { useState, useEffect, useRef, useContext } from 'react';
-import Switch from '@mui/material/Switch';
-import { styled } from '@mui/material/styles';
+import { useState, useEffect, useRef, useContext, useMemo } from 'react';
 import { CircleUserRound, Dot, File, Trash } from 'lucide-react';
 import { AccessContext } from '../src/Contexts/AccessContext/AccessContext';
 import { AlertContext } from '../src/Contexts/AlertContext/AlertContext';
 import { useNavigate, useParams } from 'react-router-dom';
-import Fab from '@mui/material/Fab';
 import { AuthContext } from '../src/Contexts/AuthContext/AuthContext';
 import NavBar from '../src/components/NavBar';
 import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
 import { API_URL } from '../src/config';
 import { useSocket } from '../src/socket';
-
-
+import IOSSwitch from '../src/components/IOSSwitch';
+import { APIRequest } from '../src/APIRequest';
 
 export default function CollaborateClassRoom() {
-    const  navigate  = useNavigate();
+    const navigate = useNavigate();
     const { userId, token } = useContext(AuthContext);
-    const [isEditor, setIsEditor] = useState(false);
+    const { checkAccess, authorized, setAuthorized, setRole } = useContext(AccessContext);
+    const { setMessage } = useContext(AlertContext);
     const { roomId } = useParams();
-    const { checkAccess } = useContext(AccessContext);
 
-    const socketOptions = {
-        reconnection: true,
-        reconnectionAttempts: Infinity,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 3000,
-    };
-    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions) ;
-    
+    const [isEditor, setIsEditor] = useState(false);
     const [terminalHeight, setTerminalHeight] = useState(0);
     const [code, setCode] = useState('// Start coding...');
-    const editorRef = useRef(null);
-    const teacherCursorDecoration = useRef([]);
-    const latestTeacherCursor = useRef(null);
-    const pointerRef = useRef(null);
     const [language, setLanguage] = useState('python');
     const [stdin, setStdin] = useState('');
     const [loading, setLoading] = useState(false);
     const [history, setHistory] = useState([]);
     const [members, setMembers] = useState([]);
     const [tabSize, setTabSize] = useState(4);
+    const [font, setFont] = useState(12);
     const [connected, setConnected] = useState(false);
     const [admin, setAdmin] = useState(false);
-    const languages = ['python', 'cpp', 'C#'];
-    const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
-    const tabsizes = [2, 3, 4, 5, 6, 7, 8];
-    const { authorized, setAuthorized, setRole } = useContext(AccessContext);
     const [files, setFiles] = useState({
-        "main.cpp": { language: "cpp", content: "// Start coding..." }
+        'main.cpp': { language: 'cpp', content: '// Start coding...' },
     });
-    const [activeFile, setActiveFile] = useState("main.cpp");
-    const { setMessage } = useContext(AlertContext);
+    const [activeFile, setActiveFile] = useState('main.cpp');
+    console.log({ isEditor, connected, admin })
+    const editorRef = useRef(null);
+    const teacherCursorDecoration = useRef([]);
+    const latestTeacherCursor = useRef(null);
+    const pointerRef = useRef(null);
+
+    const languages = ['python', 'cpp', 'C#'];
+    const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20];
+    const tabsizes = [2, 3, 4, 5, 6, 7, 8];
+
+    const { request } = APIRequest();
+
+
+    const socketOptions = useMemo(() => ({
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 300,
+        reconnectionDelayMax: 300,
+    }), []);
+    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
+
+    useEffect(() => {
+        if (!roomId || !userId) return;
+        const fetchAdmin = async () => {
+            try {
+                const data = await request('/room/getadmin', { body: { roomId } });
+                setAdmin(data.admin == userId);
+            } catch (err) {
+                console.log('Failed to fetch admin', err);
+            }
+        };
+        fetchAdmin();
+    }, [roomId, userId]);
 
 
     useEffect(() => {
-        const admin = async () => {
-            try {
-                const res = await fetch(`${API_URL}/room/getadmin`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ roomId })
-                })
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-
-                const data = await res.json();
-                setAdmin(data.admin == userId);
-
-            } catch (err) {
-                console.log("Failed to fetch lesson", err);
-            }
-        }
-
-        if (roomId) {
-            admin();
-        }
-    }, [roomId, userId, token])
-
-        useEffect(() => {
-        if(!userId || !token){
-            return;
-        }
-        
-         const verifyAccess = async () => {
-            const auth = await checkAccess({userId, token, roomId });
+        if (!userId || !token) return;
+        const verifyAccess = async () => {
+            const auth = await checkAccess({ userId, token, roomId });
             if (auth && auth.allowed) {
                 setAuthorized(true);
                 setRole(auth.role);
             } else {
                 setAuthorized(false);
-                setRole(null); 
+                setRole(null);
             }
         };
-        if(userId && token){
-        verifyAccess();}
+        verifyAccess();
         return () => {
             setAuthorized(null);
             setRole(null);
         };
+    }, [userId, token, roomId]);
 
-    }, [checkAccess,userId, roomId,token])
-
-
-    async function LeaveMeeting() {
-        try {
-            socket.emit('leaveRoom',roomId);
-            const res = await fetch(`${API_URL}/meeting/leave`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ roomId, type: 'collaborateclassroom' })
-            })
-
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data = await res.json();
-            
-            setMessage(data.message)
-            navigate(`/room/${roomId}`);
-        }
-        catch (err) {
-            console.log(err)
-            setMessage('Internal server error');
-        }
-    }
-
-    function handleFileSelect(e) {
-        const f = e.target.files[0];
-        if (!f) return;
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-            const content = event.target.result;
-            const fileName = f.name;
-
-            setFiles(prev => ({
-                ...prev,
-                [fileName]: {
-                    language: "javascript",
-                    content: content
-                }
-            }));
-            setActiveFile(fileName);
-            socket.emit('fileAdd', { roomId, newFileName: fileName, content })
-        };
-
-        reader.readAsText(f);
-    }
-
-    const deleteFile = (fileToDelete) => {
-        if (fileToDelete === activeFile) {
-            alert("You cannot delete the currently active file. Please switch files first.");
-            return;
-        }
-        const updatedFiles = { ...files };
-        delete updatedFiles[fileToDelete];
-
-        setFiles(updatedFiles);
-        socket.emit('fileDelete', { fileToDelete, roomId });
-    }
 
     useEffect(() => {
-        if(!socket ) return;
+        if (!socket) return;
+
+        // JOIN ROOM
+        if (authorized) {
+            socket.emit('joinRoom', { roomId, userId });
+        }
+
+        // CONNECTION EVENTS
+        socket.on('connect', () => setConnected(true));
+        socket.on('disconnect', () => setConnected(false));
+
+        // FILE EVENTS
         socket.on('fileDelete', (fileToDelete) => {
-            const updatedFiles = { ...files };
-            delete updatedFiles[fileToDelete];
-            setFiles(updatedFiles);
-            if (!updatedFiles[activeFile]) {
-                const fileNames = Object.keys(updatedFiles);
-                setActiveFile(fileNames.length > 0 ? fileNames[0] : null);
+            setFiles((prev) => {
+                const updated = { ...prev };
+                delete updated[fileToDelete];
+                return updated;
+            });
+            if (activeFile === fileToDelete) {
+                const keys = Object.keys(files).filter((f) => f !== fileToDelete);
+                setActiveFile(keys.length > 0 ? keys[0] : null);
             }
         });
 
         socket.on('fileAdd', ({ newFileName, content }) => {
-            setFiles(prev => ({
+            setFiles((prev) => ({
                 ...prev,
-                [newFileName]: {
-                    language: "javascript",
-                    content: content
-                }
+                [newFileName]: { language: 'javascript', content },
             }));
         });
 
-        socket.on('leaveroom',(message)=>{
-            setMessage(message);
-            navigate(`/room/${roomId}`)
-        })
+        socket.on('fileChange', ({ fileName, content }) => {
+            setFiles((prev) => ({
+                ...prev,
+                [fileName]: { ...prev[fileName], content },
+            }));
+        });
 
-        return () => {
-            socket.off('fileDelete');
-            socket.off('fileAdd');
-            socket.off('leaveroom');
-        };
-    }, [files, activeFile,navigate,roomId,setMessage]);
+        socket.on('fileUpdate', ({ fileName, content }) => {
+            setFiles((prev) => ({
+                ...prev,
+                [fileName]: { ...prev[fileName], content },
+            }));
+        });
 
-
-    const IOSSwitch = styled((props) => (
-        <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
-    ))(({ theme }) => ({
-        width: 42,
-        height: 26,
-        padding: 0,
-        '& .MuiSwitch-switchBase': {
-            padding: 0,
-            margin: 2,
-            transitionDuration: '300ms',
-            '&.Mui-checked': {
-                transform: 'translateX(16px)',
-                color: '#fff',
-                '& + .MuiSwitch-track': {
-                    backgroundColor: '#65C466',
-                    opacity: 1,
-                    border: 0,
-                    ...theme.applyStyles('dark', {
-                        backgroundColor: '#2ECA45',
-                    }),
-                },
-                '&.Mui-disabled + .MuiSwitch-track': {
-                    opacity: 0.5,
-                },
-            },
-            '&.Mui-focusVisible .MuiSwitch-thumb': {
-                color: '#33cf4d',
-                border: '6px solid #fff',
-            },
-            '&.Mui-disabled .MuiSwitch-thumb': {
-                color: theme.palette.grey[100],
-                ...theme.applyStyles('dark', {
-                    color: theme.palette.grey[600],
-                }),
-            },
-            '&.Mui-disabled + .MuiSwitch-track': {
-                opacity: 0.7,
-                ...theme.applyStyles('dark', {
-                    opacity: 0.3,
-                }),
-            },
-        },
-        '& .MuiSwitch-thumb': {
-            boxSizing: 'border-box',
-            width: 22,
-            height: 22,
-        },
-        '& .MuiSwitch-track': {
-            borderRadius: 26 / 2,
-            backgroundColor: '#E9E9EA',
-            opacity: 1,
-            transition: theme.transitions.create(['background-color'], {
-                duration: 500,
-            }),
-            ...theme.applyStyles('dark', {
-                backgroundColor: '#39393D',
-            }),
-        },
-    }));
-
-
-    useEffect(() => {
-        socket.on('sendMessage', (message) => {
-            setMessage(message);
-        })
-    }, [setMessage])
-
-
-    useEffect(() => {
-
-        if (!isEditor) {
-            socket.on('pointerUpdate', ({ x, y }) => {
-                if (pointerRef.current) {
-                    pointerRef.current.style.left = `${x}px`;
-                    pointerRef.current.style.top = `${y}px`;
-                }
-            });
-            return () => socket.off('pointerUpdate');
-        }
-    }, [isEditor]);
-
-
-
-    useEffect(() => {
+        // ROOM EVENTS
         socket.on('roomData', (data) => {
             setMembers(data.members);
-            const member = data.members.find(m => m.id === userId)
-            setIsEditor(member.access);
+            const member = data.members.find((m) => m.id === userId);
+            if (member) setIsEditor(member.access);
+        });
 
-        })
         socket.on('syncFile', (data) => {
             setFiles(data.file);
-            const fileKeys = Object.keys(data.file);
-            setActiveFile(fileKeys[0]);
-        })
-        return () => {
-            socket.off('roomData');
-            socket.off('syncFile');
-        };
-    }, [setIsEditor, userId])
-
-    useEffect(() => {
-        if (!authorized) return;
-
-        socket.emit('joinRoom', ({ roomId, userId }));
-
-        socket.on("disconnect", (reason) => {
-            console.log("Disconnected from server:", reason);
-            setConnected(false);
+            const keys = Object.keys(data.file);
+            setActiveFile(keys[0]);
         });
-        socket.on('connect', () => {
-            console.log('Successfully connected!');
-            setConnected(true);
+
+        socket.on('sendMessage', (msg) => setMessage(msg));
+
+        socket.on('leaveroom', (message) => {
+            setMessage(message);
+            navigate(`/room/${roomId}`);
         });
-        setConnected(socket.connected);
-        return () => {
-            socket.off('joinRoom');
-            socket.off('disconnect');
-            socket.off('connect');
-        };
-    }, [roomId, userId, authorized])
 
-    useEffect(() => {
-        if (!authorized) return;
-
-        function renderTeacherCursor() {
-            if (!isEditor && editorRef.current && latestTeacherCursor.current) {
+        // CURSOR + POINTER
+        socket.on('cursorUpdate', (cursorPos) => {
+            latestTeacherCursor.current = cursorPos;
+            if (!isEditor && editorRef.current && cursorPos) {
                 teacherCursorDecoration.current = editorRef.current.deltaDecorations(
                     teacherCursorDecoration.current,
                     [
                         {
                             range: new monaco.Range(
-                                latestTeacherCursor.current.lineNumber,
-                                latestTeacherCursor.current.column,
-                                latestTeacherCursor.current.lineNumber,
-                                latestTeacherCursor.current.column
+                                cursorPos.lineNumber,
+                                cursorPos.column,
+                                cursorPos.lineNumber,
+                                cursorPos.column
                             ),
-                            options: { className: 'teacher-cursor' }
-                        }
+                            options: { className: 'teacher-cursor' },
+                        },
                     ]
                 );
             }
-        }
-
-        socket.on("fileUpdate", ({ fileName, content }) => {
-            setFiles(prev => ({
-                ...prev,
-                [fileName]: { ...prev[fileName], content }
-            }));
         });
 
-
-        socket.on('cursorUpdate', (cursorPos) => {
-            latestTeacherCursor.current = cursorPos;
-            renderTeacherCursor();
-
+        socket.on('pointerUpdate', ({ x, y }) => {
+            if (pointerRef.current) {
+                pointerRef.current.style.left = `${x}px`;
+                pointerRef.current.style.top = `${y}px`;
+            }
         });
 
         return () => {
-            socket.off('fileUpdate');
-            socket.off('cursorUpdate');
+            socket.off(); // ✅ removes all listeners safely
         };
-    }, [roomId, isEditor, authorized]);
+    }, [socket, authorized, activeFile]);
 
-    useEffect(() => {
-        if (!isEditor) return;
+    /** =========================
+     * FILE HANDLERS
+     * ========================= */
+    function handleFileSelect(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const content = event.target.result;
+            const fileName = f.name;
+            setFiles((prev) => ({
+                ...prev,
+                [fileName]: { language: 'javascript', content },
+            }));
+            setActiveFile(fileName);
+            socket.emit('fileAdd', { roomId, newFileName: fileName, content });
+        };
+        reader.readAsText(f);
+    }
 
-        function handleMouseMove(e) {
-            const pos = { x: e.clientX, y: e.clientY };
-            socket.emit('pointerMove', { roomId, pos });
-        }
-
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, [isEditor, roomId]);
-
-    const addNewFile = () => {
-        let newFileName = prompt("Enter new file name:", "newFile.js");
-        if (!newFileName) return;
-
-        if (files[newFileName]) {
-            alert("File already exists!");
+    const deleteFile = (fileToDelete) => {
+        if (fileToDelete === activeFile) {
+            alert('Cannot delete active file. Switch first.');
             return;
         }
-
-        setFiles(prev => ({
-            ...prev,
-            [newFileName]: { language: "javascript", content: "" }
-        }));
-        setActiveFile(newFileName);
-        socket.emit('fileAdd', ({ roomId, newFileName, content: "" }))
+        setFiles((prev) => {
+            const updated = { ...prev };
+            delete updated[fileToDelete];
+            return updated;
+        });
+        socket.emit('fileDelete', { fileToDelete, roomId });
     };
 
-    useEffect(() => {
-        socket.on("fileChange", ({ fileName, content }) => {
-            setFiles(prev => ({
-                ...prev,
-                [fileName]: {
-                    ...prev[fileName],
-                    content
-                }
-            }));
-        });
+    const addNewFile = () => {
+        let newFileName = prompt('Enter new file name:', 'newFile.js');
+        if (!newFileName) return;
+        if (files[newFileName]) {
+            alert('File already exists!');
+            return;
+        }
+        setFiles((prev) => ({
+            ...prev,
+            [newFileName]: { language: 'javascript', content: '' },
+        }));
+        setActiveFile(newFileName);
+        socket.emit('fileAdd', { roomId, newFileName, content: '' });
+    };
 
-        return () => socket.off("fileChange");
-    }, []);
-
-
-
-
+    /** =========================
+     * CURSOR HANDLER
+     * ========================= */
     function handleEditorMount(editor) {
         editorRef.current = editor;
-
         if (isEditor) {
             editor.onDidChangeCursorPosition((e) => {
-                socket.emit('cursorChange', {
-                    roomId,
-                    cursor: e.position,
-                });
+                socket.emit('cursorChange', { roomId, cursor: e.position });
             });
         }
     }
 
 
-    const [font, setFont] = useState(12);
-
-
     async function handleRun() {
         setLoading(true);
-        await fetch(`${API_URL}/runcode`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ code, language, stdin })
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data);
-                const newResult = {
-                    stdout: data.stdout,
-                    stderr: data.stderr,
-                    time: data.time,
-                    status: data.status,
-                    currentTime: getTime()
-                };
-
-                setHistory((prev) => [...prev, newResult]);
-                setLoading(false);
-                setTerminalHeight(30);
-                console.log(loading)
-            })
-            .catch((err) => console.log(err))
+        try {
+            const res = await fetch(`${API_URL}/runcode`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, language, stdin }),
+            });
+            const data = await res.json();
+            const newResult = {
+                stdout: data.stdout,
+                stderr: data.stderr,
+                time: data.time,
+                status: data.status,
+                currentTime: new Date().toLocaleTimeString(),
+            };
+            setHistory((prev) => [...prev, newResult]);
+            setTerminalHeight(30);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setLoading(false);
+        }
+    }
+    async function LeaveMeeting() {
+        try {
+            socket.emit('leaveRoom', roomId);
+            const data = await request("/meeting/leave", { body: { roomId, type: 'collaborateclassroom' } });
+            setMessage(data.message);
+            navigate(`/room/${roomId}`);
+        } catch (err) {
+            console.log(err)
+            setMessage('Internal server error');
+        }
     }
 
     function changeAccess(userId) {
-        console.log(userId)
         socket.emit('changeAccess', { roomId, userId });
     }
 
-    function getTime() {
-        const time = new Date().toLocaleTimeString();
-
-        return time;
-    }
-    if (authorized === null) return (<> <NavBar /><p>Loading</p></>)
-    if (!authorized) return (<><NavBar /><p>Not Authorized</p></>)
-
+    if (authorized === null) return <><NavBar /><p>Loading...</p></>;
+    if (!authorized) return <><NavBar /><p>Not Authorized </p></>;
 
     return (
         <>
@@ -698,11 +509,7 @@ export default function CollaborateClassRoom() {
 
 
                         <div
-                            className={` w-full  flex flex-col `}
-
-                        >
-
-
+                            className={` w-full  flex flex-col `}>
                             {history.map((item, index) => (
                                 <div className='flex flex-col py-1 px-8' key={index}>
 
@@ -719,13 +526,11 @@ export default function CollaborateClassRoom() {
                                             <p className='px-10 m-0'>{item.stdout}</p>
                                         ) : (
                                             <p className="text-red-500 p-0 m-0">{item.stderr}</p>
-
                                         )
                                     }
 
                                 </div>))
                             }
-
                         </div>
                     </div>
                 </div>

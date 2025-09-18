@@ -536,14 +536,8 @@ export default function CodeEditorCollaborate({ roomId, isEditorProp, username }
 
                         <div
                             className={` w-full  flex flex-col `}
-                        // style={{
-                        //     maxHeight : `${terminalHeight}%`,
-                        //     transition: 'max-height 0.5s ease',
-                        //     overflow: 'auto'
-                        // }}
+                       
                         >
-
-
                             {history.map(item => (
                                 <div className='flex flex-col py-1 px-8'>
 

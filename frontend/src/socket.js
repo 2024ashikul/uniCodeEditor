@@ -1,21 +1,20 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 
 export const useSocket = (serverUrl, options) => {
-  // useMemo prevents the options object from being recreated on every render,
-  // which would cause the useEffect to run unnecessarily.
-  const memoizedOptions = useMemo(() => options, [options]);
-  const [socket, setSocket] = useState(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    // Pass the options object directly to the io constructor
-    const newSocket = io(serverUrl, memoizedOptions);
-    setSocket(newSocket);
+    // Create socket connection
+    socketRef.current = io(serverUrl, options);
 
+    // Cleanup on unmount
     return () => {
-      newSocket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
-  }, [serverUrl, memoizedOptions]);
+  }, [serverUrl, options]); // options should be a stable object
 
-  return socket;
+  return socketRef.current;
 };

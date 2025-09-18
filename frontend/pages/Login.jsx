@@ -29,7 +29,7 @@ export default function Login() {
             navigate('/login');
         }
     }
-}, [token, navigate]);
+}, [token]);
 
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -55,7 +55,6 @@ export default function Login() {
                     localStorage.setItem("name",data.user.name);
                 }
                 setMessage('Logged in successfully');
-                navigate('/user');
             } else {
                 setMessage(data?.message || 'Failed to login');
             }

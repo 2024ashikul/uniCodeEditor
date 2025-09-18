@@ -1,13 +1,13 @@
 import Editor from '@monaco-editor/react';
-// import io from 'socket.io-client';
+import io from 'socket.io-client';
 import * as monaco from 'monaco-editor';
-// const socket = io(`${API_URL}/collaborateClassRoom`, {
-//     reconnection: true, // Enable automatic reconnection
-//     reconnectionAttempts: Infinity, // Set to infinite attempts
-//     reconnectionDelay: 1000, // Wait 1 second before retrying
-//     reconnectionDelayMax: 3000, // Maximum wait time before each retry
+const socket = io(`${API_URL}/collaborateRoom`, {
+    reconnection: true, // Enable automatic reconnection
+    reconnectionAttempts: Infinity, // Set to infinite attempts
+    reconnectionDelay: 1000, // Wait 1 second before retrying
+    reconnectionDelayMax: 3000, // Maximum wait time before each retry
 
-// });
+});
 import { useState, useEffect, useRef, useContext } from 'react';
 import Switch from '@mui/material/Switch';
 import { styled } from '@mui/material/styles';
@@ -20,7 +20,6 @@ import NavBar from '../src/components/NavBar';
 import History from '../src/components/CollabAllClass/History';
 import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
 import { API_URL } from '../src/config';
-import { useSocket } from '../src/socket';
 
 
 export default function CollaborateRoom() {
@@ -48,13 +47,6 @@ export default function CollaborateRoom() {
     const tabsizes = [2, 3, 4, 5, 6, 7, 8];
     const { authorized, setAuthorized, setRole } = useContext(AccessContext);
 
-    const socketOptions = {
-        reconnection: true,
-        reconnectionAttempts: Infinity,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 3000,
-    };
-    const socket = useSocket(`${API_URL}/collaborateClassRoom`, socketOptions);
 
     useEffect(() => {
         const admin = async () => {
@@ -85,28 +77,24 @@ export default function CollaborateRoom() {
     }, [roomId, userId, token])
 
     useEffect(() => {
-        if (!userId || !token) {
-            return;
-        }
+        if (!userId) return;
+        setMember(userId);
+        checkAccess({ roomId  })
+            .then((auth) => {
+                console.log(auth)
+                if (auth.allowed === true) {
+                    setAuthorized(true);
+                    setRole(auth.role);
+                    if (auth.role === 'admin') {
+                        setIsEditor(true);
+                    }
+                }
+                else {
+                    setAuthorized(false)
+                }
+            })
 
-        const verifyAccess = async () => {
-            const auth = await checkAccess({ userId, token, roomId });
-            if (auth && auth.allowed) {
-                setAuthorized(true);
-                setRole(auth.role);
-            } else {
-                setAuthorized(false);
-                setRole(null);
-            }
-        };
-        if(userId && token){
-        verifyAccess();}
-        return () => {
-            setAuthorized(null);
-            setRole(null);
-        };
-
-    }, [checkAccess, userId,token, roomId])
+    }, [checkAccess, roomId, setAuthorized, setRole, setMember, userId])
 
     const [myFiles, setMyFiles] = useState({
         "main.cpp": { language: "cpp", content: "// Start coding..." }

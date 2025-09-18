@@ -224,6 +224,7 @@ export default function ProfilePage() {
   };
 
   const logOut = () => {
+    localStorage.removeItem("token");
     setUser(null);
     setMessage("Logged out successfully!");
     navigate("/login");

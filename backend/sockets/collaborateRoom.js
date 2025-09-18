@@ -1,147 +1,147 @@
-// server.js (or wherever your socket handlers live)
+const { access } = require("fs");
 const { RoomMembers, User, Meeting } = require("../models");
 
-const rooms = {}; // in-memory map for demo; persist in DB for production
+
+const rooms = {};
 
 async function findMeeting(roomId, userId) {
-  return await Meeting.findOne({
-    where: { roomId, type: 'collaborateroom' }
-  });
+    const findMeeting = await Meeting.findOne({
+        where: {
+            roomId: roomId,
+            type: 'collaborateroom',
+        }
+    });
+    return findMeeting;
 }
 
 async function getMembers(roomId) {
-  const membersfull = await RoomMembers.findAll({
-    where: { roomId },
-    include: [{ model: User, attributes: ['name', 'email', 'id'] }]
-  });
-  return membersfull.map(item => ({
-    role: item.role,
-    id: String(item.user.id),       
-    name: item.user.name,
-    email: item.user.email,
-    access: true,
-    active: false,
-  }));
-}
+    const membersfull = await RoomMembers.findAll({
+        where: {
+            roomId: roomId
+        },
 
-function ensureRoomInitialized(roomId, members) {
-  if (!rooms[roomId]) {
-    rooms[roomId] = { members, history: [], files: {} };
-    
-    members.forEach(m => {
-      const uid = String(m.id);
-      
-      rooms[roomId].files[uid] = {
-        "main.cpp": { language: "cpp", content: "// Start coding..." }
-      };
+        include: [{ model: User, attributes: ['name', 'email', 'id'] }]
     });
-  } else {
-    
-    members.forEach(m => {
-      const uid = String(m.id);
-      if (!rooms[roomId].files[uid]) {
-        rooms[roomId].files[uid] = {
-          "main.cpp": { language: "cpp", content: "// Start coding..." }
-        };
-      }
-    });
-  }
-  return rooms[roomId].files;
+    return membersfull.map(item => ({
+        role: item.role,
+        id: item.user.id,
+        name: item.user.name,
+        email: item.user.email,
+        access: true,
+        active: false,
+
+    }));
 }
 
 function registerCollaborateRoomHandlers(io) {
-  io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+    io.on('connection', (socket) => {
+        console.log('User connected:', socket.id);
 
-    let currentRoomId = null;
-    let currentUserId = null;
+        let currentRoomId = null;
+        let currentUserId = null;
 
-    socket.on('joinRoom', async ({ roomId, userId }) => {
-      try {
-        const isMeeting = await findMeeting(roomId, userId);
-        if (!isMeeting) {
-          socket.emit('sendMessage', `Meeting does not exist!`);
-          return;
-        }
+        socket.on('joinRoom', async ({ roomId, userId }) => {
+            console.log(userId);
 
-        
-        const members = await getMembers(roomId);
-        console.log(files);
-        if(rooms[roomId].files == {}){
-            rooms[roomId].files = ensureRoomInitialized(roomId,members);
-        }
+            const isMeeting = await findMeeting(roomId, userId);
+            if(!isMeeting) {
+                socket.emit('sendMessage', `Meeting does not exist!`)
+                return ;
+            };
 
-        await socket.join(roomId);
-        socket.to(roomId).emit('sendMessage', `A new member ${userId} joined`);
-        currentRoomId = roomId;
-        currentUserId = String(userId);
+            await socket.join(roomId);
+            socket.to(roomId).emit('sendMessage', `A new member ${userId} joined`)
+            console.log(`${socket.id} joined room ${roomId}`);
+            currentRoomId = roomId;
+            currentUserId = userId;
 
-        
-        const member = rooms[roomId].members.find(m => String(m.id) === currentUserId);
-        if (member) member.active = true;
 
-        console.log(rooms[roomId] );
-        const userFiles = rooms[roomId].files[currentUserId] || {};
-        socket.emit('syncFile', { file: userFiles });
+    
+            if (!rooms[roomId]) {
+                const members = await getMembers(roomId);
 
-        
-        io.to(roomId).emit('roomData', {
-          members: rooms[roomId].members,
-          history: rooms[roomId].history
+                rooms[roomId] = { members, history: [], files :{initial : 'noting'} };
+            }
+            const member = rooms[roomId].members.find(m => m.id === userId);
+            if (member) {
+                member.active = true;
+            }
+            if(rooms[roomId].files[userId]){
+                console.log('here');
+                socket.emit('syncFile', {file : rooms[roomId].files[userId]});
+            }
+            
+            
+            io.to(roomId).emit('roomData', rooms[roomId]);
+            console.log(rooms[roomId]);
+            io.to(roomId).emit('memberJoin', userId);
         });
 
-      } catch (err) {
-        console.error('joinRoom error', err);
-        socket.emit('sendMessage', 'Internal server error');
-      }
+        socket.on('changeAccess', ({ roomId, userId }) => {
+            if (rooms[roomId] && rooms[roomId]) {
+                const member = rooms[roomId].members.find(m => m.id === userId);
+                if (member) {
+                    member.access = !member.access;
+                }
+            }
+            console.log(rooms[roomId])
+            const data = rooms[roomId];
+            io.to(roomId).emit('roomData', rooms[roomId]);
+        });
+        console.log(rooms);
+
+        socket.on("fileChange", ({ roomId, files, userId }) => {
+            if (!rooms[roomId]) return;
+             rooms[roomId].files[userId] = files;
+            
+            
+            socket.to(roomId).emit("fileUpdate", { files : files, userId });
+        });
+
+        socket.on("showFile", ({ roomId,  userId }) => {
+            if (rooms[roomId]) {
+                if (!rooms[roomId].files[userId]) {
+                    rooms[roomId].files[userId] = {};
+                }
+                
+            }
+            console.log(rooms[roomId].files);
+            const temp = rooms[roomId].files;
+            
+            socket.emit("seeFile", { files : temp[userId], userId });
+        });
+
+        // socket.on('cursorChange', ({ roomId, cursor }) => {
+        //     socket.to(roomId).emit('cursorUpdate', cursor);
+        // });
+        // socket.on('pointerMove', ({ roomId, pos }) => {
+        //     socket.to(roomId).emit('pointerUpdate', pos);
+        // });
+
+        socket.on('sendMessage', ({ roomId, message }) => {
+            socket.to(roomId).emit('sendMessage', message);
+        })
+
+        socket.on('leaveRoom', ( roomId ) => {
+            const message = 'This meeting was Over!'
+            socket.to(roomId).emit('leaveroom',message);
+        })
+
+        socket.on('disconnect', () => {
+            console.log('User disconnected:', socket.id);
+
+            if (currentRoomId && currentUserId) {
+                const member = rooms[currentRoomId]?.members.find(m => m.id === currentUserId);
+                if (member) {
+                    member.active = false;
+                    io.to(currentRoomId).emit('roomData', rooms[currentRoomId]);
+                }
+            }
+            
+        });
     });
 
-    socket.on("fileChange", ({ roomId, files, userId }) => {
-      try {
-        if (!roomId || !userId) return;
-        if (!rooms[roomId]) return;
 
-        const uid = String(userId);
-        // protect: clone to avoid accidental shared mutation bugs
-        rooms[roomId].files[uid] = JSON.parse(JSON.stringify(files));
-
-        // notify others that this user's files changed
-        socket.to(roomId).emit("fileUpdate", { files: rooms[roomId].files[uid], userId: uid });
-      } catch (err) {
-        console.error('fileChange error', err);
-      }
-    });
-
-    socket.on("showFile", ({ roomId, userId }) => {
-      try {
-        const uid = String(userId);
-        const userFiles = rooms[roomId]?.files?.[uid] || {};
-        // only emit to the requesting socket
-        socket.emit("seeFile", { files: userFiles, userId: uid });
-      } catch (err) {
-        console.error('showFile error', err);
-      }
-    });
-
-    socket.on('leaveRoom', (roomId) => {
-      socket.to(roomId).emit('leaveroom', 'This meeting was Over!');
-    });
-
-    socket.on('disconnect', () => {
-      console.log('User disconnected:', socket.id);
-      if (currentRoomId && currentUserId && rooms[currentRoomId]) {
-        const member = rooms[currentRoomId].members.find(m => String(m.id) === currentUserId);
-        if (member) {
-          member.active = false;
-          io.to(currentRoomId).emit('roomData', {
-            members: rooms[currentRoomId].members,
-            history: rooms[currentRoomId].history
-          });
-        }
-      }
-    });
-
-  });
 }
 
 module.exports = { registerCollaborateRoomHandlers };
