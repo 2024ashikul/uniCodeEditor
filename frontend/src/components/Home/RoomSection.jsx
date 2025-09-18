@@ -11,13 +11,11 @@ import Loading from "../SharedComponents/LoadingParent";
 import LoadingParent from "../SharedComponents/LoadingParent";
 import { APIRequest } from "../../APIRequest";
 
-
 export default function RoomSection() {
     const { request } = APIRequest();
     const { setMessage, setType } = useContext(AlertContext);
     const navigate = useNavigate();
     const { userId, token } = useContext(AuthContext);
-    
 
     const [rooms, setRooms] = useState(null);
     const [form, setForm] = useState({ roomId: "", roomName: "" });
@@ -31,32 +29,13 @@ export default function RoomSection() {
     const joinRoom = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/room/join`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-
-                body: JSON.stringify({ roomId: form.roomId, userId }),
-            });
-
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data = await res.json();
-
-            setMessage(data.message);
-            setType((res.ok ? "success" : "error"));
+            const data = await request("/room/join", { body: { roomId: form.roomId, userId } });
             if (data.Room) {
                 setRooms((prev) => [...prev, data.Room]);
             }
-
             setJoining(false);
-
-
         } catch (err) {
-            setMessage("Could not connect to server");
+            setJoining(false);
             setType("error");
             console.log(err);
         }
@@ -65,26 +44,11 @@ export default function RoomSection() {
     const createRoom = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/room/create`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ userId, roomName: form.roomName }),
-            });
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-
-            const data = await res.json();
-            setMessage(data.message);
-            setType(res.ok ? "success" : "error");
-            if (res.ok) {
+            const data = await request("/room/create", { body: { userId, roomName: form.roomName } });
+            if (data) {
                 setRooms((prev) => [...prev, data.newRoom]);
                 setCreating(false);
             }
-
         } catch (err) {
             setMessage("Failed to connect to server");
             console.log(err);
@@ -96,12 +60,10 @@ export default function RoomSection() {
             try {
                 const data = await request("/room/joined", { body: { userId } });
                 setRooms(data.rooms || [])
-                console.log(data)
             } catch (err) {
                 console.log("Failed to fetch lesson", err);
             }
         }
-
         if (userId) {
             rooms();
         }
@@ -232,8 +194,7 @@ export default function RoomSection() {
                                                             className="w-8 h-8 rounded-full"
                                                         />
                                                         :
-
-                                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
                                                             {item?.room?.user?.name[0].toUpperCase()}
                                                         </div>
                                                 }
@@ -253,7 +214,6 @@ export default function RoomSection() {
                             })}
                         </div>
                     )}
-
 
             {joining && (
                 <PopUp

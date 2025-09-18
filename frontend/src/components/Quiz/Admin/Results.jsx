@@ -1,11 +1,10 @@
 import { useState, useEffect, useContext } from "react";
-
 import PageTitle from "../../SharedComponents/PageTitle";
 import Button from "../../SharedComponents/Button";
 import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
 import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
-import LoadingParent from "../../SharedComponents/LoadingParent";
 import { API_URL } from "../../../config";
+import { APIRequest } from "../../../APIRequest";
 
 
 export default function Results({ assessmentId }) {
@@ -13,26 +12,12 @@ export default function Results({ assessmentId }) {
     const [results, setResults] = useState(null);
     const { setMessage, setType } = useContext(AlertContext);
     const { token } = useContext(AuthContext);
+    const { request } = APIRequest();
     useEffect(() => {
         const fetchResults = async () => {
             try {
-                const res = await fetch(`${API_URL}/submission/admin/results/quiz`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ assessmentId })
-                });
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                const data = await res.json();
-                console.log(data);
-                //setMembers(data.results);
+                const data = await request("/submission/admin/results/quiz", { body: { assessmentId } });
                 setResults(data.results);
-
             } catch (err) {
                 console.error("Failed to fetch results:", err);
             }
@@ -42,22 +27,7 @@ export default function Results({ assessmentId }) {
 
     const handlePublish = async () => {
         try {
-            const res = await fetch(`${API_URL}/assessment/admin/publishresults`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ assessmentId })
-            })
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-
-            setMessage(data.message)
-            setType(data.type)
-
+            await request("/assessment/admin/publishresults", { body: { assessmentId } });
         } catch (err) {
             console.log(err)
             setMessage('Internal server error');
@@ -106,8 +76,6 @@ export default function Results({ assessmentId }) {
                     </table>
                 )}
             </div>
-
-
         </div>
     );
 }

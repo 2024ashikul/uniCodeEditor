@@ -4,32 +4,21 @@ import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
 import { API_URL } from "../../../config";
 import LoadingParent from "../../SharedComponents/LoadingParent";
 import PageTitle from "../../SharedComponents/PageTitle";
+import { APIRequest } from "../../../APIRequest";
 
 export default function Results({ assessmentId }) {
   const [members, setMembers] = useState(null);
   const [lockedUserIds, setLockedUserIds] = useState([]);
   const { token } = useContext(AuthContext);
   const { setMessage, setType } = useContext(AlertContext);
-
+  const { request } = APIRequest();
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await fetch(`${API_URL}/submission/admin/project/results`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ assessmentId }),
-        });
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json();
+        const data = await request("/problem/create", { body: { assessmentId } });
 
-        console.log(data);
-
-        if(!data.results){
+        if (!data.results) {
           setMembers([]);
-          
         }
         const processedResults = data.results.map((item) => ({
           ...item,
@@ -41,7 +30,6 @@ export default function Results({ assessmentId }) {
         const initiallyLockedIds = processedResults.map(
           (item) => item.member.id
         );
-
         setMembers(processedResults);
         setLockedUserIds(initiallyLockedIds);
       } catch (err) {
@@ -56,9 +44,9 @@ export default function Results({ assessmentId }) {
       prev?.map((item) =>
         item.member.id === userId
           ? {
-              ...item,
-              finalScore: value === "" ? "" : Math.max(0, Number(value)),
-            }
+            ...item,
+            finalScore: value === "" ? "" : Math.max(0, Number(value)),
+          }
           : item
       ) || null
     );
@@ -71,59 +59,25 @@ export default function Results({ assessmentId }) {
       return;
     }
     try {
-      const res = await fetch(
-        `${API_URL}/submission/admin/project/savescore`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ assessmentId, userId, finalScore }),
-        }
-      );
-
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.message || `HTTP error! status: ${res.status}`);
-      setMessage(data.message);
-      setType("success");
-
-      // Lock the row again
+      await request("/submission/admin/project/savescore", { body: { assessmentId, userId, finalScore } });
       if (!lockedUserIds.includes(userId)) {
         setLockedUserIds((prev) => [...prev, userId]);
       }
     } catch (err) {
       console.error(err);
       setMessage(err.message || "Failed to save final score");
-      setType("error");
     }
   };
 
   const handlePublish = async () => {
-        try {
-            const res = await fetch(`${API_URL}/assessment/admin/publishresults`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ assessmentId })
-            })
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-           
-                setMessage(data.message)
-                setType(data.type)
+    try {
+      await request("/assessment/admin/publishresults", { body: { assessmentId } });
 
-        } catch (err) {
-            console.log(err)
-            setMessage('Internal server error');
-            setType('error');
-        }
+    } catch (err) {
+      console.log(err)
+      setMessage('Internal server error');
     }
+  }
 
   const handleEditScore = (userId) => {
     setLockedUserIds((prev) => prev.filter((id) => id !== userId));
@@ -134,7 +88,7 @@ export default function Results({ assessmentId }) {
       <div className="flex justify-between items-center">
         <PageTitle text="Assignment Results" />
 
-        <button onClick={handlePublish} className="inline-flex items-center justify-center px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-200">Publish Result</button>
+        <button onClick={handlePublish} className="button-green-action">Publish Result</button>
       </div>
 
       {members === null ? (
@@ -183,11 +137,10 @@ export default function Results({ assessmentId }) {
                     handleFinalScoreChange(item.member.id, e.target.value)
                   }
                   disabled={!isEditable}
-                  className={`border rounded-lg px-3 py-1 w-24 text-center ${
-                    !isEditable
+                  className={`border rounded-lg px-3 py-1 w-24 text-center ${!isEditable
                       ? "bg-gray-100 text-gray-600 cursor-not-allowed"
                       : "focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  }`}
+                    }`}
                 />
                 <button
                   onClick={() => {

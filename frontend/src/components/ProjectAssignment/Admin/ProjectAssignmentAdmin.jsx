@@ -15,8 +15,6 @@ export default function ProjectAssignmentAdmin({ roomId }) {
     const [activeTab, setActiveTab] = useState('problems');
     const navigate = useNavigate();
     const { assessmentId } = useParams();
-    
-
 
     useEffect(() => {
         const lastSegment = window.location.pathname.split("/").pop();
@@ -32,8 +30,7 @@ export default function ProjectAssignmentAdmin({ roomId }) {
         { title: 'Problems', keyword: 'problems', icon: FileQuestionMark },
         { title: 'Submissions', keyword: 'submissions', icon: Send },
         { title: 'Results', keyword: 'results', icon: MedalIcon },
-        { title: 'Settings', keyword: 'settings', icon: Settings },
-        
+        { title: 'Settings', keyword: 'settings', icon: Settings },  
     ]
 
     return (
@@ -45,15 +42,12 @@ export default function ProjectAssignmentAdmin({ roomId }) {
             />
 
             <div className="flex flex-col p-8 ">
-
                 <Routes>
                     <Route path="problems" element={<Problems assessmentId={assessmentId} />} />
                     <Route path="submissions" element={<Submissions assessmentId={assessmentId} />} />
                     <Route path="settings" element={<Settingss assessmentId={assessmentId} />} />
                     <Route path="results" element={<Results assessmentId={assessmentId} roomId={roomId} />} />
-
                 </Routes>
-
             </div>
         </>
     )

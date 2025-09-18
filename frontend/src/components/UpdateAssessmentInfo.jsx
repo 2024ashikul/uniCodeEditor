@@ -1,19 +1,10 @@
 import { useContext, useState } from "react";
-
-
-
-
-
-
-
 import { UIContext } from "../Contexts/UIContext/UIContext";
 import PopUp from "./SharedComponents/PopUp";
 import PopUpLayout from "./SharedComponents/PopUpLayout";
 import { AlertContext } from "../Contexts/AlertContext/AlertContext";
 import { API_URL } from "../config";
 import { AuthContext } from "../Contexts/AuthContext/AuthContext";
-
-
 
 
 export default function UpdateAssessmentInfo({ assessmentId, title, description }) {
@@ -26,8 +17,6 @@ export default function UpdateAssessmentInfo({ assessmentId, title, description 
         description: description
     });
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
-
-
 
     const updateAssessment = async (e) => {
         e.preventDefault();

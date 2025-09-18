@@ -10,8 +10,6 @@ import Announcements from "../src/components/Room/Announcements";
 import Lessons from "../src/components/Room/Lessons";
 import Materials from '../src/components/Room/Materials';
 
-
-
 export default function UserRoom() {
     const navigate = useNavigate();
 
@@ -23,7 +21,6 @@ export default function UserRoom() {
     const tabs = useMemo(() => [
         { title: 'Annoucements', keyword: 'announcements', icon: Megaphone },
         { title: 'Assessments', keyword: 'Assessments', icon: Notebook },
-        
         { title: 'Materials', keyword: 'materials', icon: Users },
         { title: 'Lessons', keyword: 'lessons', icon: Book },
         { title: 'Members', keyword: 'members', icon: Users },

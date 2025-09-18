@@ -18,10 +18,9 @@ export default function HomePage() {
 
     return (
         <>
-
             <div
                 className="min-h-screen fade-in transition-all duration-500 bg-cover bg-center flex items-center justify-center px-6"
-                style={{ backgroundImage: "url('../pages/background.jpg')" }}
+                style={{ backgroundImage: "url('./src/assets/background.jpg')" }}
             >
                 <div className="bg-black bg-opacity-60 rounded-2xl p-10 text-center shadow-2xl animate-fade-in">
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 animate-fade-down">
@@ -58,9 +57,6 @@ export default function HomePage() {
                     </div>
                 </div>
             </div>
-
-
-
         </>
     )
 }

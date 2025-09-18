@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-
+@import "react-datepicker/dist/react-datepicker.css";
 .fade-in {
   animation: fadeIn 0.7s ease-in-out forwards;
 }
@@ -32,6 +32,14 @@
 @layer components {
   .avatar-announcements {
     @apply w-8 h-8 rounded-full  bg-gray-200 flex items-center justify-center text-gray-600 font-semibold
+  }
+  
+  .button-createnew-popup{
+    @apply relative flex items-center justify-center px-12 py-3 font-semibold rounded-full shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-xl hover:-translate-y-1
+  }
+
+  .button-green-action{
+    @apply inline-flex items-center justify-center px-5 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-200
   }
 
   .avatar {

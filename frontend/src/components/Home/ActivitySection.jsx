@@ -3,35 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 import { API_URL } from "../../config";
 import PageTitle from "../SharedComponents/PageTitle";
+import { APIRequest } from "../../APIRequest";
 
 export default function ActivitySection() {
     const { userId ,token} = useContext(AuthContext);
     const navigate = useNavigate();
     const [meetings, setMeetings] = useState([]);
+    const {request} = APIRequest();
 
     useEffect(() => {
         const fetchMeetings = async () => {
             try {
-                const res = await fetch(`${API_URL}/meeting/getstatus`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ userId })
-                })
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-
-                const data = await res.json();
+                const data = await request('/meeting/getstatus',{body : {userId}});
                 setMeetings(data.meetings);
             } catch (err) {
                 console.log("Failed to fetch lesson", err);
             }
         }
-
         if (userId) {
             fetchMeetings();
         }

@@ -60,8 +60,7 @@ export default function AdminRoom() {
                 <div>
                     <Routes>
 
-                        <Route path="announcements" element={<Annoucements roomId={roomId} />} />
-                        
+                        <Route path="announcements" element={<Annoucements roomId={roomId} />} />      
                         <Route path="assessments" element={<Assessments roomId={roomId} />} />
                         <Route path="lessons" element={<Lessons roomId={roomId} />} />
                         <Route path="materials" element={<Materials roomId={roomId} />} />

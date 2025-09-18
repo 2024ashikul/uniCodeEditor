@@ -8,7 +8,6 @@ import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
 function Timer({ duration, onTimeUp }) {
     const [timeLeft, setTimeLeft] = useState(duration);
 
-
     useEffect(() => {
         if (timeLeft <= 0) {
             onTimeUp();
@@ -148,7 +147,7 @@ export default function Problems({ assessmentId, duration = 600, phase }) {
             if (!res.ok) {
                 throw new Error('Failed to submit answers.');
             }
-
+            
             const result = await res.json();
             setMessage(result.message);
 

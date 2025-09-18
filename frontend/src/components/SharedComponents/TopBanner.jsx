@@ -7,17 +7,15 @@ export default function TopBanner({ extraInfo }) {
     
     const { title} = useContext(UIContext);
 
-    
-
     return (
-        <header className="relative  text-white  overflow-hidden">
+        <header className="relative   text-white  overflow-hidden">
             
             <div
                 className="absolute inset-0  "
                 aria-hidden="true"
             />
             
-            <div className="container mx-auto px-6 py-10 text-center relative animate-fade-in-down">
+            <div className="container  mx-auto px-6 py-10 text-center relative animate-fade-in-down">
                 
                
                     <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">

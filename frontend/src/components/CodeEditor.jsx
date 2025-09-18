@@ -29,13 +29,7 @@ export default function CodeEditor({ problemId }) {
     const languages = ['python', 'cpp', 'csharp'];
     const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
     const tabsizes = [2, 3, 4, 5, 6, 7, 8];
-    // const [results, setResults] = useState({
-    //     stdout: '',
-    //     stderr: '',
-    //     time: '',
-    //     status: '',
-    //     currentTime: ''
-    // })
+
     const [font, setFont] = useState(12);
     const [tabSize, setTabSize] = useState(4);
 
@@ -238,11 +232,9 @@ export default function CodeEditor({ problemId }) {
                                 hover:bg-blue-500 active:font-bold active:bg-yellow-300  transition-colors duration-300
                                 cursor-pointer hover:text-white'
                                 onClick={handleSubmit} >
-
                                 <SendHorizontal /> Submit
 
                             </div>
-
                         </div>
                     </div>
 
@@ -250,8 +242,6 @@ export default function CodeEditor({ problemId }) {
                     <div className="flex h-8 px-4 py-0  items-center font-semibold border-t border-green-500 m-0"
                         onClick={() => { terminalHeight == 25 ? setTerminalHeight(0) : setTerminalHeight(25) }}
                     >
-
-
 
                         <div className={`justify-end transition-all duration-500 ${terminalHeight == 25 && 'rotate-180'}`}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -274,13 +264,9 @@ export default function CodeEditor({ problemId }) {
                             transition: 'max-height 0.5s ease',
 
                         }}>
-
-
                         <div
                             className={` w-full  flex flex-col `}
                         >
-
-
                             {history.map(item => (
                                 <div className='flex flex-col pt-2 pb-3 px-8 shadow-lg '>
 
@@ -292,7 +278,6 @@ export default function CodeEditor({ problemId }) {
                                         {item.stderr == null && <p className='px-2 text-[12px] text-neutral-50'>Memory : {item.memory / 1000000 + 'MB' || 'nan'} </p>}
 
                                     </div>
-
                                     {
                                         item.stderr == null ? (
                                             <p className='px-10 m-0 whitespace-pre-wrap'>{item.stdout}</p>
@@ -301,16 +286,12 @@ export default function CodeEditor({ problemId }) {
 
                                         )
                                     }
-
-                                </div>))
-                            }
-
+                                </div>
+                                ))}
                         </div>
                     </div>
                 </div>
-
             </div>
         </>
-
     )
 }

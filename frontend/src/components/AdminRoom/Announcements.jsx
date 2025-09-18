@@ -13,8 +13,6 @@ import { API_URL } from "../../config";
 import { Paperclip } from "lucide-react";
 
 
-
-
 export default function Annoucements({ roomId }) {
     const { request } = APIRequest();
     const [announcements, setAnnoucements] = useState(null);
@@ -250,7 +248,7 @@ function AnnoucementCard({ item, i }) {
             {item.attachment &&
                 <div className="mt-4 underline border-t-[1px] border-gray-100">
                     <a className=" text-blue-600 gap-4 flex text-sm leading-relaxed" href={`${API_URL}/uploadedfiles/assessment/${item.file}`}> <Paperclip className="w-4 h-6" />
-  <span>View Attachment</span></a>
+                        <span>View Attachment</span></a>
                 </div>
             }
 

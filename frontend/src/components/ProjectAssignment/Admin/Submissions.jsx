@@ -3,28 +3,17 @@ import NullComponent from "../../SharedComponents/NullComponent";
 import { API_URL } from "../../../config";
 import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
 import LoadingParent from "../../SharedComponents/LoadingParent";
+import { APIRequest } from "../../../APIRequest";
 
 export default function Submissions({ assessmentId }) {
     const [submissions, setSubmissions] = useState(null);
     const { token } = useContext(AuthContext);
+    const { request } = APIRequest();
 
     useEffect(() => {
         const fetchSubmissions = async () => {
             try {
-                const res = await fetch(`${API_URL}/submission/admin/project/submissions`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ assessmentId })
-                })
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                const data = await res.json();
-                console.log(data);
+                const data = await request("/submission/admin/project/submissions", { body: { assessmentId } });
                 setSubmissions(data);
             } catch (err) {
                 console.error("Failed to fetch lessons:", err);

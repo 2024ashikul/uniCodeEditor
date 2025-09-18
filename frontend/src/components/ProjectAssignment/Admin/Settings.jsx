@@ -4,34 +4,22 @@ import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
 import PopUpLayout from "../../SharedComponents/PopUpLayout";
 import { API_URL } from "../../../config";
 import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
-import Switch from '@mui/material/Switch';
-import { styled } from '@mui/material/styles';
 import Schedule from "../../Schedule";
 import UpdateAssessmentInfo from "../../UpdateAssessmentInfo";
+import IOSSwitch from "../../IOSSwitch";
+import { APIRequest } from "../../../APIRequest";
 
 
 export default function Settingss({ assessmentId }) {
     const [Assessment, setAssessment] = useState('');
     const { setMessage, setType } = useContext(AlertContext);
     const { token } = useContext(AuthContext);
+    const {request} = APIRequest();
 
     useEffect(() => {
         const fetchAssessment = async () => {
             try {
-                const res = await fetch(`${API_URL}/assessment/fetchone`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ assessmentId })
-                })
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-
-                const data = await res.json();
+                const data = await request("assessment/fetchone",{body : {assessmentId}});
                 console.log(data);
                 setAssessment(data);
             } catch (err) {
@@ -45,48 +33,18 @@ export default function Settingss({ assessmentId }) {
 
     async function changeResultAcess() {
         try {
-            const res = await fetch(`${API_URL}/assessment/admin/changewhocanseeresults`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ assessmentId })
-            });
-
-
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data = await res.json();
-
+            const data = await request("/assessment/admin/changewhocanseeresults",{body : {assessmentId}});
             setMessage(data.message);
-            setType('success');
         }
         catch (err) {
             console.log(err);
             setMessage('Internal server error');
-            setType('error');
         }
     }
 
     async function changeAssigned() {
         try {
-            const res = await fetch(`${API_URL}/assessment/admin/changeassigned`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ assessmentId })
-            });
-
-
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            const data = await res.json();
-
+            const data = await request("/assessment/admin/changeassigned",{body : {assessmentId}});
             setMessage(data.message);
             setType('success');
         }
@@ -96,66 +54,7 @@ export default function Settingss({ assessmentId }) {
             setType('error');
         }
     }
-    const IOSSwitch = styled((props) => (
-        <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
-    ))(({ theme }) => ({
-        width: 42,
-        height: 26,
-        padding: 0,
-        '& .MuiSwitch-switchBase': {
-            padding: 0,
-            margin: 2,
-            transitionDuration: '300ms',
-            '&.Mui-checked': {
-                transform: 'translateX(16px)',
-                color: '#fff',
-                '& + .MuiSwitch-track': {
-                    backgroundColor: '#65C466',
-                    opacity: 1,
-                    border: 0,
-                    ...theme.applyStyles('dark', {
-                        backgroundColor: '#2ECA45',
-                    }),
-                },
-                '&.Mui-disabled + .MuiSwitch-track': {
-                    opacity: 0.5,
-                },
-            },
-            '&.Mui-focusVisible .MuiSwitch-thumb': {
-                color: '#33cf4d',
-                border: '6px solid #fff',
-            },
-            '&.Mui-disabled .MuiSwitch-thumb': {
-                color: theme.palette.grey[100],
-                ...theme.applyStyles('dark', {
-                    color: theme.palette.grey[600],
-                }),
-            },
-            '&.Mui-disabled + .MuiSwitch-track': {
-                opacity: 0.7,
-                ...theme.applyStyles('dark', {
-                    opacity: 0.3,
-                }),
-            },
-        },
-        '& .MuiSwitch-thumb': {
-            boxSizing: 'border-box',
-            width: 22,
-            height: 22,
-        },
-        '& .MuiSwitch-track': {
-            borderRadius: 26 / 2,
-            backgroundColor: '#E9E9EA',
-            opacity: 1,
-            transition: theme.transitions.create(['background-color'], {
-                duration: 500,
-            }),
-            ...theme.applyStyles('dark', {
-                backgroundColor: '#39393D',
-            }),
-        },
-    }));
-
+    
 
     return (
         <>

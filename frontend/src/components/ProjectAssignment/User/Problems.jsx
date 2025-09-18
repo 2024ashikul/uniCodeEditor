@@ -5,6 +5,7 @@ import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
 import JSZip from "jszip";
 import LoadingParent from "../../SharedComponents/LoadingParent";
 import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
+import { APIRequest } from "../../../APIRequest";
 
 export default function Problems({ assessmentId }) {
   const [problem, setProblem] = useState(null);
@@ -15,7 +16,7 @@ export default function Problems({ assessmentId }) {
   const [uploadStatus, setUploadStatus] = useState(''); 
   const [zipProgress, setZipProgress] = useState(0);
   const { setMessage } = useContext(AlertContext);
-
+  const {request} = APIRequest();
   const handleFolderChange = (event) => {
     setUploadStatus('idle');
     setSelectedFiles(event.target.files);
@@ -23,17 +24,8 @@ export default function Problems({ assessmentId }) {
 
   useEffect(() => {
     const fetchProblem = async () => {
-      if (!assessmentId) return;
       try {
-        const res = await fetch(`${API_URL}/problem/fetchone/project`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ assessmentId })
-        });
-
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-        const data = await res.json();
+        const data = await request("/problem/create", { body: { assessmentId} });
         console.log(data)
         setProblem(data.problem);
         setSubmitted(data.submitted);
@@ -44,7 +36,9 @@ export default function Problems({ assessmentId }) {
         console.error("Failed to fetch problem:", err);
       }
     };
-    fetchProblem();
+    if(assessmentId){
+      fetchProblem();
+    }
   }, [assessmentId, token]);
 
   const handleSubmit = async (event) => {

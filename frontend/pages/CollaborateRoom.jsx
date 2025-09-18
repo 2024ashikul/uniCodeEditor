@@ -19,7 +19,7 @@ import NavBar from '../src/components/NavBar';
 import History from '../src/components/CollabAllClass/History';
 import CustomDropDown from '../src/components/SharedComponents/CustomDropDown';
 import { API_URL } from '../src/config';
-
+import LoadingParent from '../src/components/SharedComponents/LoadingParent'
 
 export default function CollaborateRoom() {
     const navigate = useNavigate();
@@ -468,9 +468,9 @@ export default function CollaborateRoom() {
     // if (!authorized) return (<p>Not Authorized</p>)
     const fontsizes = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
 
-    if (authorized === null) return (<> <NavBar /><p>Loading</p></>)
+    if (authorized === null) return (<> <NavBar /><LoadingParent /></>)
     if (!authorized) return (<><NavBar /><p>Not Authorized</p></>)
-
+    
 
     return (
         <>

@@ -141,7 +141,7 @@ export default function Assessments({ roomId }) {
         <div className="flex justify-center">
             <button
                 type="submit"
-                className="relative flex items-center justify-center px-12 py-3 font-semibold rounded-full shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-xl hover:-translate-y-1"
+                className="button-createnew-popup"
             >
                 Create Assessment
             </button>

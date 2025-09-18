@@ -9,7 +9,7 @@ import { AlertContext } from "./Contexts/AlertContext/AlertContext";
 export function APIRequest() {
     const { token } = useContext(AuthContext);
     const navigate = useNavigate();
-    const {setMessage} = useContext(AlertContext);
+    const {setMessage,setType} = useContext(AlertContext);
     const request = async (endpoint, { method = 'POST', body } = {}) => {
         const res = await fetch(`${API_URL}${endpoint}`, {
             method,
@@ -35,10 +35,15 @@ export function APIRequest() {
             const errData = await res.json();
             if(errData){
                 setMessage(errData.message);
+                setType('error');
             }
             throw new Error(`HTTP error! status: ${res.status}`);
         }
-        return res.json();
+        const data =await res.json();
+        if(data.message){
+            setMessage(data.message);
+        }
+        return data;
     };
 
     return { request };

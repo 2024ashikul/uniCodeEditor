@@ -1,23 +1,17 @@
 import { useState, useEffect, useContext } from "react";
 import MDEditor from "@uiw/react-md-editor";
-
-import { UIContext } from "../../../Contexts/UIContext/UIContext";
 import { AlertContext } from "../../../Contexts/AlertContext/AlertContext";
 import { AuthContext } from "../../../Contexts/AuthContext/AuthContext";
-import { API_URL } from "../../../config";
 import { sendAIRequest } from "../../../AIRequest";
-
 import PageTitle from "../../SharedComponents/PageTitle";
 import NullComponent from "../../SharedComponents/NullComponent";
 import LoadingParent from "../../SharedComponents/LoadingParent";
 import FloatingAIBox from "../../SharedComponents/FloatingAIBox";
-
-
+import { APIRequest } from "../../../APIRequest";
 
 function ProblemForm({ initialFormState, handleSubmit, handleCancel, submitButtonText }) {
     const [form, setForm] = useState(initialFormState);
     const [isAIOpen, setIsAIOpen] = useState(false);
-
     const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
 
     const handleAISend = async (input) => {
@@ -66,7 +60,6 @@ function ProblemForm({ initialFormState, handleSubmit, handleCancel, submitButto
     );
 }
 
-
 function DisplayProblem({ problem, onEdit, onDelete }) {
     return (
         <div className="p-6 bg-white shadow-md rounded-lg mt-4">
@@ -87,7 +80,6 @@ function DisplayProblem({ problem, onEdit, onDelete }) {
     );
 }
 
-
 function InitialView({ onCreate, onUpload }) {
     return (
         <div className="flex flex-col justify-center items-center font-bold min-h-[400px] mx-auto text-center">
@@ -104,30 +96,21 @@ function InitialView({ onCreate, onUpload }) {
     );
 }
 
-
 export default function Problems({ assessmentId }) {
     const [view, setView] = useState('loading'); // 'loading', 'choose', 'display', 'create', 'edit'
     const [problem, setProblem] = useState(null);
     const { setMessage } = useContext(AlertContext);
     const { token } = useContext(AuthContext);
+    const { request } = APIRequest();
 
     const EMPTY_FORM = { title: '', statement: '', fullmarks: '' };
-
 
     useEffect(() => {
         const fetchProblem = async () => {
             if (!assessmentId) return;
             try {
                 setView('loading');
-                const res = await fetch(`${API_URL}/problem/fetchone/project`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ assessmentId })
-                });
-
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-                const data = await res.json();
+                const data = await request("/problem/fetchone/project", { body: { assessmentId } });
                 console.log(data)
                 if (data.problem) {
                     setProblem(data.problem);
@@ -138,26 +121,17 @@ export default function Problems({ assessmentId }) {
                 }
             } catch (err) {
                 console.error("Failed to fetch problem:", err);
-                setView('choose'); // Default to choose view on error
+                setView('choose');
             }
         };
         fetchProblem();
     }, [assessmentId, token]);
 
-
     const handleCreateProblem = async (form) => {
         try {
-            const res = await fetch(`${API_URL}/problem/create`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ assessmentId, form, type: "ProjectAssignment" })
-            });
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            const data = await res.json();
-
+            const data = await request("/problem/create", { body: { assessmentId, form, type: "ProjectAssignment" } });
             setProblem(data.newProblem);
             setView('display');
-            setMessage(data.message || 'Problem created successfully!');
         } catch (err) {
             console.error(err);
             setMessage('Could not create problem');
@@ -166,14 +140,7 @@ export default function Problems({ assessmentId }) {
 
     const handleUpdateProblem = async (form) => {
         try {
-            const res = await fetch(`${API_URL}/problem/update`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ editProblemId: problem.id, form, type: "ProjectAssignment" })
-            });
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            const data = await res.json();
-
+            const data = await request("/problem/update", { body: { editProblemId: problem.id, form, type: "ProjectAssignment" } });
             setProblem(data.problem);
             setView('display');
             setMessage(data.message || 'Problem updated successfully!');
@@ -186,24 +153,15 @@ export default function Problems({ assessmentId }) {
     const handleDeleteProblem = async () => {
         if (!window.confirm("Are you sure you want to delete this problem?")) return;
         try {
-            const res = await fetch(`${API_URL}/problem/delete`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ problemId: problem.id })
-            });
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            const data = await res.json();
-
+            await request("/problem/delete", { body: { problemId: problem.id} });
             setProblem(null);
             setView('choose');
-            setMessage(data.message || 'Problem deleted successfully!');
         } catch (err) {
             console.error(err);
             setMessage('Failed to delete problem');
         }
     };
 
-    
     const renderContent = () => {
         switch (view) {
             case 'loading':
