@@ -1,4 +1,4 @@
-# CodeSync: The Collaborative Coding Lab
+# CSLab: The Collaborative Coding Lab
 
 <!-- Add badges here -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -6,7 +6,7 @@
 [![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 
-**CodeSync** is a full-featured, web-based coding laboratory designed for Computer Science students and educators. It provides a comprehensive platform for lessons, assignments, real-time collaboration, and assessments, all within a secure and controlled environment.
+**CSLab** is a full-featured, web-based coding laboratory designed for Computer Science students and educators. It provides a comprehensive platform for lessons, assignments, real-time collaboration, and assessments, all within a secure and controlled environment.
 
 ## ✨ Key Features
 
@@ -21,9 +21,9 @@
 
 * **Frontend:** React.js
 * **Backend:** Node.js, Express.js
-* **Database:** [Your Database, e.g., MongoDB, PostgreSQL]
-* **Authentication:** [Your Auth Method, e.g., JWT, OAuth]
-* **Real-time Communication:** [e.g., WebSockets, Socket.IO]
+* **Database:**  MongoDB, PostgreSQL, Redis
+* **Authentication:**  JWT, OAuth
+* **Real-time Communication:**  WebSockets, Socket.IO
 
 ## 🚀 Getting Started
 
@@ -38,7 +38,7 @@
 
 1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/your-username/your-repo-name.git
+    git clone https://github.com/2024ashikul/uniCodeEditor.git
     cd your-repo-name
     ```
 

@@ -1,6 +1,6 @@
-# Contributing to CodeSync
+# Contributing to CSLab
 
-First off, thank you for considering contributing to CodeSync. It's people like you that make such a project possible. Your contributions will help create a powerful, free, and open-source tool for students and educators everywhere.
+First off, thank you for considering contributing to CSLab. It's people like you that make such a project possible. Your contributions will help create a powerful, free, and open-source tool for students and educators everywhere.
 
 ## Code of Conduct
 
@@ -16,7 +16,7 @@ There are many ways to contribute, from writing tutorials or improving documenta
 
 ## 📈 Project Roadmap: The Path to the Top 1%
 
-To make CodeSync an industry-grade, top-tier project, we are focusing on the following key areas. This roadmap serves as a guide for high-impact contributions.
+To make CSLab an industry-grade, top-tier project, we are focusing on the following key areas. This roadmap serves as a guide for high-impact contributions.
 
 ### Phase 1: Core Infrastructure & Security Hardening
 
