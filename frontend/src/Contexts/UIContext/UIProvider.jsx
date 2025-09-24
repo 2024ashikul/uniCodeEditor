@@ -1,34 +1,53 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { UIContext } from "./UIContext";
 
 export const UIProvider = ({ children }) => {
+  const [popUp, setPopUp] = useState(false);
+  const [navCenter, setNavCenter] = useState();
 
-    const [popUp, setPopUp] = useState(false);
-    const [navCenter, setNavCenter] = useState();
-    const [title, setTitle] = useState(()=> localStorage.getItem('title'));
-    const [scrollHeight, setScrollHeight] = useState(50);
-    const [extraInfo, setExtraInfo] = useState(null);
-    
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY >= (scrollHeight)) {
-                setNavCenter(title)
-            } else {
-                setNavCenter(null)
-            };
-        }
-        window.addEventListener("scroll", handleScroll);
+  const [extraInfo, setExtraInfo] = useState(null);
 
-        return () => {
-            window.removeEventListener("scroll", handleScroll);
-        };
-    }, [title,scrollHeight]);
+  const titleRef = useRef(localStorage.getItem("title") || "");
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY >= 50) {
+        setNavCenter(titleRef.current); 
+      } else {
+        setNavCenter(null);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  
+  const setTitle = (newTitle) => {
+    titleRef.current = newTitle;
+    localStorage.setItem("title", newTitle);
     
-    
-    return (
-        <UIContext.Provider value={{title,extraInfo, setExtraInfo,setTitle,scrollHeight, setScrollHeight, popUp, setPopUp, navCenter, setNavCenter }}>
-            {children}
-        </UIContext.Provider>
-    )
-}
+    if (window.scrollY >= 0) {
+      setNavCenter(newTitle);
+    }
+  };
+
+  return (
+    <UIContext.Provider
+      value={{
+        title: titleRef.current,
+        setTitle,
+        extraInfo,
+        setExtraInfo,
+        popUp,
+        setPopUp,
+        navCenter,
+        setNavCenter,
+      }}
+    >
+      {children}
+    </UIContext.Provider>
+  );
+};
