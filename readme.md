@@ -1,6 +1,6 @@
 # CSLab: The Collaborative Coding Lab
 
-<!-- Add badges here -->
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
@@ -55,17 +55,35 @@
     ```
 
 4.  **Set up environment variables:**
-    Create a `.env` file in the `server` directory and add the necessary configuration (database connection string, JWT secret, etc.).
+    Create a `.env` file in the `backend` directory and add the necessary configuration (database connection string, JWT secret, etc.).
     ```
-    PORT=5000
-    MONGO_URI=your_database_connection_string
-    JWT_SECRET=your_super_secret_key
+    DB_HOST=your_database_host
+    DB_PORT=your_db_port
+    DB_USER=database_user_name
+    DB_PASSWORD=database_password
+    DB_NAME=
+    DB_DIALECT=database_dialect
+    GEMINI_API_KEY = gemini_api_key_for_ai_features
+    SECRET = your_jwt_secret
+    REFRESH_SECRET = your_jwt_refresh_secret
+    NODE_ENV = 'development' 
+    ```
+
+    Create a `.env` file in the `frontend` directory and add the necessary configuration (database connection string, JWT secret, etc.).
+    ```
+    VITE_API_URL=your_backend_uri
+    VITE_STATIC_URL=your_static_files_url
     ```
 
 5.  **Run the application:**
     ```sh
-    # From the root directory
-    npm run dev # (Assuming you have a script to run both client and server concurrently)
+    # From the frontend directory
+    npm run dev
+    ```
+
+    ```sh
+    # From the backend directory
+    node server.js
     ```
 
 ## 📈 Roadmap
