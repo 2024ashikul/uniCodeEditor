@@ -1,12 +1,27 @@
 # CSLab: The Collaborative Coding Lab
 
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 
-**CSLab** is a full-featured, web-based coding laboratory designed for Computer Science students and educators. It provides a comprehensive platform for lessons, assignments, real-time collaboration, and assessments, all within a secure and controlled environment.
+**CSLab** is a full-featured, web-based coding laboratory designed for Computer Science students and educators. It offers a unified platform for lessons, assignments, real-time collaboration, and assessments, all within a secure and controlled environment.
+
+**The Problem:**  
+In both physical and virtual computer science labs, students and educators often rely on a variety of disconnected tools. Lab computers frequently lack persistent configurations, leading to setup issues and inefficiencies. Many commercial solutions are costly, making them inaccessible to a wider audience.
+
+**The Solution:**  
+CSLab creates a modern, robust, and cost-free laboratory experience by integrating essential tools into one platform:
+* Completely open-source — no licensing fees required.  
+* Educators and lab assistants do not need proprietary software; they can deploy CSLab and configure it to their needs.  
+* Seamless integration of features:  
+  - **Assignments & Results** via Classroom.  
+  - **Collaboration & Groups** for personal or academic projects.  
+  - **Coding** with a built-in VS Code environment.  
+  - **AI Assistance** using Gemini/ChatGPT.  
+* Advanced plagiarism detection tools designed for educators.  
+* Students can track their entire academic coding journey and export it as Git repositories or ZIP archives.  
+* No more “my code won’t run” or complex environment setup — just start CSLab and begin learning immediately.  
 
 ## ✨ Key Features
 
@@ -25,6 +40,8 @@
 * **Authentication:**  JWT, OAuth
 * **Real-time Communication:**  WebSockets, Socket.IO
 
+
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -39,7 +56,7 @@
 1.  **Clone the repository:**
     ```sh
     git clone https://github.com/2024ashikul/uniCodeEditor.git
-    cd your-repo-name
+    cd uniCodeEditor
     ```
 
 2.  **Install backend dependencies:**
