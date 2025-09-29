@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AssessmentController } from '../controllers/assessment.controller';
-import { authenticateToken } from '../../middlewares/authMiddleware';
+import { authenticateToken } from '../middlewares/authMiddleware';
+
 
 
 const assessmentController = new AssessmentController();

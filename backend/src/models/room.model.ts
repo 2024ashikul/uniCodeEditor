@@ -14,8 +14,20 @@ export class Room extends Model {
   }
 
   public static associate(models: any) {
-    this.belongsTo(models.User, { foreignKey: 'admin' });
-    this.belongsToMany(models.User, { through: models.RoomMember, foreignKey: 'roomId', otherKey: 'userId' });
+    this.belongsTo(models.User, { 
+      foreignKey: 'admin',
+      as: 'administrator' 
+    });
+    this.belongsToMany(models.User, { 
+      through: models.RoomMember, 
+      foreignKey: 'roomId', 
+      otherKey: 'userId',
+      as: 'members' 
+    });
+    this.hasMany(models.RoomMember, { 
+      foreignKey: 'roomId', 
+      as: 'memberships' 
+    });
     this.hasMany(models.Announcement, { foreignKey: 'roomId', onDelete: 'CASCADE' });
     this.hasMany(models.Assessment, { foreignKey: 'roomId', onDelete: 'CASCADE' });
     this.hasMany(models.LessonM, { foreignKey: 'roomId', onDelete: 'CASCADE' });

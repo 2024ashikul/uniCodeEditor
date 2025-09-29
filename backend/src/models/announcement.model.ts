@@ -21,6 +21,6 @@ export class Announcement extends Model {
 
   public static associate(models: any) {
     this.belongsTo(models.Room, { foreignKey: 'roomId' });
-    this.belongsTo(models.User, { foreignKey: 'userId' });
+    this.belongsTo(models.User, { foreignKey: 'userId', as :'user' });
   }
 }

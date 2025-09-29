@@ -14,7 +14,7 @@ export class RoomMember extends Model {
   }
 
   public static associate(models: any) {
-    this.belongsTo(models.User, { foreignKey: 'userId', onDelete: 'CASCADE' });
-    this.belongsTo(models.Room, { foreignKey: 'roomId', onDelete: 'CASCADE' });
+    this.belongsTo(models.User, { foreignKey: 'userId', onDelete: 'CASCADE', as :'user' });
+    this.belongsTo(models.Room, { foreignKey: 'roomId', onDelete: 'CASCADE',as :'room' });
   }
 }

@@ -25,9 +25,12 @@ export class AuthorizationController {
         response = await this.service.checkAssessmentAccess(userId, assessmentId);
       } else if (problemId) {
         response = await this.service.checkProblemAccess(userId, problemId);
-      } else {
-        return res.status(400).json({ allowed: false, message: 'A resource ID (roomId, assessmentId, or problemId) is required.' });
+      } else{
+        return res.status(200).json({ allowed: true });
       }
+      // } else {
+      //   return res.status(400).json({ allowed: false, message: 'A resource ID (roomId, assessmentId, or problemId) is required.' });
+      // }
 
       const status = response.allowed ? 200 : 403; 
       return res.status(status).json(response);

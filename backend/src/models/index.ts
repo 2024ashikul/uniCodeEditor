@@ -1,4 +1,4 @@
-import sequelize from '../../config/database';
+import sequelize from '../config/database';
 import { User } from './user.model';
 
 import { Room } from './room.model';

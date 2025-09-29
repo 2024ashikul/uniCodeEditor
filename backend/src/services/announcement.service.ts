@@ -1,7 +1,7 @@
 import { AnnouncementRepository } from '../repositories/announcement.repository';
 import { Announcement } from '../models/announcement.model';
 
-// DTO to define the shape of the data needed to create an announcement
+
 interface CreateAnnouncementServiceDTO {
   roomId: string;
   userId: string;
@@ -13,7 +13,7 @@ export class AnnouncementService {
   private announcementRepo: AnnouncementRepository;
 
   constructor() {
-    this.announcementRepo = new AnnouncementRepository(); // Simple instantiation
+    this.announcementRepo = new AnnouncementRepository();  
   }
 
  
@@ -22,8 +22,6 @@ export class AnnouncementService {
     if (!data.title || !data.description) {
       throw new Error('Title and description are required for an announcement.');
     }
-
-   
     return this.announcementRepo.create({
       roomId: data.roomId,
       userId: data.userId,
