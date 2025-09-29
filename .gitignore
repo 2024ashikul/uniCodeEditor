@@ -6,3 +6,4 @@ backned/node_modules
 frontend/node_modules
 backend/uploads
 frontend/dist
+backend/.vscode
