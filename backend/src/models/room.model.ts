@@ -18,7 +18,7 @@ export class Room extends Model {
     this.belongsToMany(models.User, { through: models.RoomMember, foreignKey: 'roomId', otherKey: 'userId' });
     this.hasMany(models.Announcement, { foreignKey: 'roomId', onDelete: 'CASCADE' });
     this.hasMany(models.Assessment, { foreignKey: 'roomId', onDelete: 'CASCADE' });
-    this.hasMany(models.Lesson, { foreignKey: 'roomId', onDelete: 'CASCADE' });
+    this.hasMany(models.LessonM, { foreignKey: 'roomId', onDelete: 'CASCADE' });
     this.hasMany(models.Material, { foreignKey: 'roomId', onDelete: 'CASCADE' });
   }
 }

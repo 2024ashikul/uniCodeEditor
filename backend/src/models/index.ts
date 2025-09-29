@@ -7,7 +7,8 @@ import { Assessment } from './assessment.model';
 import { Submission } from './submission.model';
 import { Problem } from './problem.model';
 import { Announcement } from './announcement.model';
-import { Lesson } from './lesson.model';
+import { LessonM } from './lessonM.model';
+import { LessonContent } from './lessonContent.model';
 import { Meeting } from './meeting.model';
 import { Material } from './material.model'
 
@@ -20,7 +21,8 @@ const models = {
   Submission,
   Problem,
   Announcement,
-  Lesson,
+  LessonM,
+  LessonContent,
   Meeting,
   Material,
 };

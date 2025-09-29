@@ -1,6 +1,6 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 
-export class Lesson extends Model {
+export class LessonM extends Model {
   public id!: number;
   public title!: string;
   public status!: string;
@@ -12,12 +12,16 @@ export class Lesson extends Model {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       title: { type: DataTypes.STRING, allowNull: false },
       status: { type: DataTypes.STRING, allowNull: false, defaultValue: "draft" },
-      attachment: { type: DataTypes.STRING },
+      attachment: { type: DataTypes.STRING, allowNull: true },
       category: { type: DataTypes.STRING, allowNull: true }
-    }, { sequelize, tableName: 'lessons' });
+    }, { sequelize, tableName: 'lessons' }); 
   }
 
   public static associate(models: any) {
+   
     this.belongsTo(models.Room, { foreignKey: 'roomId' });
+    
+    
+    this.hasMany(models.LessonContent, { foreignKey: 'lessonId', onDelete: 'CASCADE' });
   }
 }
