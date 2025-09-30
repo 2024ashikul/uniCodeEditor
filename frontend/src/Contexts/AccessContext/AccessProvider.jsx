@@ -23,7 +23,7 @@ export const AccessProvider = ({ children }) => {
             if (accessCache.current[key] !== undefined) {
                 return accessCache.current[key]; // return cached result
             }
-            const res = await fetch(`${API_URL}/room/getuseraccess`, {
+            const res = await fetch(`${API_URL}/check-access`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

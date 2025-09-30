@@ -33,7 +33,7 @@ export default function Room() {
                 console.log(auth);
                 setAuthorized(true);
                 setRole(auth.role);
-                setTitle(auth.name);
+                setTitle(auth.details.name);
                 localStorage.setItem('title',auth.name);
             } else {
                 setAuthorized(false);

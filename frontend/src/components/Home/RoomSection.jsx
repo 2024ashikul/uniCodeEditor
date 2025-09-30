@@ -59,6 +59,7 @@ export default function RoomSection() {
         const rooms = async () => {
             try {
                 const data = await request("/room/joined", { body: { userId } });
+                console.log(data)
                 setRooms(data.rooms || [])
             } catch (err) {
                 console.log("Failed to fetch lesson", err);
@@ -187,19 +188,19 @@ export default function RoomSection() {
                                             <div className="flex items-center gap-3 col-span-3">
 
                                                 {
-                                                    item?.room?.user?.profile_pic ?
+                                                    item?.room?.administrator?.profile_pic ?
                                                         <img
-                                                            src={`${API_URL}/profilephotos/${item.room.user.profile_pic}`}
-                                                            alt={item.room.user.name}
+                                                            src={`${API_URL}/profilephotos/${item.room.administrator.profile_pic}`}
+                                                            alt={item.room.administrator.name}
                                                             className="w-8 h-8 rounded-full"
                                                         />
                                                         :
                                                     <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
-                                                            {item?.room?.user?.name[0].toUpperCase()}
+                                                            {item?.room?.administrator?.name[0].toUpperCase()}
                                                         </div>
                                                 }
                                                 <div>
-                                                    <p className="text-gray-800 font-medium">{item?.room?.user?.name}</p>
+                                                    <p className="text-gray-800 font-medium">{item?.room?.administrator?.name}</p>
 
                                                 </div>
                                             </div>

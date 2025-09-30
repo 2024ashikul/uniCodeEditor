@@ -186,14 +186,14 @@ export default function Assessments({ roomId }) {
                                             onClick={() => navigate(`/assessment/${item.id}`)}>
 
                                             <div className="px-2  ">{i + 1}</div>
-                                            <div className="px-2  col-span-4 text-blue-700">{item.title}</div>
-                                            <div className="px-2  col-span-2 ">{item.category}</div>
+                                            <div className="px-2  col-span-4 text-blue-700">{item?.title}</div>
+                                            <div className="px-2  col-span-2 ">{item?.category}</div>
                                             <div className="px-2  col-span-2">{item?.scheduleTime?.slice(2, 10) + " " + item?.scheduleTime?.slice(11, 18) || 'NOT SPECIFIED'}</div>
-                                            <div className="px-2  col-span-2">{item.status}</div>
+                                            <div className="px-2  col-span-2">{item?.status}</div>
                                             <div className="flex gap-2 justify-center px-2 ">
 
                                                 <button
-                                                    onClick={() => navigate(`/assessment/${item.id}`)}
+                                                    onClick={() => navigate(`/assessment/${item?.id}`)}
                                                     className="px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600"
                                                 >
                                                     View

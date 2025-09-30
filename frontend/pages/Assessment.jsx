@@ -47,12 +47,12 @@ export default function Assessment() {
                 if (auth && auth.allowed) {
                     setAuthorized(true);
                     setRole(auth.role);
-                    setAssessmentType(auth.type);
-                    setScheduledTime(auth.scheduleTime ? new Date(auth.scheduleTime) : null);
-                    setDuration(auth.duration);
-                    setAssessmentStatus(auth.status);
-                    setTitle(auth.title);
-                    localStorage.setItem('title',auth.title);
+                    setAssessmentType(auth.details.type);
+                    setScheduledTime(auth.details.scheduleTime ? new Date(auth.details.scheduleTime) : null);
+                    setDuration(auth.details.duration);
+                    setAssessmentStatus(auth.details.status);
+                    setTitle(auth.details.title);
+                    localStorage.setItem('title',auth.details.title);
                 } else {
                     setAuthorized(false);
                     setRole(null);

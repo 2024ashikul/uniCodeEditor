@@ -25,10 +25,8 @@ export default function User1() {
             const auth = await checkAccess({ userId ,token});
             if (auth && auth.allowed) {
                 setAuthorized(true);
-
             } else {
                 setAuthorized(false);
-
             }
         };
         verifyAccess();
