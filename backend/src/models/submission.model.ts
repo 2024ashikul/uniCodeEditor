@@ -27,6 +27,6 @@ export class Submission extends Model {
 
   public static associate(models: any) {
     this.belongsTo(models.Problem, { foreignKey: 'problemId' });
-    this.belongsTo(models.User, { foreignKey: 'userId' });
+    this.belongsTo(models.User, { foreignKey: 'userId',as :'user' });
   }
 }

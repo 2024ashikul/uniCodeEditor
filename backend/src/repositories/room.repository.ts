@@ -2,7 +2,7 @@ import { db } from '../models'; // Your clean, refactored db object
 import { Room } from '../models/room.model';
 import { RoomMember } from '../models/roommember.model';
 
-import { User } from '../models/user.model';
+
 
 export class RoomRepository {
   async createRoom(data: { admin: string; name: string }): Promise<Room> {
@@ -26,8 +26,8 @@ export class RoomRepository {
       where: { userId, roomId },
       include: [{
         model: db.Room,
-        as: 'room', // Ensure this alias matches your model association
-        include: [{ model: db.User, as: 'user', attributes: ['id', 'name', 'profile_pic'] }]
+        as: 'room', 
+        include: [{ model: db.User, as: 'administrator', attributes: ['id', 'name', 'profile_pic'] }]
       }]
     });
   }

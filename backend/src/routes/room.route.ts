@@ -14,4 +14,4 @@ router.post('/joined',authenticateToken, roomController.roomsJoined)
 router.post('/changeadmin',authenticateToken,roomController.changeAdmin)
 router.post('/kickmember',authenticateToken,roomController.kickmember)
 
-module.exports = router;
+export default router;

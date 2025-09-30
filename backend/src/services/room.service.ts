@@ -9,11 +9,8 @@ export class RoomService {
   }
 
   async createRoom(userId: string, roomName: string) {
-    
     const room = await this.roomRepo.createRoom({ admin: userId, name: roomName });
     await this.roomRepo.addMember({ userId, roomId: room.id, role: 'admin' });
-    
-   
     return this.roomRepo.findJoinedRoomDetails(userId, room.id);
   }
 

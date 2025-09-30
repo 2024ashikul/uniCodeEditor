@@ -1,11 +1,7 @@
 import { Router } from 'express';
 import { SubmissionController } from '../controllers/submission.controller';
-
-
 import { authenticateToken } from '../middlewares/authMiddleware';
 import { uploadProjectZip } from '../middlewares/uploadMiddleware';
-
-
 
 const submissionController = new SubmissionController();
 const router = Router();

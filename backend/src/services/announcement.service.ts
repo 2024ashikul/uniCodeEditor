@@ -19,8 +19,8 @@ export class AnnouncementService {
  
   async createAnnouncement(data: CreateAnnouncementServiceDTO): Promise<Announcement> {
     
-    if (!data.title || !data.description) {
-      throw new Error('Title and description are required for an announcement.');
+    if (!data.title ) {
+      throw new Error('Title is required for an announcement.');
     }
     return this.announcementRepo.create({
       roomId: data.roomId,

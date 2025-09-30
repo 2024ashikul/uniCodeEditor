@@ -13,8 +13,7 @@ router.use('/files', express.static(path.join(__dirname, '/files')));
 
 router.use(
   "/uploadedfiles",
-  express.static(path.join(process.cwd(), "uploads", "submissions"))
-  ,
+  express.static(path.join(process.cwd(), "uploads", "submissions")),
   serveIndex(path.join(process.cwd(), "uploads", "submissions"), { icons: true })
 );
 

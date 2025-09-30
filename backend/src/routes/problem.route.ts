@@ -7,15 +7,15 @@ authenticateToken
 const problemController = new ProblemController();
 const router = Router();
 
-// Admin routes
-router.post('/admin/create', authenticateToken, problemController.create);
-router.post('/admin/update', authenticateToken, problemController.update);
-router.post('/admin/delete', authenticateToken, problemController.delete);
-router.post('/admin/fetchone', authenticateToken, problemController.fetchOne);
-router.post('/admin/fetchall', authenticateToken, problemController.fetchAll);
 
-// User-facing routes
-router.post('/user/fetchproject', authenticateToken, problemController.fetchOneProject);
-router.post('/user/fetchallquiz', authenticateToken, problemController.fetchAllQuiz);
+router.post('/create', authenticateToken, problemController.create);
+router.post('/update', authenticateToken, problemController.update);
+router.post('/delete', authenticateToken, problemController.delete);
+router.post('/fetchone', authenticateToken, problemController.fetchOne);
+router.post('/fetchall', authenticateToken, problemController.fetchAll);
+
+
+router.post('/fetchone/project', authenticateToken, problemController.fetchOneProject);
+router.post('/fetchall/quiz', authenticateToken, problemController.fetchAllQuiz);
 
 export default router;

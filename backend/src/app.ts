@@ -2,9 +2,10 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import compression from 'compression';
 import path from 'path';
-
-// Route Imports
+import serveIndex from 'serve-index';
+// Route Importsx
 import userRoutes from './routes/user.route';
+import fileRoutes from './routes/file.route';
 import roomRoutes from './routes/room.route';
 import assessmentRoutes from './routes/assessment.route';
 import meetingRoutes from './routes/meeting.route'
@@ -27,9 +28,22 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
 app.use(compression());
 
+app.use(
+  "/profilephotos",
+  express.static(path.join(process.cwd(), "uploads", "profile_photos"))
+);
+
+app.use('/files', express.static(path.join(__dirname, '/files')));
+
+
+app.use(
+  "/materials",
+  express.static(path.join(process.cwd(), "uploads", "materials"))
+  ,
+  serveIndex(path.join(process.cwd(), "uploads", "materials"), { icons: true })
+);
 
 app.use('/auth', userRoutes);
 app.use('/room', roomRoutes);
@@ -43,6 +57,7 @@ app.use('/announcement', announcementRoutes);
 // app.use('/files', fileRoutes); // Changed from '/' to '/files' for clarity
 app.use('/material', materialRoutes);
 app.use('/',userAccessRoutes)
+app.use('/files', fileRoutes);
 
 
 app.get('/', (req: Request, res: Response) => {

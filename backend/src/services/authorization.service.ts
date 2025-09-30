@@ -40,7 +40,6 @@ export class AuthorizationService {
       return { allowed: false, message: 'Assessment not found.' };
     }
 
-    
     const roomAccess = await this.checkRoomAccess(userId, (assessment as any).roomId);
 
     if (roomAccess.allowed) {
