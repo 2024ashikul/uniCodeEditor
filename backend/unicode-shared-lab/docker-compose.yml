@@ -1,0 +1,19 @@
+# unicode-shared-lab/docker-compose.yml
+
+services:
+  shared-lab:
+    build: .
+    container_name: unicode-lab
+    ports:
+      - "80:80"
+      - "5000:5000"
+    volumes:
+      # This is the change: use a named volume for /home
+      - user_data:/home
+      # We can still link the logs folder to your Mac
+      - ./logs:/var/log/lab
+    restart: unless-stopped
+
+# This new section defines the named volume
+volumes:
+  user_data:
