@@ -48,6 +48,7 @@ export class LessonController {
       try {
           const { lessonId } = req.body;
           const lesson = await this.service.getLessonWithContent(lessonId);
+          
           if (!lesson) {
               return res.status(404).json({ message: "Lesson not found" });
           }

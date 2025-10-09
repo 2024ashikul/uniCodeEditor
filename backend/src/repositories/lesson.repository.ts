@@ -27,7 +27,7 @@ export class LessonRepository {
   
   async findLessonWithContent(id: number): Promise<LessonM | null> {
       return db.LessonM.findByPk(id, {
-          include: [{ model: db.LessonContent, as: 'lessonContents' }] // Ensure 'as' alias matches association
+          include: [{ model: db.LessonContent, as: 'lessonContents' }] 
       });
   }
 

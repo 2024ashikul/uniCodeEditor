@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const file_controller_1 = require("../controllers/file.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const fileController = new file_controller_1.FileController();
+const router = (0, express_1.Router)();
+router.get('/download/submission/:folder', authMiddleware_1.authenticateToken, fileController.downloadSubmission);
+router.get('/download/material/:folder', authMiddleware_1.authenticateToken, fileController.downloadMaterial);
+exports.default = router;

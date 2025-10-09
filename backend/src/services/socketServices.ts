@@ -1,43 +1,26 @@
-import { createServer, Server as HttpServer } from 'http';
-import { Server as SocketIOServer, Namespace } from 'socket.io';
-import { Application as ExpressApp } from 'express';
+// services/socketServices.ts
 
-//  convert  handler files to TS and import
-// import { registerCollaborateHandlers } from '../sockets/collaborate'; 
-// ... and so on for other handlers
+import { Server as HttpServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 
 
 export class SocketService {
   private io: SocketIOServer;
-  public readonly httpServer: HttpServer;
 
-  constructor(app: ExpressApp) {
-    this.httpServer = createServer(app);
-    this.io = new SocketIOServer(this.httpServer, {
+  constructor(httpServer: HttpServer) {
+    this.io = new SocketIOServer(httpServer, {
       cors: {
-        origin: '*', // Be more specific in production!
+        origin: '*', // has to be more specific in production!
         methods: ['GET', 'POST'],
       },
     });
+    console.log('🔌 Socket.IO service initialized and attached to the HTTP server.');
   }
 
-  public listen(port: number): void {
-    this.httpServer.listen(port, '0.0.0.0', () => {
-      console.log(`🚀 Server running on port ${port}`);
-    });
-  }
 
   public registerHandlers(): void {
     console.log('🔌 Registering Socket.IO namespaces and handlers...');
-    
-    
-    // const collaborate: Namespace = this.io.of('/collaborate');
-    // registerCollaborateHandlers(collaborate);
-    
-    // Register all handlers here...
-    // const collaborateClass: Namespace = this.io.of('/collaborateClass');
-    // registerCollaborateClassHandlers(collaborateClass);
-    
+    //  handlers go here...
     console.log('✅ All Socket.IO handlers registered.');
   }
 }

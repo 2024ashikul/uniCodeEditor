@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const announcement_controller_1 = require("../controllers/announcement.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const announcementController = new announcement_controller_1.AnnouncementController();
+const router = (0, express_1.Router)();
+router.post('/create', authMiddleware_1.authenticateToken, announcementController.createAnnoucement);
+router.post('/fetchall', authMiddleware_1.authenticateToken, announcementController.fetchAnnoucements);
+exports.default = router;

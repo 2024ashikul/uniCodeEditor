@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const problem_controller_1 = require("../controllers/problem.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+authMiddleware_1.authenticateToken;
+const problemController = new problem_controller_1.ProblemController();
+const router = (0, express_1.Router)();
+router.post('/create', authMiddleware_1.authenticateToken, problemController.create);
+router.post('/update', authMiddleware_1.authenticateToken, problemController.update);
+router.post('/delete', authMiddleware_1.authenticateToken, problemController.delete);
+router.post('/fetchone', authMiddleware_1.authenticateToken, problemController.fetchOne);
+router.post('/fetchall', authMiddleware_1.authenticateToken, problemController.fetchAll);
+router.post('/fetchone/project', authMiddleware_1.authenticateToken, problemController.fetchOneProject);
+router.post('/fetchall/quiz', authMiddleware_1.authenticateToken, problemController.fetchAllQuiz);
+exports.default = router;

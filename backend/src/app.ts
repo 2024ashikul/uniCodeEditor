@@ -17,6 +17,9 @@ import announcementRoutes from './routes/announcement.route';
 // import fileRoutes from './archive/routes/fileRoutes'; 
 import materialRoutes from './routes/material.route';
 import userAccessRoutes from './routes/authorization.route'
+import { createProxyMiddleware, RequestHandler } from 'http-proxy-middleware';
+import type { IncomingMessage } from 'http';
+import type { Socket } from 'net';
 
 
 const app: Application = express();
@@ -27,8 +30,19 @@ app.use(cors({
   credentials: false, 
 }));
 
+const ideProxy = createProxyMiddleware({
+  xfwd: true,
+  target: 'http://localhost:8080',
+  changeOrigin: true,
+  ws: true,
+  logger: console,
+  secure : false
+});
+
+
 app.use(express.json());
 app.use(compression());
+app.use('/ide', ideProxy);
 
 app.use(
   "/profilephotos",
@@ -60,9 +74,10 @@ app.use('/',userAccessRoutes)
 app.use('/files', fileRoutes);
 
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello from the Express + TypeScript server!');
-});
+
+// app.get('/', (req: Request, res: Response) => {
+//   res.send('Hello from the Express + TypeScript server!');
+// });
 
 
 app.post("/sensor", (req: Request, res: Response) => {
@@ -71,5 +86,5 @@ app.post("/sensor", (req: Request, res: Response) => {
 });
 
 
-
+export { ideProxy };
 export default app;

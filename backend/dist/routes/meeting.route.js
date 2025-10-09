@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const meeting_controller_1 = require("../controllers/meeting.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const meetingController = new meeting_controller_1.MeetingController();
+const router = (0, express_1.Router)();
+router.post('/create', authMiddleware_1.authenticateToken, meetingController.create);
+router.post('/leave', authMiddleware_1.authenticateToken, meetingController.leave);
+router.post('/getstatus', authMiddleware_1.authenticateToken, meetingController.getMeetingStatus);
+router.post('/user', authMiddleware_1.authenticateToken, meetingController.getMeetingUser);
+router.post('/room/getstatus', authMiddleware_1.authenticateToken, meetingController.getMeetingStatusRoom);
+exports.default = router;

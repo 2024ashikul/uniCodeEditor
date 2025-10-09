@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ai_controller_1 = require("../controllers/ai.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const aiController = new ai_controller_1.AiController();
+const router = (0, express_1.Router)();
+router.post('/generate', authMiddleware_1.authenticateToken, aiController.generate);
+router.post('/generate/problem', authMiddleware_1.authenticateToken, aiController.generateProblem);
+router.post('/generate/lesson', authMiddleware_1.authenticateToken, aiController.generateLesson);
+router.post('/generate/code', authMiddleware_1.authenticateToken, aiController.generateCode);
+exports.default = router;

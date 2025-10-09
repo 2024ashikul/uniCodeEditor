@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const assessment_controller_1 = require("../controllers/assessment.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const assessmentController = new assessment_controller_1.AssessmentController();
+const router = (0, express_1.Router)();
+router.post('/create', authMiddleware_1.authenticateToken, assessmentController.create);
+router.post('/fetchone', authMiddleware_1.authenticateToken, assessmentController.fetchOne);
+router.post('/admin/fetchall', authMiddleware_1.authenticateToken, assessmentController.fetchAll);
+router.post('/admin/schedule', authMiddleware_1.authenticateToken, assessmentController.changeSchedule);
+router.post('/admin/publishresults', authMiddleware_1.authenticateToken, assessmentController.publishResult);
+router.post('/admin/changewhocanseeresults', authMiddleware_1.authenticateToken, assessmentController.changeWhoCanSeeResults);
+router.post('/user/fetchall', authMiddleware_1.authenticateToken, assessmentController.fetchAllUser);
+exports.default = router;

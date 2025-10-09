@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const material_controller_1 = require("../controllers/material.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const uploadMiddleware_1 = require("../middlewares/uploadMiddleware");
+const materialController = new material_controller_1.MaterialController();
+const router = (0, express_1.Router)();
+router.post('/upload/folder', authMiddleware_1.authenticateToken, uploadMiddleware_1.uploadMaterialZip, materialController.uploadFolder);
+router.post('/upload/file', authMiddleware_1.authenticateToken, uploadMiddleware_1.uploadMaterialFile, materialController.uploadFile);
+router.post('/fetchall', authMiddleware_1.authenticateToken, materialController.fetchall);
+router.post('/delete', authMiddleware_1.authenticateToken, materialController.delete);
+exports.default = router;

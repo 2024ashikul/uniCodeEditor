@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const lesson_controller_1 = require("../controllers/lesson.controller");
+const authMiddleware_1 = require("../middlewares/authMiddleware");
+const lessonController = new lesson_controller_1.LessonController();
+const router = (0, express_1.Router)();
+router.post('/delete', authMiddleware_1.authenticateToken, lessonController.delete);
+router.post('/fetchone', authMiddleware_1.authenticateToken, lessonController.fetchOne);
+router.post('/fetchall', authMiddleware_1.authenticateToken, lessonController.fetchAll);
+router.post('/create', authMiddleware_1.authenticateToken, lessonController.create);
+router.post('/update', authMiddleware_1.authenticateToken, lessonController.update);
+exports.default = router;

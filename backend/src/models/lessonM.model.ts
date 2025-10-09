@@ -22,6 +22,6 @@ export class LessonM extends Model {
     this.belongsTo(models.Room, { foreignKey: 'roomId' });
     
     
-    this.hasMany(models.LessonContent, { foreignKey: 'lessonId', onDelete: 'CASCADE' });
+    this.hasMany(models.LessonContent, { foreignKey: 'lessonId', onDelete: 'CASCADE',as :'lessonContents' });
   }
 }
