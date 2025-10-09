@@ -9,11 +9,11 @@ services:
       - "5000:5000"
     volumes:
       # This is the change: use a named volume for /home
-      - user_data:/home
+      - user_data_new:/home
       # We can still link the logs folder to your Mac
       - ./logs:/var/log/lab
     restart: unless-stopped
 
 # This new section defines the named volume
 volumes:
-  user_data:
+  user_data_new:
