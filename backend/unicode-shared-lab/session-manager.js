@@ -10,16 +10,44 @@ const sessions = {};
 
 function updateNginxConfig() {
     let upstreams = '';
-    for (const user in sessions) {
-        upstreams += `    upstream user_${user} { server 127.0.0.1:${sessions[user].port}; }\n`;
-    }
-    const newConfig = fs.readFileSync(TEMPLATE_PATH, 'utf8').replace('# {{UPSTREAMS}}', upstreams);
-    fs.writeFileSync(NGINX_CONF_PATH, newConfig);
+    let locations = '';
 
+    for (const user in sessions) {
+        const port = sessions[user].port;
+        upstreams += `upstream user_${user} { server 127.0.0.1:${port}; }\n`;
+        locations += `
+location /ide/${user}/ {
+    rewrite ^/ide/${user}/(.*)$ /$1 break;
+    proxy_pass http://user_${user};
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_redirect off;
+}\n`;
+    }
+
+    const template = `
+worker_processes auto;
+events { worker_connections 1024; }
+http {
+# {{UPSTREAMS}}
+${upstreams}
+
+server {
+    listen 80;
+    server_name _;
+    ${locations}
+}
+}`;
+    fs.writeFileSync('/etc/nginx/nginx.conf', template);
+
+    // Reload Nginx if it's running
     if (fs.existsSync('/run/nginx.pid')) {
         spawnSync('nginx', ['-s', 'reload']);
     }
 }
+
 
 function startSession(username, role) {
     if (sessions[username]) return;
