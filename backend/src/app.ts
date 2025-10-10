@@ -20,7 +20,7 @@ import userAccessRoutes from './routes/authorization.route'
 import { createProxyMiddleware, RequestHandler } from 'http-proxy-middleware';
 import type { IncomingMessage } from 'http';
 import type { Socket } from 'net';
-
+import {startLab} from './controllers/labController'
 
 const app: Application = express();
 
@@ -44,6 +44,8 @@ app.use(express.json());
 app.use(compression());
 app.use('/ide', ideProxy);
 
+
+app.post('/lab/create', startLab);
 app.use(
   "/profilephotos",
   express.static(path.join(process.cwd(), "uploads", "profile_photos"))

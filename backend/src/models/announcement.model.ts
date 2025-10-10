@@ -8,6 +8,7 @@ export class Announcement extends Model {
   public pinned!: boolean;
   public attachment!: string | null;
 
+
   public static initialize(sequelize: Sequelize) {
     this.init({
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },

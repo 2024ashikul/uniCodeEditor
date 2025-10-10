@@ -146,7 +146,13 @@ export class SubmissionService {
         contents: [{ parts: [{ text: prompt }] }],
       });
       const responseText  = generatedResponse?.candidates?.[0]?.content?.parts?.[0]?.text;
-      const score = parseInt(responseText, 10);
+      let score;
+      if(responseText){
+        score = parseInt(responseText, 10);
+      }else{
+        score =0;
+      }
+      
       if (!isNaN(score)) {
         submission.AIscore = score;
         await this.repo.save(submission);

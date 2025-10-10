@@ -1,19 +1,19 @@
-# unicode-shared-lab/docker-compose.yml
+# # unicode-shared-lab/docker-compose.yml
 
-services:
-  shared-lab:
-    build: .
-    container_name: unicode-lab
-    ports:
-      - "80:80"
-      - "5000:5000"
-    volumes:
-      #volumes
-      - user_data_new:/home
-      #logs
-      - ./logs:/var/log/lab
-    restart: unless-stopped
+# services:
+#   shared-lab:
+#     build: .
+#     container_name: unicode-lab
+#     ports:
+#       - "80:80"
+#       - "5000:5000"
+#     volumes:
+#       #volumes
+#       - user_data_new_new:/home
+#       #logs
+#       - ./logs:/var/log/lab
+#     restart: unless-stopped
 
-#volumes
-volumes:
-  user_data_new:
+# #volumes
+# volumes:
+#   user_data_new_new:

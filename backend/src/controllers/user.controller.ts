@@ -1,3 +1,5 @@
+
+import 'dotenv/config';
 import { Request, Response } from 'express';
 import { UserService } from '../services/user.service';
 
@@ -34,7 +36,7 @@ export class UserController {
       if (err.message === 'User not found') {
           return res.status(404).json({ message: err.message });
       }
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Something went wrong' });
     }
   };
   

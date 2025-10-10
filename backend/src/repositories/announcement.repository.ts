@@ -1,13 +1,8 @@
 import { db } from '../models'; 
 import { Announcement } from '../models/announcement.model';
+import { CreationAttributes } from 'sequelize';
 
-
-interface CreateAnnouncementDTO {
-  roomId: string;
-  title: string;
-  userId: string;
-  description: string;
-}
+type CreateAnnouncementDTO = CreationAttributes<Announcement>;
 
 export class AnnouncementRepository {
   

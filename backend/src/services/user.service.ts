@@ -1,17 +1,17 @@
+import 'dotenv/config';
 import { IUserRepository, UserRepository } from '../repositories/user.repository';
 import { User } from '../models/user.model';
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import path from 'path';
+import { promises as fs } from 'fs';
 
-const path = require('path')
-const fs = require('fs').promises;
-
-const SECRET = process.env.SECRET!;
-const REFRESH_SECRET = process.env.REFRESH_SECRET!;
+const SECRET = process.env.SECRET || 'jo';
+const REFRESH_SECRET = process.env.REFRESH_SECRET || 'oo';
 
 export class UserService {
   private userRepo: IUserRepository;
-
+  
   constructor() {
     
     this.userRepo = new UserRepository();
@@ -23,6 +23,7 @@ export class UserService {
   }
 
   private generateTokens(user: User) {
+    console.log(SECRET);
     const accessToken = jwt.sign(
       { email: user.email, userId: user.id, name: user.name, username: user.username },
       SECRET,
@@ -56,6 +57,7 @@ export class UserService {
       throw new Error('User not found');
     }
     const isMatch = await bcrypt.compare(form.password, user.password);
+    console.log(user.password , form.password)
     if (!isMatch) {
       throw new Error('Invalid credentials');
     }

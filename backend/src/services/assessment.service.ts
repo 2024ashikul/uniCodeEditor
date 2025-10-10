@@ -56,16 +56,16 @@ export class AssessmentService {
     await this.assessmentRepo.save(assessment);
 
     
-    if (assessment.assigned) {
-      const title = `New ${assessment.category} ${assessment.title} assigned!`;
-      await this.assessmentRepo.createAnnouncement({
-        roomId: assessment.roomId,
-        title: title,
-        userId: userId,
-        description: `The ${assessment.category} is scheduled for ${assessment.scheduleTime} and its duration is ${assessment.duration} mins`,
-        category: assessment.category,
-      });
-    }
+    // if (assessment.assigned) {
+    //   const title = `New ${assessment.category} ${assessment.title} assigned!`;
+    //   await this.assessmentRepo.createAnnouncement({
+    //     roomId: assessment.roomId,
+    //     title: title,
+    //     userId: userId,
+    //     description: `The ${assessment.category} is scheduled for ${assessment.scheduleTime} and its duration is ${assessment.duration} mins`,
+    //     category: assessment.category,
+    //   });
+    // }
 
     return assessment;
   }

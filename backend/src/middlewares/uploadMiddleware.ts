@@ -7,7 +7,7 @@ import { Request } from 'express';
 type Mimetypes = 'application/zip' | 'application/x-zip-compressed' | 'image/';
 
 
-const createFileFilter = (allowedMimetypes: Mimetypes[], errorMessage: string): FileFilterCallback => {
+const createFileFilter = (allowedMimetypes: Mimetypes[], errorMessage: string) => {
     return (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
         const isAllowed = allowedMimetypes.some(type => file.mimetype.startsWith(type));
         if (isAllowed) {

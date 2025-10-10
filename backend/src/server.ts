@@ -5,6 +5,9 @@ import { SocketService } from './services/socketServices';
 import { env } from './config/environment';
 import { Socket } from 'net';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 class Application {
   private readonly databaseService: DatabaseService;
   private readonly socketService: SocketService;

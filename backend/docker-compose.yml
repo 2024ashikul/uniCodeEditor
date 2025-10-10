@@ -1,0 +1,24 @@
+services:
+  # Your main backend application (the "Hotel Manager")
+  backend:
+    build: .
+    volumes:
+      # CRITICAL: This allows your backend to talk to the Docker engine
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "3000:3000" # Your backend's API port
+
+  # The Traefik reverse proxy (the "Concierge")
+  traefik:
+    image: "traefik:v2.10"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"       # The main entry point for all web traffic
+      - "8080:8080"   # A dashboard to see Traefik's status
+    volumes:
+      # CRITICAL: This allows Traefik to listen for new Docker containers
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"

@@ -5,6 +5,10 @@ export class RoomMember extends Model {
   public role!: 'admin' | 'member';
   public joinedAt!: Date;
 
+  public readonly userId!: number;
+  public readonly roomId!: number;
+
+
   public static initialize(sequelize: Sequelize) {
     this.init({
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },

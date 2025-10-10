@@ -10,7 +10,7 @@ export class AiService {
 
  
   async generateGeneric(prompt: string): Promise<string> {
-    return this.aiRepo.generateContent(prompt);
+    return this.aiRepo.generateContent(prompt) as Promise<string>;
   }
 
   
@@ -26,7 +26,7 @@ export class AiService {
       
       Now, generate the markdown for the following topic: ${prompt}
     `;
-    return this.aiRepo.generateContent(finalPrompt);
+    return this.aiRepo.generateContent(finalPrompt) as Promise<string>;
   }
 
   
@@ -40,7 +40,7 @@ export class AiService {
 
       Now, generate the markdown for the following lesson topic: ${prompt}
     `;
-    return this.aiRepo.generateContent(finalPrompt);
+    return this.aiRepo.generateContent(finalPrompt) as Promise<string>;
   }
 
   
@@ -56,6 +56,6 @@ export class AiService {
       Now, provide feedback for the following code:
       ${prompt}
     `;
-    return this.aiRepo.generateContent(finalPrompt);
+    return this.aiRepo.generateContent(finalPrompt) as Promise<string>;
   }
 }

@@ -2,17 +2,11 @@ import { db } from '../models'; // Your clean, refactored db object
 import { Problem } from '../models/problem.model';
 import { Submission } from '../models/submission.model';
 import { Op } from 'sequelize';
+import { CreationAttributes } from 'sequelize';
 
 // DTOs for type safety
-interface CreateProblemDTO {
-  title: string;
-  assessmentId: number;
-  type?: 'MCQ' | 'ShortQuestion' | string;
-  statement?: string;
-  options?: any;
-  fullmarks?: number;
-  correctAnswer?: string;
-}
+
+type CreateProblemDTO = CreationAttributes<Problem>;
 
 interface UpdateProblemDTO extends CreateProblemDTO {}
 

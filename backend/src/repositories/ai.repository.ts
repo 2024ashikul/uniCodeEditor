@@ -1,14 +1,15 @@
 import { GoogleGenAI } from '@google/genai';
+import {env} from '../config/environment'
 
 export class AiRepository {
   private ai: GoogleGenAI;
 
   constructor() {
     
-    if (!process.env.GEMINI_API_KEY) {
+    if (!env.GEMINI_API_KEY) {
       throw new Error("GEMINI_API_KEY is not set in environment variables.");
     }
-    this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    this.ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
   }
 
   
@@ -17,6 +18,11 @@ export class AiRepository {
       model: "gemini-1.5-flash", // Using a consistent model
       contents: [{ parts: [{ text: prompt }] }]
     });
-    return response.text;
+    if(response.text){
+      return response.text;
+    }else{
+      return 'Failed to load AI generated content!';
+    }
+    
   }
 }

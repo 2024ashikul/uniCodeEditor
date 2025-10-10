@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
@@ -21,7 +22,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
   }
 
   
-  const jwtSecret = process.env.SECRET;
+  const jwtSecret = process.env.SECRET || 'jo';
   if (!jwtSecret) {
     console.error("JWT Secret is not defined in environment variables.");
     return res.status(500).json({ message: "Server configuration error." });
