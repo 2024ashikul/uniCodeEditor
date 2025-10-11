@@ -7,6 +7,8 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "3000:3000" # Your backend's API port
+    networks:
+      - backend
 
   # The Traefik reverse proxy (the "Concierge")
   traefik:
@@ -17,8 +19,15 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
     ports:
+    
       - "80:80"       # The main entry point for all web traffic
-      - "8080:8080"   # A dashboard to see Traefik's status
+      - "8080:8080" 
+                   # A dashboard to see Traefik's status
+    networks:
+      - backend
     volumes:
       # CRITICAL: This allows Traefik to listen for new Docker containers
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
+networks:
+  backend:
+    name: backend_default
