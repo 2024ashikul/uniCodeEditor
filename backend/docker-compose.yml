@@ -30,4 +30,4 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
 networks:
   backend:
-    name: backend_default
+    name: backend
