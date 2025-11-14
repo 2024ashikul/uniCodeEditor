@@ -33,5 +33,5 @@ RUN pip3 install --no-cache-dir --break-system-packages \
 # VS Code extensions
 RUN code-server --install-extension ms-python.python
 RUN code-server --install-extension ms-toolsai.jupyter
-
+ 
 USER coder
