@@ -10,8 +10,11 @@ export async function sendAIRequest(route, prompt) {
       body: JSON.stringify({ prompt }),
     });
 
+    
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
+      
     }
 
     const data = await response.json();

@@ -7,22 +7,29 @@ import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 import TopBanner from "../src/components/SharedComponents/TopBanner";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
-
-
-
+import FullPageMessage from "../src/components/FullPageMessage";
+import { Ban } from "lucide-react";
+import NotAuthorized from "../src/components/NotAuthorized";
+import { useNavigate } from "react-router-dom";
 
 export default function User1() {
-    const { userName, token,userId } = useContext(AuthContext);
-    const {authorized, setAuthorized} = useContext(AccessContext);
+    const { userName, token, userId } = useContext(AuthContext);
+    const [ authorized, setAuthorized ] = useState(false);
     const { setTitle } = useContext(UIContext);
     const { checkAccess } = useContext(AccessContext);
+    const navigate = useNavigate();
     useEffect(() => {
-        if (!userId || !token) {
+
+        if (token === undefined || userId === undefined) {
             return;
         }
-        
+        if (!userId || !token) {
+            
+            navigate('/login');
+            return;
+        }
         const verifyAccess = async () => {
-            const auth = await checkAccess({ userId ,token});
+            const auth = await checkAccess({ userId, token });
             if (auth && auth.allowed) {
                 setAuthorized(true);
             } else {
@@ -34,14 +41,14 @@ export default function User1() {
             setAuthorized(null);
         };
 
-    }, [checkAccess, userId,token])
+    }, [checkAccess, userId, token])
 
     useEffect(() => {
         setTitle('Hi ' + (userName || '') + '!   Welcome to Uni Code Lab');
     }, [setTitle, userName]);
 
     if (authorized === null) return (<LoadingFullscreen />)
-    if (!authorized) return (<p>You are not allowed</p>)
+    if (!authorized) return (<NotAuthorized />)
 
     return (
         <div className="flex mx-10 flex-col">

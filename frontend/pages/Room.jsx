@@ -11,6 +11,7 @@ import AdminRoom from "./AdminRoom";
 import LoadingFullscreen from "../src/components/SharedComponents/LoadingScreen";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { UIContext } from "../src/Contexts/UIContext/UIContext";
+import NotAuthorized from "../src/components/NotAuthorized";
  
 
 export default function Room() {
@@ -51,7 +52,7 @@ export default function Room() {
 
 
     if (authorized === null) return (<LoadingFullscreen />)
-    if (!authorized) return (<p>Not Authorized Go to home page</p>)
+    if (!authorized) return (<p><NotAuthorized /></p>)
 
     return (
         <>

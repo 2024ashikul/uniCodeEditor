@@ -9,8 +9,10 @@ import { AlertContext } from "./Contexts/AlertContext/AlertContext";
 export function APIRequest() {
     const { token } = useContext(AuthContext);
     const navigate = useNavigate();
-    const {setMessage,setType} = useContext(AlertContext);
+    const { setMessage, setType } = useContext(AlertContext);
     const request = async (endpoint, { method = 'POST', body } = {}) => {
+
+        
         const res = await fetch(`${API_URL}${endpoint}`, {
             method,
             headers: {
@@ -20,12 +22,16 @@ export function APIRequest() {
             body: body ? JSON.stringify(body) : undefined,
         });
 
+        if (!navigator.onLine) {
+            throw new Error("NO_INTERNET");
+        }
+
         if (res.status === 401) {
             setMessage("Your session has expired. Please log in again.");
             localStorage.removeItem("token");
-            navigate("/login"); 
-            
-        }else if (res.status === 403) {
+            navigate("/login");
+
+        } else if (res.status === 403) {
             setMessage("You are not allowed to view that page!");
             navigate("/user");
 
@@ -33,14 +39,14 @@ export function APIRequest() {
 
         if (!res.ok) {
             const errData = await res.json();
-            if(errData){
+            if (errData) {
                 setMessage(errData.message);
                 setType('error');
             }
             throw new Error(`HTTP error! status: ${res.status}`);
         }
-        const data =await res.json();
-        if(data.message){
+        const data = await res.json();
+        if (data.message) {
             setMessage(data.message);
         }
         return data;

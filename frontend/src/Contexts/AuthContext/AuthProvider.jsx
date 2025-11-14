@@ -25,6 +25,8 @@ export const AuthProvider = ({ children }) => {
             } catch (err) {
                 console.error("Invalid token", err);
                 localStorage.removeItem("token");
+                localStorage.removeItem("profile_pic");
+                localStorage.removeItem("name");
             }
         }
     }, []);

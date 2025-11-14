@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css'
 
+
 import EditorPage from '../pages/EditorPage';
 import HomePage from '../pages/HomePage';
 import Login from '../pages/Login';
@@ -24,10 +25,13 @@ import ProfilePage from '../pages/ProfilePage';
 import ShareScreen from '../pages/ShareScreen';
 import User from '../pages/User';
 import Assessment from '../pages/Assessment';
+import VSCODE from '../pages/VSCode';
+import Lab from '../pages/Lab';
+import NotFound from './components/NotFound';
 
 
+function App() {  
 
-function App() {
   return (
     <BrowserRouter>
       <UIProvider>
@@ -47,6 +51,7 @@ function App() {
                     <Route path='/lesson/:lessonId' element={<Lesson />} />
                     <Route path='/updatelesson/:lessonId' element={<UpdateLesson />} />
                     <Route path='/profile' element={<ProfilePage />} />
+                    <Route path='*' element={<NotFound />} />
                   </Route>
                   <Route path='/' element={<HomePage />} />
                   <Route path='/problem/:problemId' element={<EditorPage />} />
@@ -56,6 +61,10 @@ function App() {
                   <Route path='/collaborateclassroom/:roomId' element={<CollaborateClassRoom />} />
                   <Route path='/collaborateroom/:roomId' element={<CollaborateRoom />} />
                   <Route path='/sharescreen/:roomId' element={<ShareScreen />} />
+                  <Route path='/vscode' element={<VSCODE />} />
+                  <Route path='/labs/:labId' element={<Lab />} />
+                  
+                  
                 </Route>
               </Routes>
 

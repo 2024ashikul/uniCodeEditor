@@ -61,7 +61,7 @@ export default function UpdateLesson() {
 
                 const data = await res.json();
                 setTitle(data.lesson?.title);
-                setContents(data.lesson?.contents)
+                setContents(data.lesson?.lessonContents)
             } catch (err) {
                 console.log("Failed to fetch lesson", err);
             }

@@ -77,6 +77,21 @@ export default function Annoucements({ roomId }) {
         }
     }
 
+    const createLab = async (e) => {
+        e.preventDefault();
+
+        try {
+            const data = await request("/lab/create", { method: "POST", body: {labId : roomId,  userId } });
+            setMessage(data.message)
+            if(data.message){
+                navigate(`/labs/${roomId}`)
+            }
+        } catch (err) {
+            console.log(err);
+            setMessage('Internal server error');
+        }
+    }
+
     const createMeeting = async (e, type) => {
         e.preventDefault();
         try {
@@ -167,6 +182,15 @@ export default function Annoucements({ roomId }) {
                                         Join Meeting
                                     </button>
                             }
+                        </div>
+
+                        <div>
+                          
+                          
+                          <button
+                                        className="self-center px-4 py-1 bg-fuchsia-500 hover:bg-fuchsia-600 text-white rounded-lg shadow-md transition"
+                                        onClick={(e)=>{createLab(e)}}
+                                    > Create Lab</button> 
                         </div>
 
                     </div>

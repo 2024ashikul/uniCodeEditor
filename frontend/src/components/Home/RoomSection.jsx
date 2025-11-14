@@ -45,6 +45,7 @@ export default function RoomSection() {
         e.preventDefault();
         try {
             const data = await request("/room/create", { body: { userId, roomName: form.roomName } });
+            console.log(data);
             if (data) {
                 setRooms((prev) => [...prev, data.newRoom]);
                 setCreating(false);

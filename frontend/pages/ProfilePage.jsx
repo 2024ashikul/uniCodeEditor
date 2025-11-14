@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../src/Contexts/AuthContext/AuthContext";
 import { API_URL } from "../src/config";
 import { AlertContext } from "../src/Contexts/AlertContext/AlertContext";
+import LoadingParent from "../src/components/SharedComponents/LoadingParent";
+import { AccessContext } from "../src/Contexts/AccessContext/AccessContext";
 
 
 const PageTitle = ({ text }) => (
@@ -47,6 +49,7 @@ export default function ProfilePage() {
   const { token, userId, setToken } = useContext(AuthContext);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(null);
+  const {setAuthorized} = useContext(AccessContext);
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -223,12 +226,17 @@ export default function ProfilePage() {
     setFormData({ ...user });
   };
 
-  const logOut = () => {
+  const logOut = async () => {
     localStorage.removeItem("token");
     setUser(null);
+    setAuthorized(false);
     setMessage("Logged out successfully!");
     navigate("/login");
   };
+
+  if(user == null){
+    return <LoadingParent />
+  }
 
   if (!user) {
     return <PageTitle text="User not found." />;

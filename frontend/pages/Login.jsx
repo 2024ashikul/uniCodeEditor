@@ -18,6 +18,9 @@ export default function Login() {
         password: ''
     });
     useEffect(() => {
+        if(token === undefined){
+            return ;
+        }
     if (token) {
         try {
             const decoded = jwtDecode(token);

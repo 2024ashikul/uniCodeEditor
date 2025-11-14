@@ -81,7 +81,7 @@ export default function Materials({ roomId }) {
 
                                             <div className="flex gap-2 justify-center col-span-2 px-2 ">
                                         <div className="px-4 gap-2 flex">
-                                            <a href={`${API_URL}/material/${roomId}/${file.filename}`}
+                                            <a href={`${API_URL}/materials/${roomId}/${file.filename}`}
                                                 className="px-3 py-1 rounded-full text-sm bg-green-500 text-white hover:bg-green-600" target="_blank">View</a>
 
 

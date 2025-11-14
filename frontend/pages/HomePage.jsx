@@ -10,7 +10,7 @@ export default function HomePage() {
 
     if (token) {
         setTimeout(() => {
-            setMessage('Welcome!!!');
+            // setMessage('Welcome!!!');
             navigate('/user');
         }, 2000);
 

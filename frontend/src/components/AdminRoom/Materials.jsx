@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import JSZip from "jszip"; // ⚡ install if not already: npm i jszip
+import JSZip from "jszip";
 import { API_URL } from "../../config";
 import { AuthContext } from "../../Contexts/AuthContext/AuthContext";
 import { AlertContext } from "../../Contexts/AlertContext/AlertContext";
@@ -348,18 +348,20 @@ const FileCard = ({ file, index, setMessage, token, roomId }) => {
 
     return (<div className="grid grid-cols-12 items-center border-b py-2 text-sm">
         <div className="px-2  ">{index + 1}</div>
-        <div className="px-2 col-span-5  text-blue-700">{file.filename}</div>
+        <div className="px-2 col-span-5  text-blue-700">
+            <a href={`${API_URL}/materials/${roomId}/${file.filename}`} target="_blank">
+                {file.filename}
+            </a></div>
         <div className="px-2 col-span-2 ">{file.type}</div>
         <div className="px-2 col-span-2 ">{file.createdAt.slice(0, 10)}</div>
 
         <div className="flex gap-2 justify-center col-span-2 px-2 ">
 
-            <button
-                onClick={() => navigate(`/assessment/${item.id}`)}
-                className="px-3 py-1  text-sm text-black "
-            >
-                <Download />
-            </button>
+
+
+            <a href={`${API_URL}/materials/download/${roomId}/${file.filename}`} className="pt-1.5 items-center justify-center" >
+              <  Download />
+            </a>
             <div className="relative" ref={menuRef}>
                 <button
                     className="p-2 rounded-full hover:bg-gray-100"

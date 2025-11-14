@@ -30,10 +30,10 @@ export default function Lesson() {
                 }
 
                 const data = await res.json();
-
+                console.log(data)
                 setTitle(data.lesson?.title);
-                setScrollHeight(80);
-                setContents(data.lesson?.contents)
+
+                setContents(data.lesson.lessonContents)
             }catch(err){
                 console.log("Failed to fetch lesson",err);
             }
