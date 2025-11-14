@@ -30,19 +30,29 @@ app.use(cors({
   credentials: false, 
 }));
 
-const ideProxy = createProxyMiddleware({
-  xfwd: true,
-  target: 'http://localhost:8080',
-  changeOrigin: true,
-  ws: true,
-  logger: console,
-  secure : false
+// const ideProxy = createProxyMiddleware({
+//   xfwd: true,
+//   target: 'http://localhost:8080',
+//   changeOrigin: true,
+//   ws: true,
+//   logger: console,
+//   secure : false
+// });
+
+app.use(async (req, res, next) => {
+  await new Promise(resolve => setTimeout(resolve, 300)); // 1 second
+  next();
+});
+
+app.get("/", (req: Request, res: Response) => {
+  
+  res.status(200).json("Hello from unicode backend!");
 });
 
 
 app.use(express.json());
 app.use(compression());
-app.use('/ide', ideProxy);
+// app.use('/ide', ideProxy);
 
 
 app.post('/lab/create', startLab);
@@ -88,5 +98,5 @@ app.post("/sensor", (req: Request, res: Response) => {
 });
 
 
-export { ideProxy };
+// export { ideProxy };
 export default app;

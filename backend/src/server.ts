@@ -27,9 +27,9 @@ class Application {
       await this.databaseService.connect();
       //  socket handlers can be registered here if  needed to
       // this.socketService.registerHandlers();
-      this.server.on('upgrade', (req, socket : Socket, head) => {
-        ideProxy.upgrade(req, socket, head);
-      });
+      // this.server.on('upgrade', (req, socket : Socket, head) => {
+      //   ideProxy.upgrade(req, socket, head);
+      // });
 
       this.server.listen(env.PORT, () => {
         console.log(`🚀 Server running on http://localhost:${env.PORT}`);

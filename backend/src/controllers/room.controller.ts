@@ -11,6 +11,7 @@ export class RoomController {
   create = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { userId, roomName } = req.body;
+      // console.log({userId, roomName});
       const newRoom = await this.service.createRoom(userId, roomName);
       return res.status(201).json({ message: 'Created a new room!', newRoom });
     } catch (err: any) {

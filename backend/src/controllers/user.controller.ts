@@ -25,6 +25,7 @@ export class UserController {
   login = async (req: Request, res: Response): Promise<Response> => {
     try {
       const { accessToken, refreshToken, user } = await this.service.login(req.body.form);
+      console.log(user);
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

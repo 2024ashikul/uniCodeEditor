@@ -5,7 +5,7 @@ import { RoomMember } from '../models/roommember.model';
 
 
 export class RoomRepository {
-  async createRoom(data: { admin: string; name: string }): Promise<Room> {
+  async createRoom(data: { admin: number; name: string }): Promise<Room> {
     return db.Room.create(data);
   }
 

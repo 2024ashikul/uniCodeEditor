@@ -1,12 +1,12 @@
 services:
-  # Your main backend application (the "Hotel Manager")
+  #  main backend application 
   backend:
     build: .
     volumes:
-      # CRITICAL: This allows your backend to talk to the Docker engine
+      #  This allows your backend to talk to the Docker engine
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "3000:3000" # Your backend's API port
+      - "3000:3000" 
     networks:
       - backend
 
